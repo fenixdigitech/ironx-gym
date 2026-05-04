@@ -4,761 +4,1321 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="theme-color" content="#0a0a0a">
-<title>IRONX — Manager Dashboard</title>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;500;600;700&family=Barlow+Condensed:wght@400;600;700;800&display=swap" rel="stylesheet">
-
-<!-- Firebase SDKs -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>IRONX FITNESS</title>
+<!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
-
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;500;600;700&family=Barlow+Condensed:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
-:root {
-  --orange: #FF5C00;
-  --orange-dim: #cc4900;
-  --orange-glow: rgba(255,92,0,0.12);
-  --bg: #080808;
-  --surface: #111111;
-  --surface2: #181818;
-  --surface3: #202020;
-  --surface4: #282828;
-  --text: #f0f0f0;
-  --text-dim: #888;
-  --text-muted: #444;
-  --border: rgba(255,255,255,0.06);
-  --border-hover: rgba(255,255,255,0.12);
-  --radius: 14px;
-  --radius-sm: 9px;
-  --green: #22c55e;
-  --red: #ef4444;
-  --blue: #3b82f6;
-  --yellow: #eab308;
-}
+  :root {
+    --orange: #FF5C00;
+    --orange-dim: #cc4900;
+    --orange-glow: rgba(255,92,0,0.15);
+    --bg: #0a0a0a;
+    --surface: #141414;
+    --surface2: #1c1c1c;
+    --surface3: #242424;
+    --text: #f0f0f0;
+    --text-dim: #888;
+    --text-muted: #555;
+    --border: rgba(255,255,255,0.06);
+    --radius: 16px;
+    --radius-sm: 10px;
+  }
 
-* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
-body {
-  background: var(--bg);
-  color: var(--text);
-  font-family: 'Barlow', sans-serif;
-  min-height: 100vh;
-  overflow-x: hidden;
-}
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Barlow', sans-serif;
+    min-height: 100vh;
+    max-width: 430px;
+    margin: 0 auto;
+    overflow-x: hidden;
+    position: relative;
+  }
 
-/* ── SPLASH ── */
-#splash {
-  position: fixed; inset: 0;
-  background: var(--bg);
-  display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
-  z-index: 9999;
-  transition: opacity 0.5s ease;
-}
-#splash.hide { opacity: 0; pointer-events: none; }
-.splash-wordmark { font-family:'Bebas Neue',sans-serif; font-size: 80px; letter-spacing: 6px; line-height:1; }
-.splash-wordmark span { color: var(--orange); }
-.splash-sub { font-family:'Barlow Condensed',sans-serif; font-size:11px; letter-spacing:8px; color:var(--text-muted); margin-top:6px; text-transform:uppercase; }
-.splash-role { font-family:'Barlow Condensed',sans-serif; font-size:13px; letter-spacing:4px; color:var(--orange); margin-top:24px; text-transform:uppercase; }
-.splash-bar { width:160px; height:2px; background:var(--surface3); border-radius:2px; margin-top:32px; overflow:hidden; }
-.splash-fill { height:100%; width:0; background:var(--orange); animation: loadup 1.6s ease forwards; }
-@keyframes loadup { to { width:100%; } }
+  /* SCREENS */
+  .screen { display: none; min-height: 100vh; padding-bottom: 80px; animation: fadeIn 0.3s ease; }
+  .screen.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 
-/* ── LOGIN ── */
-#loginScreen {
-  display: none;
-  min-height: 100vh;
-  align-items: center;
-  justify-content: center;
-  padding: 24px;
-  background: var(--bg);
-  position: relative;
-  overflow: hidden;
-}
-#loginScreen.active { display: flex; }
-#loginScreen::before {
-  content:'';
-  position:absolute;
-  width:500px; height:500px;
-  background: radial-gradient(circle, rgba(255,92,0,0.06) 0%, transparent 70%);
-  top:-100px; right:-100px;
-  pointer-events:none;
-}
-.login-box {
-  width:100%; max-width:420px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 20px;
-  padding: 40px 36px;
-}
-.login-logo { font-family:'Bebas Neue',sans-serif; font-size:52px; letter-spacing:3px; line-height:1; }
-.login-logo span { color:var(--orange); }
-.login-tagline { font-size:11px; letter-spacing:3px; color:var(--text-muted); text-transform:uppercase; margin-top:2px; margin-bottom:36px; font-family:'Barlow Condensed',sans-serif; }
-.login-heading { font-family:'Barlow Condensed',sans-serif; font-size:20px; font-weight:700; letter-spacing:1px; margin-bottom:24px; color:var(--text); }
-.field { margin-bottom:16px; }
-.field label { display:block; font-size:10px; letter-spacing:2px; text-transform:uppercase; color:var(--text-dim); margin-bottom:8px; font-family:'Barlow Condensed',sans-serif; }
-.field input {
-  width:100%;
-  background: var(--surface2);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  padding: 13px 16px;
-  color: var(--text);
-  font-family:'Barlow',sans-serif; font-size:15px;
-  outline: none;
-  transition: border-color 0.2s;
-}
-.field input:focus { border-color: var(--orange); }
-.btn-primary {
-  width:100%;
-  background: var(--orange);
-  color: white;
-  border: none;
-  border-radius: var(--radius-sm);
-  padding: 15px;
-  font-family:'Barlow Condensed',sans-serif;
-  font-size:17px; font-weight:700; letter-spacing:2px;
-  text-transform:uppercase;
-  cursor:pointer;
-  margin-top:8px;
-  transition: background 0.2s, transform 0.1s;
-}
-.btn-primary:active { background:var(--orange-dim); transform:scale(0.98); }
-.login-note { margin-top:20px; font-size:12px; color:var(--text-muted); text-align:center; line-height:1.6; }
-.login-note strong { color:var(--text-dim); }
+  /* SPLASH */
+  #splash {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    background: var(--bg);
+    padding-bottom: 0;
+  }
+  .splash-logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 72px;
+    letter-spacing: 4px;
+    color: var(--text);
+    line-height: 1;
+    text-align: center;
+  }
+  .splash-logo span { color: var(--orange); }
+  .splash-sub {
+    font-family: 'Barlow Condensed', sans-serif;
+    letter-spacing: 6px;
+    font-size: 13px;
+    color: var(--text-dim);
+    margin-top: 6px;
+    text-transform: uppercase;
+  }
+  .splash-bar {
+    width: 180px;
+    height: 3px;
+    background: var(--surface3);
+    border-radius: 10px;
+    margin-top: 48px;
+    overflow: hidden;
+  }
+  .splash-bar-fill {
+    height: 100%;
+    width: 0%;
+    background: var(--orange);
+    border-radius: 10px;
+    animation: loadBar 1.8s ease forwards;
+  }
+  @keyframes loadBar { to { width: 100%; } }
+  .splash-location {
+    margin-top: 16px;
+    font-size: 12px;
+    color: var(--text-muted);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
 
-/* ── MAIN LAYOUT ── */
-#app { display:none; min-height:100vh; }
-#app.active { display:flex; }
+  /* LOGIN */
+  #login {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 32px 24px;
+    padding-bottom: 32px;
+  }
+  #login.active { display: flex; }
+  .login-logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 52px;
+    letter-spacing: 3px;
+    margin-bottom: 4px;
+  }
+  .login-logo span { color: var(--orange); }
+  .login-tagline { font-size: 12px; color: var(--text-muted); letter-spacing: 3px; text-transform: uppercase; margin-bottom: 48px; }
+  .login-card { width: 100%; background: var(--surface); border-radius: var(--radius); padding: 28px 24px; border: 1px solid var(--border); }
+  .login-title { font-family: 'Barlow Condensed', sans-serif; font-size: 22px; font-weight: 700; letter-spacing: 1px; margin-bottom: 24px; color: var(--text); }
+  .input-group { margin-bottom: 16px; }
+  .input-group label { font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text-dim); display: block; margin-bottom: 8px; }
+  .input-group input {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 14px 16px;
+    color: var(--text);
+    font-family: 'Barlow', sans-serif;
+    font-size: 15px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .input-group input:focus { border-color: var(--orange); }
+  .btn-primary {
+    width: 100%;
+    background: var(--orange);
+    color: white;
+    border: none;
+    border-radius: var(--radius-sm);
+    padding: 16px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    cursor: pointer;
+    margin-top: 8px;
+    transition: background 0.2s, transform 0.1s;
+  }
+  .btn-primary:active { background: var(--orange-dim); transform: scale(0.98); }
+  .login-hint { text-align: center; margin-top: 16px; font-size: 13px; color: var(--text-muted); }
+  .login-hint span { color: var(--orange); cursor: pointer; }
 
-/* SIDEBAR */
-.sidebar {
-  width: 240px; min-height:100vh;
-  background: var(--surface);
-  border-right: 1px solid var(--border);
-  display: flex; flex-direction:column;
-  position: fixed; left:0; top:0; bottom:0;
-  z-index: 100;
-  transition: transform 0.3s ease;
-}
-.sidebar-logo {
-  padding: 24px 20px 20px;
-  border-bottom: 1px solid var(--border);
-}
-.sidebar-wordmark { font-family:'Bebas Neue',sans-serif; font-size:32px; letter-spacing:2px; }
-.sidebar-wordmark span { color:var(--orange); }
-.sidebar-role { font-size:10px; letter-spacing:3px; text-transform:uppercase; color:var(--text-muted); margin-top:2px; font-family:'Barlow Condensed',sans-serif; }
-.sidebar-nav { padding:16px 12px; flex:1; display:flex; flex-direction:column; gap:2px; }
-.nav-item {
-  display:flex; align-items:center; gap:12px;
-  padding: 11px 12px;
-  border-radius: var(--radius-sm);
-  cursor:pointer;
-  color: var(--text-dim);
-  font-family:'Barlow Condensed',sans-serif;
-  font-size:14px; font-weight:600; letter-spacing:0.5px;
-  transition: all 0.15s;
-  border: 1px solid transparent;
-}
-.nav-item:hover { background:var(--surface2); color:var(--text); }
-.nav-item.active { background:var(--orange-glow); border-color:rgba(255,92,0,0.2); color:var(--orange); }
-.nav-item svg { width:18px; height:18px; flex-shrink:0; }
-.sidebar-gym { padding:16px 20px; border-top:1px solid var(--border); }
-.gym-name { font-family:'Barlow Condensed',sans-serif; font-size:13px; font-weight:700; color:var(--text); }
-.gym-loc { font-size:11px; color:var(--text-muted); margin-top:2px; }
-.sidebar-logout {
-  margin:0 12px 16px;
-  padding: 10px 12px;
-  background: transparent;
-  border: 1px solid rgba(255,92,0,0.2);
-  border-radius: var(--radius-sm);
-  color: var(--orange);
-  font-family:'Barlow Condensed',sans-serif;
-  font-size:13px; font-weight:600; letter-spacing:1px;
-  text-transform:uppercase;
-  cursor:pointer;
-  width: calc(100% - 24px);
-  transition: background 0.2s;
-}
-.sidebar-logout:hover { background:var(--orange-glow); }
+  /* TOP BAR */
+  .topbar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(10,10,10,0.95);
+    backdrop-filter: blur(12px);
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+  }
+  .topbar-logo { font-family: 'Bebas Neue', sans-serif; font-size: 28px; letter-spacing: 2px; }
+  .topbar-logo span { color: var(--orange); }
+  .topbar-right { display: flex; align-items: center; gap: 12px; }
+  .topbar-avatar {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: var(--orange);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700; font-size: 16px;
+    color: white;
+    cursor: pointer;
+  }
+  .notif-btn {
+    width: 36px; height: 36px;
+    background: var(--surface2);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    position: relative;
+  }
+  .notif-dot {
+    position: absolute;
+    top: 6px; right: 6px;
+    width: 8px; height: 8px;
+    background: var(--orange);
+    border-radius: 50%;
+    border: 2px solid var(--bg);
+  }
 
-/* MAIN CONTENT */
-.main {
-  margin-left: 240px;
-  flex:1;
-  min-height:100vh;
-  display:flex; flex-direction:column;
-}
+  /* BOTTOM NAV */
+  .bottom-nav {
+    position: fixed;
+    bottom: 0; left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 430px;
+    background: rgba(14,14,14,0.97);
+    backdrop-filter: blur(16px);
+    border-top: 1px solid var(--border);
+    display: flex;
+    z-index: 200;
+  }
+  .nav-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 12px 0 10px;
+    cursor: pointer;
+    transition: color 0.2s;
+    color: var(--text-muted);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 10px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    gap: 4px;
+  }
+  .nav-item.active { color: var(--orange); }
+  .nav-item svg { width: 22px; height: 22px; }
 
-/* TOPBAR */
-.topbar {
-  position:sticky; top:0; z-index:50;
-  background: rgba(8,8,8,0.95);
-  backdrop-filter: blur(12px);
-  border-bottom: 1px solid var(--border);
-  padding: 16px 28px;
-  display:flex; align-items:center; justify-content:space-between;
-}
-.topbar-title { font-family:'Barlow Condensed',sans-serif; font-size:20px; font-weight:700; letter-spacing:1px; }
-.topbar-right { display:flex; align-items:center; gap:12px; }
-.live-badge {
-  display:flex; align-items:center; gap:6px;
-  background: rgba(34,197,94,0.1);
-  border:1px solid rgba(34,197,94,0.2);
-  border-radius:20px;
-  padding: 5px 12px;
-  font-size:11px; font-family:'Barlow Condensed',sans-serif;
-  color: var(--green); letter-spacing:1px;
-}
-.live-dot { width:6px; height:6px; background:var(--green); border-radius:50%; animation: pulse 2s infinite; }
-@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(0.8)} }
-.topbar-avatar { width:36px; height:36px; border-radius:50%; background:var(--orange); display:flex; align-items:center; justify-content:center; font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:16px; color:white; }
+  /* HOME SCREEN */
+  .home-hero {
+    padding: 20px 20px 0;
+  }
+  .greeting { font-size: 13px; color: var(--text-dim); margin-bottom: 2px; }
+  .greeting-name { font-family: 'Barlow Condensed', sans-serif; font-size: 28px; font-weight: 700; letter-spacing: 0.5px; }
+  .greeting-name span { color: var(--orange); }
 
-/* SCREEN PANELS */
-.screen { display:none; padding:28px; animation: fadeIn 0.25s ease; }
-.screen.active { display:block; }
-@keyframes fadeIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+  /* QUICK ACTIONS */
+  .quick-actions {
+    display: flex;
+    gap: 10px;
+    padding: 16px 20px;
+  }
+  .qa-btn {
+    flex: 1;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 14px 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+  }
+  .qa-btn:active { background: var(--surface2); }
+  .qa-btn.primary { background: var(--orange); border-color: var(--orange); }
+  .qa-btn.primary .qa-label { color: white; }
+  .qa-icon { width: 32px; height: 32px; border-radius: 8px; background: var(--surface2); display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+  .qa-btn.primary .qa-icon { background: rgba(0,0,0,0.2); }
+  .qa-label { font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 600; letter-spacing: 0.5px; color: var(--text); }
 
-/* STAT CARDS */
-.stat-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:24px; }
-.stat-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 20px;
-  position:relative; overflow:hidden;
-  transition: border-color 0.2s;
-}
-.stat-card:hover { border-color:var(--border-hover); }
-.stat-card::after { content:''; position:absolute; top:-30px; right:-30px; width:80px; height:80px; background:var(--orange-glow); border-radius:50%; pointer-events:none; }
-.sc-label { font-size:10px; letter-spacing:2px; text-transform:uppercase; color:var(--text-muted); font-family:'Barlow Condensed',sans-serif; margin-bottom:8px; }
-.sc-val { font-family:'Bebas Neue',sans-serif; font-size:42px; line-height:1; color:var(--text); }
-.sc-sub { font-size:11px; color:var(--text-dim); margin-top:4px; }
-.sc-icon { position:absolute; top:18px; right:18px; font-size:22px; opacity:0.6; }
+  /* CALORIE RING CARD */
+  .calorie-card {
+    margin: 0 20px 16px;
+    background: var(--surface);
+    border-radius: var(--radius);
+    padding: 20px;
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+  .ring-wrap { position: relative; width: 90px; height: 90px; flex-shrink: 0; }
+  .ring-svg { transform: rotate(-90deg); }
+  .ring-bg { fill: none; stroke: var(--surface3); stroke-width: 8; }
+  .ring-fill { fill: none; stroke: var(--orange); stroke-width: 8; stroke-linecap: round; stroke-dasharray: 220; stroke-dashoffset: 220; transition: stroke-dashoffset 1s ease; }
+  .ring-center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  .ring-pct { font-family: 'Bebas Neue', sans-serif; font-size: 22px; color: var(--orange); line-height: 1; }
+  .ring-lbl { font-size: 9px; color: var(--text-muted); letter-spacing: 0.5px; }
+  .calorie-info { flex: 1; }
+  .calorie-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+  .calorie-row:last-child { margin-bottom: 0; }
+  .cal-left { display: flex; align-items: center; gap: 8px; }
+  .cal-dot { width: 8px; height: 8px; border-radius: 50%; }
+  .cal-dot.consumed { background: var(--orange); }
+  .cal-dot.burnt { background: #3b82f6; }
+  .cal-label { font-size: 11px; color: var(--text-dim); }
+  .cal-val { font-family: 'Barlow Condensed', sans-serif; font-size: 18px; font-weight: 700; }
+  .cal-val span { font-size: 11px; color: var(--text-muted); font-weight: 400; }
 
-/* TABLE */
-.table-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  overflow: hidden;
-}
-.table-header {
-  padding: 18px 20px;
-  border-bottom: 1px solid var(--border);
-  display:flex; align-items:center; justify-content:space-between;
-  gap:12px;
-  flex-wrap:wrap;
-}
-.table-title { font-family:'Barlow Condensed',sans-serif; font-size:16px; font-weight:700; letter-spacing:0.5px; }
-.table-actions { display:flex; gap:10px; align-items:center; }
-.search-input {
-  background: var(--surface2);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  padding: 8px 14px;
-  color: var(--text);
-  font-family:'Barlow',sans-serif; font-size:13px;
-  outline:none; width:200px;
-  transition: border-color 0.2s;
-}
-.search-input:focus { border-color:var(--orange); }
-.filter-select {
-  background: var(--surface2);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  padding: 8px 14px;
-  color: var(--text);
-  font-family:'Barlow',sans-serif; font-size:13px;
-  outline:none;
-  cursor:pointer;
-}
-.btn-add {
-  background: var(--orange);
-  color:white;
-  border:none;
-  border-radius: var(--radius-sm);
-  padding: 9px 18px;
-  font-family:'Barlow Condensed',sans-serif;
-  font-size:14px; font-weight:700; letter-spacing:1px;
-  cursor:pointer;
-  white-space:nowrap;
-  transition: background 0.2s, transform 0.1s;
-}
-.btn-add:active { background:var(--orange-dim); transform:scale(0.97); }
-table { width:100%; border-collapse:collapse; }
-th {
-  padding:12px 16px;
-  text-align:left;
-  font-size:10px; letter-spacing:2px;
-  text-transform:uppercase;
-  color:var(--text-muted);
-  font-family:'Barlow Condensed',sans-serif;
-  font-weight:600;
-  border-bottom:1px solid var(--border);
-  background: var(--surface2);
-}
-td {
-  padding:14px 16px;
-  font-size:14px;
-  border-bottom:1px solid var(--border);
-  vertical-align:middle;
-}
-tr:last-child td { border-bottom:none; }
-tr:hover td { background:var(--surface2); }
-.member-cell { display:flex; align-items:center; gap:12px; }
-.member-avatar {
-  width:36px; height:36px;
-  border-radius:50%;
-  background: var(--surface3);
-  display:flex; align-items:center; justify-content:center;
-  font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:16px;
-  color:var(--orange); flex-shrink:0;
-}
-.member-name { font-family:'Barlow Condensed',sans-serif; font-size:15px; font-weight:600; }
-.member-id { font-size:11px; color:var(--text-muted); }
-.badge {
-  display:inline-flex; align-items:center;
-  padding:3px 10px;
-  border-radius:4px;
-  font-size:11px; font-family:'Barlow Condensed',sans-serif; font-weight:600; letter-spacing:0.5px;
-}
-.badge.active { background:rgba(34,197,94,0.1); color:var(--green); }
-.badge.expired { background:rgba(239,68,68,0.1); color:var(--red); }
-.badge.expiring { background:rgba(234,179,8,0.1); color:var(--yellow); }
-.action-btns { display:flex; gap:8px; }
-.btn-icon {
-  width:30px; height:30px;
-  border-radius:6px;
-  border:1px solid var(--border);
-  background:transparent;
-  cursor:pointer;
-  display:flex; align-items:center; justify-content:center;
-  font-size:14px;
-  transition: all 0.15s;
-  color:var(--text-dim);
-}
-.btn-icon:hover { border-color:var(--orange); color:var(--orange); background:var(--orange-glow); }
-.btn-icon.danger:hover { border-color:var(--red); color:var(--red); background:rgba(239,68,68,0.1); }
-.empty-state { padding:48px; text-align:center; color:var(--text-muted); }
-.empty-state .em-icon { font-size:40px; margin-bottom:12px; opacity:0.5; }
-.empty-state .em-text { font-family:'Barlow Condensed',sans-serif; font-size:16px; }
+  /* START GOAL BTN */
+  .start-goal-btn {
+    margin: 0 20px 16px;
+    background: linear-gradient(135deg, var(--orange), #ff8c00);
+    border: none;
+    border-radius: var(--radius-sm);
+    padding: 16px;
+    color: white;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 17px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    width: calc(100% - 40px);
+    cursor: pointer;
+    text-align: center;
+    box-shadow: 0 4px 20px rgba(255,92,0,0.3);
+    transition: transform 0.1s;
+  }
+  .start-goal-btn:active { transform: scale(0.98); }
 
-/* CHECKIN SCREEN */
-.checkin-live {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  overflow:hidden;
-  margin-bottom:24px;
-}
-.checkin-header {
-  padding:18px 20px;
-  border-bottom:1px solid var(--border);
-  display:flex; align-items:center; justify-content:space-between;
-}
-.checkin-log { display:flex; flex-direction:column; }
-.checkin-row {
-  display:flex; align-items:center; gap:16px;
-  padding: 14px 20px;
-  border-bottom:1px solid var(--border);
-  animation: slideIn 0.3s ease;
-}
-@keyframes slideIn { from{opacity:0;transform:translateX(-10px)} to{opacity:1;transform:translateX(0)} }
-.checkin-row:last-child { border-bottom:none; }
-.checkin-avatar { width:38px; height:38px; border-radius:50%; background:var(--surface3); display:flex; align-items:center; justify-content:center; font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:17px; color:var(--orange); }
-.checkin-name { font-family:'Barlow Condensed',sans-serif; font-size:15px; font-weight:600; }
-.checkin-plan { font-size:11px; color:var(--text-dim); }
-.checkin-time { margin-left:auto; font-size:12px; color:var(--text-muted); font-family:'Barlow Condensed',sans-serif; letter-spacing:0.5px; }
-.checkin-dot { width:8px; height:8px; border-radius:50%; background:var(--green); flex-shrink:0; }
+  /* STAT CARDS ROW */
+  .stat-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    padding: 0 20px 16px;
+  }
+  .stat-card {
+    background: var(--surface);
+    border-radius: var(--radius);
+    padding: 16px;
+    border: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+  }
+  .stat-card::before {
+    content: '';
+    position: absolute;
+    top: -20px; right: -20px;
+    width: 60px; height: 60px;
+    background: var(--orange-glow);
+    border-radius: 50%;
+  }
+  .stat-title { font-size: 11px; color: var(--text-dim); letter-spacing: 0.5px; margin-bottom: 6px; }
+  .stat-val { font-family: 'Bebas Neue', sans-serif; font-size: 32px; color: var(--text); line-height: 1; }
+  .stat-unit { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+  .stat-btn {
+    margin-top: 10px;
+    background: transparent;
+    border: 1px solid var(--orange);
+    border-radius: 6px;
+    padding: 6px 10px;
+    color: var(--orange);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    display: inline-block;
+  }
 
-/* MODAL */
-.modal-overlay {
-  display:none; position:fixed; inset:0;
-  background:rgba(0,0,0,0.85);
-  z-index:500; align-items:center; justify-content:center;
-  padding:20px;
-}
-.modal-overlay.open { display:flex; animation:fadeIn 0.2s; }
-.modal {
-  background:var(--surface);
-  border:1px solid var(--border);
-  border-radius:20px;
-  padding:32px;
-  width:100%; max-width:500px;
-  max-height:90vh; overflow-y:auto;
-  animation: modalIn 0.3s cubic-bezier(0.34,1.56,0.64,1);
-}
-@keyframes modalIn { from{opacity:0;transform:scale(0.9)} to{opacity:1;transform:scale(1)} }
-.modal-title { font-family:'Barlow Condensed',sans-serif; font-size:24px; font-weight:700; letter-spacing:1px; margin-bottom:24px; }
-.modal-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
-.modal-grid .field { margin-bottom:0; }
-.modal-footer { display:flex; gap:12px; margin-top:24px; }
-.btn-cancel {
-  flex:1; background:transparent; border:1px solid var(--border);
-  border-radius:var(--radius-sm); padding:13px;
-  color:var(--text-dim); font-family:'Barlow Condensed',sans-serif;
-  font-size:15px; font-weight:600; letter-spacing:1px; cursor:pointer;
-  transition: border-color 0.2s;
-}
-.btn-cancel:hover { border-color:var(--border-hover); }
-.btn-save { flex:2; }
+  /* SECTION HEADER */
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px 12px;
+  }
+  .section-title { font-family: 'Barlow Condensed', sans-serif; font-size: 18px; font-weight: 700; letter-spacing: 0.5px; }
+  .section-link { font-size: 12px; color: var(--orange); cursor: pointer; }
 
-/* NOTIFICATION PANEL */
-.notif-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding:24px;
-  margin-bottom:16px;
-}
-.notif-title { font-family:'Barlow Condensed',sans-serif; font-size:16px; font-weight:700; margin-bottom:16px; }
-.notif-textarea {
-  width:100%;
-  background:var(--surface2);
-  border:1px solid var(--border);
-  border-radius:var(--radius-sm);
-  padding:14px;
-  color:var(--text);
-  font-family:'Barlow',sans-serif; font-size:14px;
-  resize:vertical; min-height:100px;
-  outline:none;
-  transition: border-color 0.2s;
-}
-.notif-textarea:focus { border-color:var(--orange); }
-.notif-targets { display:flex; gap:8px; margin:14px 0; flex-wrap:wrap; }
-.target-pill {
-  padding:6px 14px;
-  border-radius:20px;
-  border:1px solid var(--border);
-  background:var(--surface2);
-  font-size:12px; font-family:'Barlow Condensed',sans-serif; font-weight:600;
-  cursor:pointer; transition:all 0.15s; color:var(--text-dim);
-}
-.target-pill.sel { background:var(--orange-glow); border-color:rgba(255,92,0,0.4); color:var(--orange); }
+  /* MENU LIST */
+  .menu-list { padding: 0 20px; display: flex; flex-direction: column; gap: 10px; }
+  .menu-item {
+    background: var(--surface);
+    border-radius: var(--radius-sm);
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    border: 1px solid var(--border);
+    cursor: pointer;
+    transition: border-color 0.2s;
+  }
+  .menu-item:active { border-color: var(--orange); }
+  .menu-icon { width: 40px; height: 40px; border-radius: 10px; background: var(--surface2); display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+  .menu-text { flex: 1; }
+  .menu-name { font-family: 'Barlow Condensed', sans-serif; font-size: 16px; font-weight: 600; letter-spacing: 0.3px; }
+  .menu-desc { font-size: 11px; color: var(--text-dim); margin-top: 2px; }
+  .menu-arrow { color: var(--text-muted); }
 
-/* TOAST */
-.toast {
-  position:fixed; bottom:28px; right:28px;
-  background:var(--surface2);
-  border:1px solid var(--border);
-  border-radius:10px;
-  padding:12px 20px;
-  font-size:13px;
-  display:flex; align-items:center; gap:10px;
-  z-index:9000;
-  opacity:0; transform:translateY(10px);
-  transition: opacity 0.3s, transform 0.3s;
-  pointer-events:none;
-  max-width:320px;
-}
-.toast.show { opacity:1; transform:translateY(0); }
-.toast-icon { font-size:16px; }
+  /* WORKOUT SCREEN */
+  .day-scroll { display: flex; gap: 8px; padding: 16px 20px; overflow-x: auto; scrollbar-width: none; }
+  .day-scroll::-webkit-scrollbar { display: none; }
+  .day-pill {
+    min-width: 60px;
+    padding: 12px 8px;
+    border-radius: 30px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    cursor: pointer;
+    transition: all 0.2s;
+    flex-shrink: 0;
+  }
+  .day-pill.active { background: var(--orange); border-color: var(--orange); }
+  .day-pill .day-num { font-family: 'Bebas Neue', sans-serif; font-size: 20px; line-height: 1; }
+  .day-pill .day-label { font-size: 9px; color: var(--text-dim); letter-spacing: 0.5px; text-transform: uppercase; }
+  .day-pill.active .day-label { color: rgba(255,255,255,0.7); }
+  .day-pill.done .day-num { color: var(--orange); }
+  .workout-note {
+    margin: 0 20px 16px;
+    background: var(--surface);
+    border-left: 3px solid var(--orange);
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    padding: 12px 14px;
+    font-size: 13px;
+    color: var(--text-dim);
+  }
+  .workout-note strong { color: var(--orange); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; display: block; margin-bottom: 2px; }
+  .workout-section-title {
+    padding: 0 20px 10px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    letter-spacing: 1px;
+    color: var(--orange);
+  }
+  .exercise-list { padding: 0 20px; display: flex; flex-direction: column; gap: 1px; background: var(--surface); border-radius: var(--radius); border: 1px solid var(--border); margin: 0 20px 16px; overflow: hidden; }
+  .exercise-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .exercise-item:last-child { border-bottom: none; }
+  .exercise-item:active { background: var(--surface2); }
+  .ex-thumb {
+    width: 52px; height: 52px;
+    border-radius: 8px;
+    background: var(--surface2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px;
+    flex-shrink: 0;
+    overflow: hidden;
+  }
+  .ex-info { flex: 1; }
+  .ex-name { font-family: 'Barlow Condensed', sans-serif; font-size: 15px; font-weight: 600; letter-spacing: 0.2px; }
+  .ex-tags { display: flex; gap: 6px; margin-top: 4px; flex-wrap: wrap; }
+  .ex-tag {
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 10px;
+    background: var(--surface3);
+    color: var(--text-dim);
+    font-weight: 500;
+  }
+  .ex-tag.sets { background: rgba(255,92,0,0.1); color: var(--orange); }
 
-/* SECTION HEADER */
-.section-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; }
-.section-title { font-family:'Barlow Condensed',sans-serif; font-size:18px; font-weight:700; letter-spacing:0.5px; }
+  /* TRACKER SCREEN */
+  .week-calendar {
+    display: flex;
+    gap: 6px;
+    padding: 16px 20px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .week-calendar::-webkit-scrollbar { display: none; }
+  .cal-day {
+    min-width: 46px;
+    padding: 10px 6px;
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .cal-day.today { background: var(--orange); border-color: var(--orange); }
+  .cal-day.done { border-color: var(--orange); }
+  .cal-day.done .cal-date { color: var(--orange); }
+  .cal-month { font-size: 9px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+  .cal-date { font-family: 'Bebas Neue', sans-serif; font-size: 22px; line-height: 1; }
+  .cal-weekday { font-size: 9px; color: var(--text-muted); }
+  .cal-day.today .cal-month, .cal-day.today .cal-weekday { color: rgba(255,255,255,0.6); }
 
-/* EXPIRY WARNING STRIP */
-.warning-strip {
-  background:rgba(234,179,8,0.08);
-  border:1px solid rgba(234,179,8,0.2);
-  border-radius:var(--radius-sm);
-  padding:12px 16px;
-  display:flex; align-items:center; gap:10px;
-  margin-bottom:16px;
-  font-size:13px; color:var(--yellow);
-}
+  .calorie-tracker-card {
+    margin: 0 20px 16px;
+    background: var(--surface);
+    border-radius: var(--radius);
+    padding: 18px;
+    border: 1px solid var(--border);
+  }
+  .ctc-title { font-family: 'Barlow Condensed', sans-serif; font-size: 16px; font-weight: 700; letter-spacing: 0.5px; margin-bottom: 14px; }
+  .ctc-row { display: flex; align-items: center; gap: 12px; }
+  .ctc-icon { width: 44px; height: 44px; background: var(--surface2); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+  .ctc-info { flex: 1; }
+  .ctc-val { font-family: 'Bebas Neue', sans-serif; font-size: 20px; color: var(--text); }
+  .ctc-sub { font-size: 11px; color: var(--text-dim); }
+  .ctc-actions { display: flex; gap: 8px; }
+  .ctc-btn { width: 36px; height: 36px; border-radius: 50%; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+  .ctc-btn.add { background: var(--orange); color: white; }
+  .ctc-btn.chart { background: var(--surface2); color: var(--text-dim); border: 1px solid var(--border); }
 
-/* PLAN PERIOD BADGE colors */
-.plan-1m { background:rgba(59,130,246,0.1); color:var(--blue); }
-.plan-3m { background:rgba(255,92,0,0.1); color:var(--orange); }
-.plan-6m { background:rgba(34,197,94,0.1); color:var(--green); }
-.plan-12m { background:rgba(168,85,247,0.1); color:#a855f7; }
+  .tracker-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 0 20px 16px; }
+  .tg-card {
+    background: var(--surface);
+    border-radius: var(--radius);
+    padding: 18px;
+    border: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    cursor: pointer;
+    text-align: center;
+  }
+  .tg-icon { font-size: 32px; }
+  .tg-name { font-family: 'Barlow Condensed', sans-serif; font-size: 14px; font-weight: 600; letter-spacing: 0.3px; }
 
-/* MOBILE NAV */
-.mobile-topbar { display:none; position:sticky; top:0; z-index:200; background:rgba(8,8,8,0.97); border-bottom:1px solid var(--border); padding:14px 16px; align-items:center; justify-content:space-between; }
-.hamburger { background:none; border:none; cursor:pointer; color:var(--text); display:flex; flex-direction:column; gap:5px; padding:4px; }
-.hamburger span { display:block; width:22px; height:2px; background:currentColor; border-radius:1px; }
-.sidebar-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:99; }
-.sidebar-overlay.open { display:block; }
+  .tracker-menu { padding: 0 20px; display: flex; flex-direction: column; gap: 10px; }
 
-@media (max-width:768px) {
-  .main { margin-left:0; }
-  .sidebar { transform:translateX(-100%); }
-  .sidebar.open { transform:translateX(0); }
-  .mobile-topbar { display:flex; }
-  .stat-grid { grid-template-columns:1fr 1fr; }
-  .screen { padding:16px; }
-  .modal-grid { grid-template-columns:1fr; }
-  .topbar { display:none; }
-  .table-actions { flex-wrap:wrap; }
-  .search-input { width:140px; }
-}
+  /* MEMBERSHIP SCREEN */
+  .membership-hero {
+    padding: 20px 20px 0;
+    text-align: center;
+  }
+  .membership-title { font-family: 'Bebas Neue', sans-serif; font-size: 36px; letter-spacing: 2px; }
+  .membership-subtitle { font-size: 13px; color: var(--text-dim); margin-top: 4px; margin-bottom: 20px; }
+  .search-bar {
+    margin: 0 20px 20px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--text-dim);
+    font-size: 14px;
+  }
+  .plans-list { padding: 0 20px; display: flex; flex-direction: column; gap: 12px; }
+  .plan-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+  .plan-card.featured { border-color: var(--orange); }
+  .plan-card.featured::before {
+    content: 'BEST VALUE';
+    position: absolute;
+    top: 12px; right: -20px;
+    background: var(--orange);
+    color: white;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    padding: 3px 28px;
+    transform: rotate(45deg);
+    transform-origin: right top;
+  }
+  .plan-card:active { transform: scale(0.98); }
+  .plan-price { font-family: 'Bebas Neue', sans-serif; font-size: 38px; letter-spacing: 1px; color: var(--text); line-height: 1; }
+  .plan-price span { font-size: 20px; }
+  .plan-badge {
+    display: inline-flex;
+    align-items: center;
+    background: rgba(255,92,0,0.1);
+    color: var(--orange);
+    border-radius: 4px;
+    padding: 3px 10px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    margin: 6px 0;
+  }
+  .plan-name { font-size: 13px; color: var(--text-dim); }
+  .plan-features { margin-top: 12px; display: flex; flex-direction: column; gap: 6px; }
+  .plan-feat { font-size: 12px; color: var(--text-dim); display: flex; align-items: center; gap: 6px; }
+  .plan-feat::before { content: '✓'; color: var(--orange); font-weight: 700; }
+
+  /* PROFILE SCREEN */
+  .profile-hero {
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .profile-avatar {
+    width: 72px; height: 72px;
+    border-radius: 50%;
+    background: var(--surface2);
+    border: 3px solid var(--orange);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    color: var(--orange);
+    flex-shrink: 0;
+    overflow: hidden;
+  }
+  .profile-avatar img { width: 100%; height: 100%; object-fit: cover; }
+  .profile-info { flex: 1; }
+  .profile-name { font-family: 'Barlow Condensed', sans-serif; font-size: 24px; font-weight: 700; letter-spacing: 0.5px; }
+  .profile-email { font-size: 12px; color: var(--text-dim); margin-top: 2px; }
+  .profile-badge {
+    display: inline-flex;
+    margin-top: 6px;
+    background: rgba(255,92,0,0.1);
+    color: var(--orange);
+    border-radius: 4px;
+    padding: 2px 8px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+  }
+  .profile-edit { color: var(--orange); cursor: pointer; }
+  .profile-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    margin: 0 20px 16px;
+    background: var(--surface);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    overflow: hidden;
+  }
+  .ps-item {
+    padding: 16px 8px;
+    text-align: center;
+    border-right: 1px solid var(--border);
+  }
+  .ps-item:last-child { border-right: none; }
+  .ps-val { font-family: 'Bebas Neue', sans-serif; font-size: 28px; color: var(--text); }
+  .ps-label { font-size: 10px; color: var(--text-muted); letter-spacing: 0.5px; text-transform: uppercase; margin-top: 2px; }
+  .profile-info-card {
+    margin: 0 20px 16px;
+    background: var(--surface);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    overflow: hidden;
+  }
+  .pic-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    border-bottom: 1px solid var(--border);
+  }
+  .pic-row:last-child { border-bottom: none; }
+  .pic-cell {
+    padding: 14px 16px;
+    border-right: 1px solid var(--border);
+  }
+  .pic-cell:last-child { border-right: none; }
+  .pic-label { font-size: 10px; color: var(--text-muted); letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 4px; }
+  .pic-val { font-family: 'Barlow Condensed', sans-serif; font-size: 16px; font-weight: 600; }
+  .profile-menu { padding: 0 20px; display: flex; flex-direction: column; gap: 10px; }
+  .logout-btn {
+    margin: 16px 20px;
+    background: transparent;
+    border: 1px solid rgba(255,92,0,0.3);
+    border-radius: var(--radius-sm);
+    padding: 14px;
+    color: var(--orange);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    cursor: pointer;
+    width: calc(100% - 40px);
+    text-align: center;
+    transition: background 0.2s;
+  }
+  .logout-btn:active { background: rgba(255,92,0,0.1); }
+
+  /* MODAL */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.8);
+    z-index: 500;
+    align-items: flex-end;
+    justify-content: center;
+  }
+  .modal-overlay.open { display: flex; animation: fadeIn 0.2s; }
+  .modal {
+    background: var(--surface);
+    border-radius: 20px 20px 0 0;
+    padding: 24px;
+    width: 100%;
+    max-width: 430px;
+    border-top: 1px solid var(--border);
+    animation: slideUp 0.3s ease;
+  }
+  @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+  .modal-handle { width: 40px; height: 4px; background: var(--surface3); border-radius: 2px; margin: 0 auto 20px; }
+  .modal-title { font-family: 'Barlow Condensed', sans-serif; font-size: 22px; font-weight: 700; margin-bottom: 16px; }
+  .modal-input-row { display: flex; gap: 10px; margin-bottom: 16px; }
+  .modal-input-row .input-group { flex: 1; margin-bottom: 0; }
+
+  /* TOAST */
+  .toast {
+    position: fixed;
+    bottom: 90px;
+    left: 50%; transform: translateX(-50%);
+    background: var(--surface2);
+    border: 1px solid var(--orange);
+    color: var(--text);
+    padding: 10px 20px;
+    border-radius: 30px;
+    font-size: 13px;
+    z-index: 1000;
+    opacity: 0;
+    transition: opacity 0.3s;
+    white-space: nowrap;
+  }
+  .toast.show { opacity: 1; }
+
+  /* MEMBERSHIP ACTIVE BANNER */
+  .membership-banner {
+    margin: 16px 20px;
+    background: linear-gradient(135deg, rgba(255,92,0,0.15), rgba(255,140,0,0.05));
+    border: 1px solid rgba(255,92,0,0.3);
+    border-radius: var(--radius);
+    padding: 16px;
+  }
+  .mb-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+  .mb-plan { font-family: 'Barlow Condensed', sans-serif; font-size: 18px; font-weight: 700; color: var(--orange); }
+  .mb-status { font-size: 11px; background: rgba(255,92,0,0.1); color: var(--orange); padding: 3px 8px; border-radius: 4px; }
+  .mb-expires { font-size: 12px; color: var(--text-dim); }
+  .mb-bar { margin-top: 10px; height: 4px; background: var(--surface3); border-radius: 2px; overflow: hidden; }
+  .mb-bar-fill { height: 100%; width: 65%; background: var(--orange); border-radius: 2px; }
+
+  /* UTILITY */
+  .spacer { height: 16px; }
+  .divider { height: 1px; background: var(--border); margin: 8px 20px; }
 </style>
 </head>
 <body>
 
 <!-- SPLASH -->
 <div id="splash">
-  <div class="splash-wordmark">IRON<span>X</span></div>
-  <div class="splash-sub">Fitness Club</div>
-  <div class="splash-role">Manager Portal</div>
-  <div class="splash-bar"><div class="splash-fill"></div></div>
+  <div class="splash-logo">IRON<span>X</span></div>
+  <div class="splash-sub">FITNESS CLUB</div>
+  <div class="splash-bar"><div class="splash-bar-fill"></div></div>
+  <div class="splash-location">Nalasopara · Mumbai</div>
 </div>
 
 <!-- LOGIN -->
-<div id="loginScreen">
-  <div class="login-box">
-    <div class="login-logo">IRON<span>X</span></div>
-    <div class="login-tagline">Manager Portal</div>
-    <div class="login-heading">SIGN IN</div>
-    <div class="field"><label>Email</label><input type="email" id="loginEmail" placeholder="manager@ironxgym.com"></div>
-    <div class="field"><label>Password</label><input type="password" id="loginPass" placeholder="Enter password"></div>
+<div id="login">
+  <div class="login-logo">IRON<span>X</span></div>
+  <div class="login-tagline">Nalasopara · Mumbai</div>
+  <div class="login-card">
+    <div class="login-title">WELCOME BACK</div>
+    <div class="input-group">
+      <label>Phone / Email</label>
+      <input type="text" placeholder="Enter your email or phone" id="loginEmail">
+    </div>
+    <div class="input-group">
+      <label>Password</label>
+      <input type="password" placeholder="Enter your password" id="loginPass">
+    </div>
     <button class="btn-primary" onclick="doLogin()">LOGIN</button>
-    <div class="login-note">
-      <strong>Demo mode:</strong> Enter any email + password<br>
-      Firebase connection ready — add your config below.
-    </div>
+    <div class="login-hint">New member? <span onclick="showToast('Contact the gym desk to register!')">Register here</span></div>
   </div>
 </div>
 
-<!-- APP -->
-<div id="app">
-
-  <!-- Mobile topbar -->
-  <div class="mobile-topbar">
-    <button class="hamburger" onclick="toggleSidebar()">
-      <span></span><span></span><span></span>
-    </button>
-    <div class="sidebar-wordmark" style="font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:2px;">IRON<span style="color:var(--orange);">X</span></div>
-    <div style="width:30px;"></div>
+<!-- BOTTOM NAV -->
+<div class="bottom-nav" id="bottomNav" style="display:none;">
+  <div class="nav-item active" onclick="showScreen('home', this)">
+    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+    Home
   </div>
-  <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+  <div class="nav-item" onclick="showScreen('workout', this)">
+    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z"/></svg>
+    Workout
+  </div>
+  <div class="nav-item" onclick="showScreen('tracker', this)">
+    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+    Track
+  </div>
+  <div class="nav-item" onclick="showScreen('membership', this)">
+    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 9a2 2 0 10-4 0v5a2 2 0 01-2 2h6m-6-4h4m8 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+    Plans
+  </div>
+  <div class="nav-item" onclick="showScreen('profile', this)">
+    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+    Profile
+  </div>
+</div>
 
-  <!-- SIDEBAR -->
-  <div class="sidebar" id="sidebar">
-    <div class="sidebar-logo">
-      <div class="sidebar-wordmark">IRON<span>X</span></div>
-      <div class="sidebar-role">Manager Portal</div>
+<!-- HOME SCREEN -->
+<div class="screen" id="home">
+  <div class="topbar">
+    <div class="topbar-logo">IRON<span>X</span></div>
+    <div class="topbar-right">
+      <div class="notif-btn"><span style="font-size:16px;">🔔</span><div class="notif-dot"></div></div>
+      <div class="topbar-avatar">R</div>
     </div>
-    <nav class="sidebar-nav">
-      <div class="nav-item active" onclick="switchTab('dashboard',this)">
-        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-        Dashboard
-      </div>
-      <div class="nav-item" onclick="switchTab('members',this)">
-        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-        Members
-      </div>
-      <div class="nav-item" onclick="switchTab('checkin',this)">
-        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-        Check-Ins
-      </div>
-      <div class="nav-item" onclick="switchTab('notify',this)">
-        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
-        Notifications
-      </div>
-    </nav>
-    <div class="sidebar-gym">
-      <div class="gym-name" id="gymName">IronX Fitness Club</div>
-      <div class="gym-loc">Nalasopara · Mumbai</div>
-    </div>
-    <button class="sidebar-logout" onclick="doLogout()">↩ Logout</button>
   </div>
 
-  <!-- MAIN -->
-  <div class="main">
-    <!-- Desktop topbar -->
-    <div class="topbar">
-      <div class="topbar-title" id="topbarTitle">DASHBOARD</div>
-      <div class="topbar-right">
-        <div class="live-badge"><div class="live-dot"></div>LIVE</div>
-        <div class="topbar-avatar" id="topbarAvatar">M</div>
+  <div class="home-hero">
+    <div class="greeting">Good morning 💪</div>
+    <div class="greeting-name">Rahul <span>Sharma</span></div>
+  </div>
+
+  <div class="quick-actions">
+    <div class="qa-btn primary" onclick="showScreen('workout', document.querySelectorAll('.nav-item')[1])">
+      <div class="qa-icon">🏋️</div>
+      <div class="qa-label">Today's Workout</div>
+    </div>
+    <div class="qa-btn" onclick="showScreen('membership', document.querySelectorAll('.nav-item')[3])">
+      <div class="qa-icon">💳</div>
+      <div class="qa-label">Browse Plans</div>
+    </div>
+  </div>
+
+  <div class="calorie-card">
+    <div class="ring-wrap">
+      <svg class="ring-svg" width="90" height="90" viewBox="0 0 90 90">
+        <circle class="ring-bg" cx="45" cy="45" r="35"/>
+        <circle class="ring-fill" id="ringFill" cx="45" cy="45" r="35"/>
+      </svg>
+      <div class="ring-center">
+        <div class="ring-pct" id="ringPct">0%</div>
+        <div class="ring-lbl">GOAL</div>
       </div>
     </div>
-
-    <!-- DASHBOARD SCREEN -->
-    <div class="screen active" id="screen-dashboard">
-      <div class="stat-grid">
-        <div class="stat-card">
-          <div class="sc-label">Total Members</div>
-          <div class="sc-val" id="statTotal">0</div>
-          <div class="sc-sub">All time registered</div>
-          <div class="sc-icon">👥</div>
+    <div class="calorie-info">
+      <div class="calorie-row">
+        <div class="cal-left">
+          <div class="cal-dot consumed"></div>
+          <div class="cal-label">Consumed</div>
         </div>
-        <div class="stat-card">
-          <div class="sc-label">Active Plans</div>
-          <div class="sc-val" id="statActive">0</div>
-          <div class="sc-sub">Valid memberships</div>
-          <div class="sc-icon">✅</div>
-        </div>
-        <div class="stat-card">
-          <div class="sc-label">Checked In Today</div>
-          <div class="sc-val" id="statToday">0</div>
-          <div class="sc-sub" id="statTodayDate">—</div>
-          <div class="sc-icon">🏋️</div>
-        </div>
-        <div class="stat-card">
-          <div class="sc-label">Expiring Soon</div>
-          <div class="sc-val" id="statExpiring" style="color:var(--yellow);">0</div>
-          <div class="sc-sub">Within 7 days</div>
-          <div class="sc-icon">⚠️</div>
-        </div>
+        <div class="cal-val" id="calConsumed">0 <span>/ 2200 Kcal</span></div>
       </div>
-
-      <div id="expiryWarnings"></div>
-
-      <div class="section-head">
-        <div class="section-title">RECENT CHECK-INS</div>
-        <div class="section-link" style="font-size:12px;color:var(--orange);cursor:pointer;" onclick="switchTab('checkin',document.querySelectorAll('.nav-item')[2])">View all →</div>
-      </div>
-      <div class="table-card">
-        <div class="checkin-log" id="dashCheckins">
-          <div class="empty-state"><div class="em-icon">👟</div><div class="em-text">No check-ins yet today</div></div>
+      <div class="calorie-row">
+        <div class="cal-left">
+          <div class="cal-dot burnt"></div>
+          <div class="cal-label">Burnt</div>
         </div>
+        <div class="cal-val" id="calBurnt">0 <span>/ 500 Kcal</span></div>
       </div>
     </div>
+  </div>
 
-    <!-- MEMBERS SCREEN -->
-    <div class="screen" id="screen-members">
-      <div class="table-card">
-        <div class="table-header">
-          <div class="table-title">ALL MEMBERS</div>
-          <div class="table-actions">
-            <input class="search-input" type="text" placeholder="🔍 Search name..." oninput="filterMembers(this.value)" id="memberSearch">
-            <select class="filter-select" onchange="filterMembers(document.getElementById('memberSearch').value)" id="planFilter">
-              <option value="">All Plans</option>
-              <option value="1 Month">1 Month</option>
-              <option value="3 Months">3 Months</option>
-              <option value="6 Months">6 Months</option>
-              <option value="12 Months">12 Months</option>
-            </select>
-            <button class="btn-add" onclick="openAddModal()">+ Add Member</button>
-          </div>
-        </div>
-        <div style="overflow-x:auto;">
-          <table>
-            <thead>
-              <tr>
-                <th>Member</th>
-                <th>Phone</th>
-                <th>Plan</th>
-                <th>Status</th>
-                <th>Expiry</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody id="membersTableBody">
-              <tr><td colspan="6"><div class="empty-state"><div class="em-icon">👥</div><div class="em-text">No members yet. Add your first member!</div></div></td></tr>
-            </tbody>
-          </table>
-        </div>
+  <button class="start-goal-btn" onclick="openGoalModal()">⚡ SET YOUR FITNESS GOAL</button>
+
+  <div class="stat-row">
+    <div class="stat-card">
+      <div class="stat-title">💧 WATER TODAY</div>
+      <div class="stat-val" id="waterVal">0</div>
+      <div class="stat-unit">Litres consumed</div>
+      <div class="stat-btn" onclick="addWater()">+ Add Water</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-title">⚖️ WEIGHT</div>
+      <div class="stat-val" id="weightVal">—</div>
+      <div class="stat-unit">Kilograms</div>
+      <div class="stat-btn" onclick="openWeightModal()">Update</div>
+    </div>
+  </div>
+
+  <div class="section-header">
+    <div class="section-title">QUICK ACCESS</div>
+  </div>
+  <div class="menu-list">
+    <div class="menu-item" onclick="showScreen('tracker', document.querySelectorAll('.nav-item')[2])">
+      <div class="menu-icon">📊</div>
+      <div class="menu-text"><div class="menu-name">Workout Tracker</div><div class="menu-desc">Log today's session</div></div>
+      <div class="menu-arrow">›</div>
+    </div>
+    <div class="menu-item">
+      <div class="menu-icon">📏</div>
+      <div class="menu-text"><div class="menu-name">My Measurements</div><div class="menu-desc">Track body progress</div></div>
+      <div class="menu-arrow">›</div>
+    </div>
+    <div class="menu-item">
+      <div class="menu-icon">✅</div>
+      <div class="menu-text"><div class="menu-name">Habit Tracker</div><div class="menu-desc">Build daily habits</div></div>
+      <div class="menu-arrow">›</div>
+    </div>
+    <div class="menu-item">
+      <div class="menu-icon">📰</div>
+      <div class="menu-text"><div class="menu-name">Fitness Articles</div><div class="menu-desc">Tips & guides</div></div>
+      <div class="menu-arrow">›</div>
+    </div>
+  </div>
+  <div class="spacer"></div>
+</div>
+
+<!-- WORKOUT SCREEN -->
+<div class="screen" id="workout">
+  <div class="topbar">
+    <div class="topbar-logo">IRON<span>X</span></div>
+    <div style="font-family:'Barlow Condensed',sans-serif;font-size:13px;color:var(--text-dim);letter-spacing:1px;">MY WORKOUT PLAN</div>
+  </div>
+
+  <div class="day-scroll" id="dayScroll"></div>
+
+  <div class="workout-note">
+    <strong>📌 Note</strong>
+    Always warm up before starting. Stay hydrated throughout your session.
+  </div>
+
+  <div id="workoutContent"></div>
+  <div class="spacer"></div>
+</div>
+
+<!-- TRACKER SCREEN -->
+<div class="screen" id="tracker">
+  <div class="topbar">
+    <div class="topbar-logo">IRON<span>X</span></div>
+    <div style="font-family:'Barlow Condensed',sans-serif;font-size:13px;color:var(--text-dim);letter-spacing:1px;">WORKOUT TRACKER</div>
+    <div class="notif-btn"><span style="font-size:16px;">🔔</span></div>
+  </div>
+
+  <div class="week-calendar" id="weekCalendar"></div>
+
+  <div class="calorie-tracker-card">
+    <div class="ctc-title">🔥 Exercise Calorie Tracker</div>
+    <div class="ctc-row">
+      <div class="ctc-icon">🏋️</div>
+      <div class="ctc-info">
+        <div class="ctc-val">0 / 500 Kcal</div>
+        <div class="ctc-sub">Calories Burnt Today</div>
+      </div>
+      <div class="ctc-actions">
+        <button class="ctc-btn chart">📈</button>
+        <button class="ctc-btn add" onclick="showToast('Log exercise added!')">+</button>
       </div>
     </div>
+  </div>
 
-    <!-- CHECK-IN SCREEN -->
-    <div class="screen" id="screen-checkin">
-      <div class="section-head">
-        <div class="section-title">LIVE CHECK-IN LOG</div>
-        <button class="btn-add" onclick="openCheckinModal()">+ Manual Check-In</button>
-      </div>
-      <div class="checkin-live">
-        <div class="checkin-header">
-          <div class="table-title">TODAY'S ATTENDANCE</div>
-          <div class="live-badge"><div class="live-dot"></div>LIVE</div>
-        </div>
-        <div class="checkin-log" id="fullCheckinLog">
-          <div class="empty-state"><div class="em-icon">👟</div><div class="em-text">No check-ins yet today</div></div>
-        </div>
+  <div class="tracker-grid">
+    <div class="tg-card" onclick="showScreen('workout', document.querySelectorAll('.nav-item')[1])">
+      <div class="tg-icon">📋</div>
+      <div class="tg-name">My Workout Plan</div>
+    </div>
+    <div class="tg-card" onclick="showToast('Exercise library coming soon!')">
+      <div class="tg-icon">🏋️</div>
+      <div class="tg-name">Exercise Library</div>
+    </div>
+  </div>
+
+  <div class="section-header">
+    <div class="section-title">ANALYTICS</div>
+  </div>
+  <div class="tracker-menu">
+    <div class="menu-item" onclick="showToast('Exercise graphs coming soon!')">
+      <div class="menu-icon">📊</div>
+      <div class="menu-text"><div class="menu-name">Exercise Graph</div><div class="menu-desc">View progress over time</div></div>
+      <div class="menu-arrow">›</div>
+    </div>
+    <div class="menu-item" onclick="showToast('Analysis coming soon!')">
+      <div class="menu-icon">🔍</div>
+      <div class="menu-text"><div class="menu-name">Workout Analysis</div><div class="menu-desc">Deep dive into performance</div></div>
+      <div class="menu-arrow">›</div>
+    </div>
+    <div class="menu-item" onclick="showToast('Transformation log coming soon!')">
+      <div class="menu-icon">📸</div>
+      <div class="menu-text"><div class="menu-name">Transformations</div><div class="menu-desc">Before & after photos</div></div>
+      <div class="menu-arrow">›</div>
+    </div>
+  </div>
+  <div class="spacer"></div>
+</div>
+
+<!-- MEMBERSHIP SCREEN -->
+<div class="screen" id="membership">
+  <div class="topbar">
+    <div class="topbar-logo">IRON<span>X</span></div>
+    <div style="font-family:'Barlow Condensed',sans-serif;font-size:13px;color:var(--text-dim);letter-spacing:1px;">MEMBERSHIP PLANS</div>
+  </div>
+
+  <div class="membership-hero">
+    <div class="membership-title">CHOOSE YOUR PLAN</div>
+    <div class="membership-subtitle">Invest in yourself. Every rep counts.</div>
+  </div>
+
+  <div class="search-bar">🔍 Search membership plans...</div>
+
+  <div class="plans-list">
+    <div class="plan-card" onclick="showToast('Contact the gym desk to enroll!')">
+      <div class="plan-price"><span>₹</span>1999</div>
+      <div class="plan-badge">1 MONTH</div>
+      <div class="plan-name">Starter Plan</div>
+      <div class="plan-features">
+        <div class="plan-feat">Full gym access</div>
+        <div class="plan-feat">Locker facility</div>
+        <div class="plan-feat">App tracking</div>
       </div>
     </div>
-
-    <!-- NOTIFY SCREEN -->
-    <div class="screen" id="screen-notify">
-      <div class="notif-card">
-        <div class="notif-title">📢 Send Announcement</div>
-        <div class="field"><label>Message</label>
-          <textarea class="notif-textarea" id="notifMsg" placeholder="Type your message to members..."></textarea>
-        </div>
-        <div class="field" style="margin-top:14px;"><label>Send to</label>
-          <div class="notif-targets">
-            <div class="target-pill sel" onclick="toggleTarget(this)" data-val="all">All Members</div>
-            <div class="target-pill" onclick="toggleTarget(this)" data-val="active">Active Only</div>
-            <div class="target-pill" onclick="toggleTarget(this)" data-val="expiring">Expiring Soon</div>
-          </div>
-        </div>
-        <button class="btn-primary" style="width:auto;padding:12px 32px;margin-top:8px;" onclick="sendNotif()">SEND NOTIFICATION</button>
-      </div>
-
-      <div class="notif-card">
-        <div class="notif-title">📋 Notification History</div>
-        <div id="notifHistory">
-          <div style="color:var(--text-muted);font-size:13px;">No notifications sent yet.</div>
-        </div>
+    <div class="plan-card featured" onclick="showToast('Contact the gym desk to enroll!')">
+      <div class="plan-price"><span>₹</span>4999</div>
+      <div class="plan-badge">3 MONTHS</div>
+      <div class="plan-name">Power Plan — Save ₹998</div>
+      <div class="plan-features">
+        <div class="plan-feat">Full gym access</div>
+        <div class="plan-feat">Diet consultation</div>
+        <div class="plan-feat">Locker + towel service</div>
+        <div class="plan-feat">App tracking + goals</div>
       </div>
     </div>
+    <div class="plan-card" onclick="showToast('Contact the gym desk to enroll!')">
+      <div class="plan-price"><span>₹</span>8500</div>
+      <div class="plan-badge">6 MONTHS</div>
+      <div class="plan-name">Elite Plan — Save ₹3494</div>
+      <div class="plan-features">
+        <div class="plan-feat">Full gym access</div>
+        <div class="plan-feat">Personal trainer (2x/week)</div>
+        <div class="plan-feat">Diet & nutrition plan</div>
+        <div class="plan-feat">Priority locker</div>
+        <div class="plan-feat">App + body analysis</div>
+      </div>
+    </div>
+    <div class="plan-card" onclick="showToast('Contact the gym desk to enroll!')">
+      <div class="plan-price"><span>₹</span>14999</div>
+      <div class="plan-badge">12 MONTHS</div>
+      <div class="plan-name">Champion Plan — Best deal</div>
+      <div class="plan-features">
+        <div class="plan-feat">Everything in Elite</div>
+        <div class="plan-feat">Unlimited PT sessions</div>
+        <div class="plan-feat">Transformation guarantee</div>
+        <div class="plan-feat">Free month on renewal</div>
+      </div>
+    </div>
+  </div>
+  <div class="spacer"></div>
+</div>
 
-  </div><!-- /main -->
-</div><!-- /app -->
+<!-- PROFILE SCREEN -->
+<div class="screen" id="profile">
+  <div class="topbar">
+    <div class="topbar-logo">IRON<span>X</span></div>
+    <div style="font-family:'Barlow Condensed',sans-serif;font-size:13px;color:var(--text-dim);letter-spacing:1px;">MY PROFILE</div>
+    <div class="profile-edit" onclick="showToast('Edit profile coming soon!')">✏️</div>
+  </div>
 
-<!-- ADD / EDIT MEMBER MODAL -->
-<div class="modal-overlay" id="memberModal">
+  <div class="profile-hero">
+    <div class="profile-avatar">R</div>
+    <div class="profile-info">
+      <div class="profile-name">Rahul Sharma</div>
+      <div class="profile-email">rahul.sharma@email.com</div>
+      <div class="profile-badge">POWER MEMBER</div>
+    </div>
+  </div>
+
+  <div class="membership-banner">
+    <div class="mb-top">
+      <div class="mb-plan">3 MONTH PLAN</div>
+      <div class="mb-status">ACTIVE</div>
+    </div>
+    <div class="mb-expires">Expires: July 21, 2026 · 91 days remaining</div>
+    <div class="mb-bar"><div class="mb-bar-fill"></div></div>
+  </div>
+
+  <div class="profile-stats">
+    <div class="ps-item">
+      <div class="ps-val">47</div>
+      <div class="ps-label">Days Active</div>
+    </div>
+    <div class="ps-item">
+      <div class="ps-val">138</div>
+      <div class="ps-label">Workouts</div>
+    </div>
+    <div class="ps-item">
+      <div class="ps-val">6.2</div>
+      <div class="ps-label">Kg Lost</div>
+    </div>
+  </div>
+
+  <div class="profile-info-card">
+    <div class="pic-row">
+      <div class="pic-cell"><div class="pic-label">Gender</div><div class="pic-val">Male</div></div>
+      <div class="pic-cell"><div class="pic-label">Birthday</div><div class="pic-val">Mar 15, 1995</div></div>
+    </div>
+    <div class="pic-row">
+      <div class="pic-cell"><div class="pic-label">Level</div><div class="pic-val">Intermediate</div></div>
+      <div class="pic-cell"><div class="pic-label">Goal</div><div class="pic-val">Muscle Gain</div></div>
+    </div>
+    <div class="pic-row">
+      <div class="pic-cell"><div class="pic-label">Phone</div><div class="pic-val">9876543210</div></div>
+      <div class="pic-cell"><div class="pic-label">Member ID</div><div class="pic-val">IXF-00124</div></div>
+    </div>
+  </div>
+
+  <div class="section-header"><div class="section-title">SETTINGS</div></div>
+  <div class="profile-menu">
+    <div class="menu-item" onclick="showToast('Fitness form coming soon!')">
+      <div class="menu-icon">📝</div>
+      <div class="menu-text"><div class="menu-name">View Fitness Form</div><div class="menu-desc">Your health assessment</div></div>
+      <div class="menu-arrow">›</div>
+    </div>
+    <div class="menu-item" onclick="showToast('Notifications settings coming soon!')">
+      <div class="menu-icon">🔔</div>
+      <div class="menu-text"><div class="menu-name">Notifications</div><div class="menu-desc">Manage your alerts</div></div>
+      <div class="menu-arrow">›</div>
+    </div>
+    <div class="menu-item" onclick="showToast('Help & support coming soon!')">
+      <div class="menu-icon">💬</div>
+      <div class="menu-text"><div class="menu-name">Help & Support</div><div class="menu-desc">Contact IRONX team</div></div>
+      <div class="menu-arrow">›</div>
+    </div>
+  </div>
+
+  <button class="logout-btn" onclick="doLogout()">LOGOUT</button>
+  <div class="spacer"></div>
+</div>
+
+<!-- WATER MODAL -->
+<div class="modal-overlay" id="waterModal">
   <div class="modal">
-    <div class="modal-title" id="modalTitle">ADD NEW MEMBER</div>
-    <div class="modal-grid">
-      <div class="field"><label>Full Name *</label><input type="text" id="mName" placeholder="e.g. Rahul Sharma"></div>
-      <div class="field"><label>Phone *</label><input type="tel" id="mPhone" placeholder="9876543210"></div>
-      <div class="field"><label>Email</label><input type="email" id="mEmail" placeholder="rahul@email.com"></div>
-      <div class="field"><label>Plan *</label>
-        <select class="filter-select" id="mPlan" style="width:100%;padding:13px 14px;">
-          <option value="">Select Plan</option>
-          <option value="1 Month">1 Month — ₹1,999</option>
-          <option value="3 Months">3 Months — ₹4,999</option>
-          <option value="6 Months">6 Months — ₹8,500</option>
-          <option value="12 Months">12 Months — ₹14,999</option>
-        </select>
-      </div>
-      <div class="field"><label>Start Date *</label><input type="date" id="mStart"></div>
-      <div class="field"><label>Gender</label>
-        <select class="filter-select" id="mGender" style="width:100%;padding:13px 14px;">
-          <option value="Male">Male</option>
-          <option value="Female">Female</option>
-          <option value="Other">Other</option>
-        </select>
-      </div>
-      <div class="field"><label>Goal</label><input type="text" id="mGoal" placeholder="e.g. Weight Loss"></div>
-      <div class="field"><label>Emergency Contact</label><input type="tel" id="mEmergency" placeholder="Family phone"></div>
+    <div class="modal-handle"></div>
+    <div class="modal-title">💧 Add Water Intake</div>
+    <div class="input-group">
+      <label>Amount (Litres)</label>
+      <input type="number" step="0.1" placeholder="e.g. 0.5" id="waterInput">
     </div>
-    <div class="modal-footer">
-      <button class="btn-cancel" onclick="closeModal('memberModal')">Cancel</button>
-      <button class="btn-primary btn-save" onclick="saveMember()">SAVE MEMBER</button>
-    </div>
+    <button class="btn-primary" onclick="saveWater()">ADD WATER</button>
   </div>
 </div>
 
-<!-- MANUAL CHECKIN MODAL -->
-<div class="modal-overlay" id="checkinModal">
-  <div class="modal" style="max-width:380px;">
-    <div class="modal-title">MANUAL CHECK-IN</div>
-    <div class="field"><label>Member Name or ID</label>
-      <input type="text" id="checkinSearch" placeholder="Type member name..." oninput="searchForCheckin(this.value)">
+<!-- WEIGHT MODAL -->
+<div class="modal-overlay" id="weightModal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">⚖️ Update Weight</div>
+    <div class="input-group">
+      <label>Weight (kg)</label>
+      <input type="number" step="0.1" placeholder="e.g. 72.5" id="weightInput">
     </div>
-    <div id="checkinResults" style="margin:12px 0;display:flex;flex-direction:column;gap:8px;"></div>
-    <div class="modal-footer">
-      <button class="btn-cancel" onclick="closeModal('checkinModal')">Close</button>
+    <button class="btn-primary" onclick="saveWeight()">UPDATE WEIGHT</button>
+  </div>
+</div>
+
+<!-- GOAL MODAL -->
+<div class="modal-overlay" id="goalModal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">⚡ Set Fitness Goal</div>
+    <div class="input-group">
+      <label>Daily Calorie Target (Kcal)</label>
+      <input type="number" placeholder="e.g. 2200" id="goalCalInput">
     </div>
+    <div class="input-group">
+      <label>Calories to Burn (Kcal)</label>
+      <input type="number" placeholder="e.g. 500" id="goalBurnInput">
+    </div>
+    <button class="btn-primary" onclick="saveGoal()">SAVE GOAL</button>
   </div>
 </div>
 
 <!-- TOAST -->
-<div class="toast" id="toast"><span class="toast-icon" id="toastIcon">✅</span><span id="toastMsg"></span></div>
+<div class="toast" id="toast"></div>
 
 <script>
+// DATA
+const workoutDays = [
+  { label: 'Leg Day', warmup: ['Forward Bending', 'Side Bends (Lateral)', 'Arm Circles', 'Standing Toe Touch', 'Jumping Jacks'], rounds: [['Lying Leg Curls', 'Hamstrings', '3'], ['Squats', 'Quads', '4'], ['Leg Press', 'Quads', '3'], ['Calf Raises', 'Calves', '4'], ['Romanian Deadlift', 'Hamstrings', '3']] },
+  { label: 'Chest & Triceps', warmup: ['Arm Swings', 'Push-ups (Light)', 'Shoulder Circles'], rounds: [['Bench Press', 'Chest', '4'], ['Incline Dumbbell Press', 'Chest', '3'], ['Cable Flyes', 'Chest', '3'], ['Tricep Dips', 'Triceps', '3'], ['Skull Crushers', 'Triceps', '3']] },
+  { label: 'Back & Biceps', warmup: ['Cat Stretch', 'Band Pull Apart', 'Thoracic Rotation'], rounds: [['Deadlift', 'Back', '4'], ['Pull-ups', 'Back', '3'], ['Seated Row', 'Back', '3'], ['Barbell Curl', 'Biceps', '3'], ['Hammer Curl', 'Biceps', '3']] },
+  { label: 'Shoulders', warmup: ['Neck Rolls', 'Shoulder Circles', 'Band Dislocations'], rounds: [['Overhead Press', 'Shoulders', '4'], ['Lateral Raises', 'Shoulders', '4'], ['Front Raises', 'Shoulders', '3'], ['Face Pulls', 'Rear Delt', '3'], ['Shrugs', 'Traps', '3']] },
+  { label: 'Core & Cardio', warmup: ['Jumping Jacks', 'High Knees', 'Butt Kicks'], rounds: [['Plank', 'Core', '3'], ['Crunches', 'Core', '3'], ['Russian Twists', 'Core', '3'], ['Treadmill Run', 'Cardio', '1'], ['Cycling', 'Cardio', '1']] },
+  { label: 'Rest / Active Recovery', warmup: ['Light Walk', 'Full Body Stretch', 'Foam Rolling'], rounds: [['Yoga Flow', 'Flexibility', '1'], ['Meditation', 'Recovery', '1'], ['Light Swimming', 'Full Body', '1']] },
+];
+
+const exEmojis = { 'Hamstrings':'🦵','Quads':'🦵','Calves':'🦶','Chest':'💪','Triceps':'💪','Back':'🔙','Biceps':'💪','Shoulders':'🔝','Core':'🎯','Cardio':'🏃','Traps':'💪','Rear Delt':'💪','Flexibility':'🧘','Recovery':'😴','Full Body':'🏊' };
+
+let state = { water: 0, weight: null, calGoal: 2200, burnGoal: 500, consumed: 0, burnt: 0, activeDay: 0 };
+
+// SPLASH
+setTimeout(() => {
+  document.getElementById('splash').style.display = 'none';
+  document.getElementById('login').classList.add('active');
+}, 2000);
+
+// LOGIN
+function doLogin() {
+  const email = document.getElementById('loginEmail').value;
+  const pass = document.getElementById('loginPass').value;
+  if (!email || !pass) { showToast('Enter your credentials!'); return; }
+  document.getElementById('login').style.display = 'none';
+  document.getElementById('bottomNav').style.display = 'flex';
+  showScreen('home', document.querySelectorAll('.nav-item')[0]);
+  initWorkout();
+  initCalendar();
+  animateRing(0);
+}
+
+function doLogout() {
+  document.getElementById('bottomNav').style.display = 'none';
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('login').style.display = 'flex';
+  document.getElementById('loginEmail').value = '';
+  document.getElementById('loginPass').value = '';
+}
+
+// SCREENS
+function showScreen(id, navEl) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if (navEl) navEl.classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+// WORKOUT
+function initWorkout() {
+  const scroll = document.getElementById('dayScroll');
+  scroll.innerHTML = '';
+  workoutDays.forEach((d, i) => {
+    const pill = document.createElement('div');
+    pill.className = 'day-pill' + (i === state.activeDay ? ' active' : '') + (i < state.activeDay ? ' done' : '');
+    pill.innerHTML = `<div class="day-num">D${i+1}</div><div class="day-label">${d.label.split(' ')[0]}</div>`;
+    pill.onclick = () => { state.activeDay = i; initWorkout(); };
+    scroll.appendChild(pill);
+  });
+  renderWorkout(state.activeDay);
+}
+
+function renderWorkout(idx) {
+  const day = workoutDays[idx];
+  const content = document.getElementById('workoutContent');
+  let html = `<div class="workout-section-title">WARM UP</div><div class="exercise-list">`;
+  day.warmup.forEach(ex => {
+    html += `<div class="exercise-item"><div class="ex-thumb">🤸</div><div class="ex-info"><div class="ex-name">${ex}</div><div class="ex-tags"><span class="ex-tag">Warm Up</span><span class="ex-tag sets">2 Sets</span></div></div></div>`;
+  });
+  html += `</div>`;
+  day.rounds.forEach((ex, i) => {
+    html += `<div class="workout-section-title">ROUND ${i+1}</div><div class="exercise-list"><div class="exercise-item"><div class="ex-thumb">${exEmojis[ex[1]] || '💪'}</div><div class="ex-info"><div class="ex-name">${ex[0]}</div><div class="ex-tags"><span class="ex-tag">${ex[1]}</span><span class="ex-tag sets">${ex[2]} Sets</span></div></div></div></div>`;
+  });
+  content.innerHTML = html;
+}
+
+// CALENDAR
+function initCalendar() {
+  const cal = document.getElementById('weekCalendar');
+  cal.innerHTML = '';
+  const today = new Date();
+  const days = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
+  const months = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+  for (let i = -3; i <= 3; i++) {
+    const d = new Date(today);
+    d.setDate(today.getDate() + i);
+    const div = document.createElement('div');
+    div.className = 'cal-day' + (i === 0 ? ' today' : '') + (i < 0 ? ' done' : '');
+    div.innerHTML = `<div class="cal-month">${months[d.getMonth()]}</div><div class="cal-date">${d.getDate()}</div><div class="cal-weekday">${days[d.getDay()]}</div>`;
+    cal.appendChild(div);
+  }
+}
+
+// RING
+function animateRing(pct) {
+  const fill = document.getElementById('ringFill');
+  const pctEl = document.getElementById('ringPct');
+  const circumference = 220;
+  const offset = circumference - (circumference * pct / 100);
+  fill.style.strokeDashoffset = offset;
+  pctEl.textContent = Math.round(pct) + '%';
+}
+
+// WATER
+function addWater() { document.getElementById('waterModal').classList.add('open'); }
+function saveWater() {
+  const val = parseFloat(document.getElementById('waterInput').value) || 0;
+  state.water = Math.round((state.water + val) * 10) / 10;
+  document.getElementById('waterVal').textContent = state.water;
+  document.getElementById('waterModal').classList.remove('open');
+  document.getElementById('waterInput').value = '';
+  showToast(`💧 Added ${val}L water!`);
+}
+
+// WEIGHT
+function openWeightModal() { document.getElementById('weightModal').classList.add('open'); }
+function saveWeight() {
+  const val = parseFloat(document.getElementById('weightInput').value);
+  if (val) { state.weight = val; document.getElementById('weightVal').textContent = val; }
+  document.getElementById('weightModal').classList.remove('open');
+  document.getElementById('weightInput').value = '';
+  showToast(`⚖️ Weight updated to ${val}kg!`);
+}
+
+// GOAL
+function openGoalModal() { document.getElementById('goalModal').classList.add('open'); }
+function saveGoal() {
+  const cal = parseInt(document.getElementById('goalCalInput').value);
+  const burn = parseInt(document.getElementById('goalBurnInput').value);
+  if (cal) { state.calGoal = cal; document.getElementById('calConsumed').innerHTML = `0 <span>/ ${cal} Kcal</span>`; }
+  if (burn) { state.burnGoal = burn; document.getElementById('calBurnt').innerHTML = `0 <span>/ ${burn} Kcal</span>`; }
+  document.getElementById('goalModal').classList.remove('open');
+  showToast('⚡ Goal set! Let\'s crush it!');
+  animateRing(0);
+}
+
+// CLOSE MODALS
+document.querySelectorAll('.modal-overlay').forEach(m => {
+  m.addEventListener('click', (e) => { if (e.target === m) m.classList.remove('open'); });
+});
+
+// TOAST
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
 // ═══════════════════════════════════════════════
-// FIREBASE CONFIG — Replace with your project config
-// Get from: Firebase Console → Project Settings → Your apps
+// FIREBASE CONFIG — gym-demo-fb4d4
 // ═══════════════════════════════════════════════
-const FIREBASE_CONFIG = {
+const firebaseConfig = {
   apiKey: "AIzaSyBWx2JnRPIAx5R-4Q3YF4rHJCil_cKIHBc",
   authDomain: "gym-demo-fb4d4.firebaseapp.com",
   projectId: "gym-demo-fb4d4",
@@ -767,444 +1327,143 @@ const FIREBASE_CONFIG = {
   appId: "1:75194814334:web:fc416a302744feffb36d2f"
 };
 
-// ═══════════════════════════════════════════════
-// LIVE STATE — synced from Firebase
-// ═══════════════════════════════════════════════
-let liveMembers = [];
-let liveCheckins = [];
-let demoNotifs = [];
-let editingId = null;
-
-function getTimeStr(minsAgo) {
-  const d = new Date(Date.now() + minsAgo * 60000);
-  return d.toLocaleTimeString('en-IN', {hour:'2-digit',minute:'2-digit'});
-}
-
-// ═══════════════════════════════════════════════
-// FIREBASE INIT
-// ═══════════════════════════════════════════════
-let db = null, auth = null;
+let fbApp, db, auth, currentMember = null;
 try {
-  firebase.initializeApp(FIREBASE_CONFIG);
+  fbApp = firebase.initializeApp(firebaseConfig);
   db = firebase.firestore();
   auth = firebase.auth();
-} catch(e) { console.warn('Firebase init:', e); }
+} catch(e) { console.warn('Firebase init failed:', e); }
 
-// ── REAL-TIME LISTENERS (start after login) ──
-function startListeners() {
-  if (!db) return;
-  // Members live
-  db.collection('members').onSnapshot(snap => {
-    liveMembers = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-    liveMembers.sort((a,b) => a.name.localeCompare(b.name));
-    renderMembers();
-    renderDashboard();
-  });
-  // Today check-ins live
-  const today = new Date().toISOString().split('T')[0];
-  db.collection('checkins').where('date','==',today).onSnapshot(snap => {
-    liveCheckins = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-    liveCheckins.sort((a,b) => (b.timestamp||0) - (a.timestamp||0));
-    renderCheckins();
-    renderDashboard();
-  });
-}
-
-// ═══════════════════════════════════════════════
-// SPLASH → LOGIN
-// ═══════════════════════════════════════════════
-setTimeout(() => {
-  document.getElementById('splash').classList.add('hide');
-  setTimeout(() => {
-    document.getElementById('splash').style.display = 'none';
-    document.getElementById('loginScreen').classList.add('active');
-  }, 500);
-}, 2000);
-
-// ═══════════════════════════════════════════════
-// AUTH
-// ═══════════════════════════════════════════════
+// ── FIREBASE LOGIN — MEMBER APP ONLY ──
 async function doLogin() {
-  const email = document.getElementById('loginEmail').value.trim();
-  const pass = document.getElementById('loginPass').value;
-  if (!email || !pass) { showToast('Enter your credentials!', '⚠️'); return; }
+  const emailVal = document.getElementById('loginEmail').value.trim();
+  const passVal  = document.getElementById('loginPass').value;
+  if (!emailVal || !passVal) { showToast('Enter your credentials!'); return; }
 
   if (auth) {
     try {
-      await auth.signInWithEmailAndPassword(email, pass);
-    } catch(e) {
-      showToast('Login failed: ' + e.message, '❌'); return;
-    }
-  }
+      const cred = await auth.signInWithEmailAndPassword(emailVal, passVal);
 
-  const initial = email.charAt(0).toUpperCase();
-  document.getElementById('topbarAvatar').textContent = initial;
-  document.getElementById('loginScreen').classList.remove('active');
-  document.getElementById('app').classList.add('active');
-  initApp();
+      // ── ROLE CHECK: must exist in members collection ──
+      const snap = await db.collection('members')
+        .where('email','==', emailVal).limit(1).get();
+
+      if (snap.empty) {
+        // Not a member — block access
+        await auth.signOut();
+        showToast('❌ This app is for gym members only.');
+        return;
+      }
+
+      // Valid member — load their data
+      currentMember = { id: snap.docs[0].id, ...snap.docs[0].data() };
+      afterLogin();
+
+    } catch(e) {
+      const msg = (e.code === 'auth/wrong-password' || e.code === 'auth/user-not-found' || e.code === 'auth/invalid-credential')
+        ? 'Wrong email or password' : e.message;
+      showToast('Login failed: ' + msg);
+    }
+  } else {
+    currentMember = { name: 'Demo User', plan: '3 Months', expiryDate: '2026-07-21' };
+    afterLogin();
+  }
 }
 
+function afterLogin() {
+  const m = currentMember;
+  // Update UI with real member data
+  if (m.name) {
+    const parts = m.name.split(' ');
+    const first = parts[0], last = parts.slice(1).join(' ');
+    document.querySelector('.greeting-name').innerHTML = `${first} <span>${last}</span>`;
+    document.querySelector('.topbar-avatar').textContent = first.charAt(0);
+    document.querySelector('.profile-name') && (document.querySelector('.profile-name').textContent = m.name);
+    document.querySelector('.profile-email') && (document.querySelector('.profile-email').textContent = m.email || '');
+  }
+  if (m.plan) {
+    const planEl = document.querySelector('.mb-plan');
+    if (planEl) planEl.textContent = (m.plan || '').toUpperCase() + ' PLAN';
+  }
+  if (m.expiryDate) {
+    const exp = new Date(m.expiryDate);
+    const today = new Date(); today.setHours(0,0,0,0);
+    const days = Math.ceil((exp - today) / 86400000);
+    const expEl = document.querySelector('.mb-expires');
+    if (expEl) expEl.textContent = `Expires: ${exp.toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'})} · ${days > 0 ? days + ' days remaining' : 'Expired'}`;
+  }
+  if (m.id) {
+    const idEl = document.querySelector('.pic-val');
+    // Member ID cell
+    document.querySelectorAll('.pic-val').forEach(el => {
+      if (el.previousElementSibling && el.previousElementSibling.textContent === 'Member ID') {
+        el.textContent = m.id;
+      }
+    });
+  }
+
+  // Record check-in
+  if (db && currentMember && currentMember.id) {
+    const today = new Date().toISOString().split('T')[0];
+    db.collection('checkins').add({
+      memberId: currentMember.id,
+      memberName: currentMember.name,
+      plan: currentMember.plan,
+      date: today,
+      time: new Date().toLocaleTimeString('en-IN', {hour:'2-digit', minute:'2-digit'}),
+      timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    }).catch(()=>{});
+  }
+
+  // Show app
+  document.getElementById('login').style.display = 'none';
+  document.getElementById('bottomNav').style.display = 'flex';
+  showScreen('home', document.querySelectorAll('.nav-item')[0]);
+  initWorkout();
+  initCalendar();
+  animateRing(0);
+  showToast('Welcome back, ' + (currentMember.name || 'Member') + '! 💪');
+}
+
+// Override logout to also sign out of Firebase
+const _origLogout = doLogout;
 function doLogout() {
-  if (auth) auth.signOut();
-  document.getElementById('app').classList.remove('active');
-  document.getElementById('loginScreen').classList.add('active');
+  if (auth) auth.signOut().catch(()=>{});
+  currentMember = null;
+  document.getElementById('bottomNav').style.display = 'none';
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('login').style.display = 'flex';
   document.getElementById('loginEmail').value = '';
   document.getElementById('loginPass').value = '';
 }
 
-// ═══════════════════════════════════════════════
-// INIT APP
-// ═══════════════════════════════════════════════
-function initApp() {
-  const today = new Date().toLocaleDateString('en-IN', {day:'numeric',month:'short',year:'numeric'});
-  document.getElementById('statTodayDate').textContent = today;
-  startListeners();
-}
-
-// ═══════════════════════════════════════════════
-// TABS
-// ═══════════════════════════════════════════════
-function switchTab(tab, navEl) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  document.getElementById('screen-'+tab).classList.add('active');
-  if (navEl) navEl.classList.add('active');
-  const titles = { dashboard:'DASHBOARD', members:'MEMBERS', checkin:'CHECK-INS', notify:'NOTIFICATIONS' };
-  document.getElementById('topbarTitle').textContent = titles[tab] || tab.toUpperCase();
-  if (window.innerWidth <= 768) closeSidebar();
-}
-
-// ═══════════════════════════════════════════════
-// SIDEBAR MOBILE
-// ═══════════════════════════════════════════════
-function toggleSidebar() {
-  document.getElementById('sidebar').classList.toggle('open');
-  document.getElementById('sidebarOverlay').classList.toggle('open');
-}
-function closeSidebar() {
-  document.getElementById('sidebar').classList.remove('open');
-  document.getElementById('sidebarOverlay').classList.remove('open');
-}
-
-// ═══════════════════════════════════════════════
-// MEMBER HELPERS
-// ═══════════════════════════════════════════════
-function getMembers() { return liveMembers; }
-function getCheckins() { return liveCheckins; }
-
-function memberStatus(m) {
-  const today = new Date(); today.setHours(0,0,0,0);
-  const exp = new Date(m.expiryDate);
-  const diff = Math.ceil((exp - today) / 86400000);
-  if (diff < 0) return 'expired';
-  if (diff <= 7) return 'expiring';
-  return 'active';
-}
-
-function daysLeft(expiryDate) {
-  const today = new Date(); today.setHours(0,0,0,0);
-  const exp = new Date(expiryDate);
-  return Math.ceil((exp - today) / 86400000);
-}
-
-function planClass(plan) {
-  const map = {'1 Month':'plan-1m','3 Months':'plan-3m','6 Months':'plan-6m','12 Months':'plan-12m'};
-  return map[plan] || '';
-}
-
-function calcExpiry(startDate, plan) {
-  const d = new Date(startDate);
-  const months = {'1 Month':1,'3 Months':3,'6 Months':6,'12 Months':12};
-  d.setMonth(d.getMonth() + (months[plan] || 1));
-  return d.toISOString().split('T')[0];
-}
-
-function nextMemberId() {
-  const ids = liveMembers.map(m => parseInt((m.id||"IXF-0").split('-')[1]||0));
-  const max = ids.length ? Math.max(...ids) : 0;
-  return 'IXF-' + String(max + 1).padStart(3,'0');
-}
-
-function formatDate(dateStr) {
-  if (!dateStr) return '—';
-  const d = new Date(dateStr);
-  return d.toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'});
-}
-
-// ═══════════════════════════════════════════════
-// DASHBOARD
-// ═══════════════════════════════════════════════
-function renderDashboard() {
-  const members = getMembers();
-  const checkins = getCheckins();
-  const active = members.filter(m => memberStatus(m) === 'active').length;
-  const expiring = members.filter(m => memberStatus(m) === 'expiring').length;
-  document.getElementById('statTotal').textContent = members.length;
-  document.getElementById('statActive').textContent = active;
-  document.getElementById('statToday').textContent = checkins.length;
-  document.getElementById('statExpiring').textContent = expiring;
-
-  // Expiry warnings
-  const expiringMembers = members.filter(m => memberStatus(m) === 'expiring');
-  const warnEl = document.getElementById('expiryWarnings');
-  warnEl.innerHTML = '';
-  expiringMembers.forEach(m => {
-    const dl = daysLeft(m.expiryDate);
-    warnEl.innerHTML += `<div class="warning-strip">⚠️ <strong>${m.name}</strong>'s ${m.plan} plan expires in ${dl} day${dl===1?'':'s'} — <span style="text-decoration:underline;cursor:pointer;" onclick="switchTab('notify',document.querySelectorAll('.nav-item')[3])">Send renewal reminder</span></div>`;
-  });
-
-  // Recent checkins
-  const el = document.getElementById('dashCheckins');
-  if (checkins.length === 0) {
-    el.innerHTML = '<div class="empty-state"><div class="em-icon">👟</div><div class="em-text">No check-ins yet today</div></div>';
-    return;
+// ── SAVE WATER & WEIGHT TO FIREBASE ──
+const _origSaveWater = saveWater;
+function saveWater() {
+  const val = parseFloat(document.getElementById('waterInput').value) || 0;
+  state.water = Math.round((state.water + val) * 10) / 10;
+  document.getElementById('waterVal').textContent = state.water;
+  document.getElementById('waterModal').classList.remove('open');
+  document.getElementById('waterInput').value = '';
+  showToast('💧 Added ' + val + 'L water!');
+  if (db && currentMember) {
+    const today = new Date().toISOString().split('T')[0];
+    db.collection('tracking').doc((currentMember.id || 'demo') + '_' + today)
+      .set({ water: state.water, date: today, memberId: currentMember.id }, { merge: true });
   }
-  el.innerHTML = checkins.slice(0,5).map(c => `
-    <div class="checkin-row">
-      <div class="checkin-dot"></div>
-      <div class="checkin-avatar">${c.name.charAt(0)}</div>
-      <div>
-        <div class="checkin-name">${c.name}</div>
-        <div class="checkin-plan">${c.plan} Plan</div>
-      </div>
-      <div class="checkin-time">${c.time}</div>
-    </div>`).join('');
 }
 
-// ═══════════════════════════════════════════════
-// MEMBERS TABLE
-// ═══════════════════════════════════════════════
-function renderMembers(filtered) {
-  const members = filtered || getMembers();
-  const tbody = document.getElementById('membersTableBody');
-  if (members.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state"><div class="em-icon">👥</div><div class="em-text">No members found.</div></div></td></tr>';
-    return;
+const _origSaveWeight = saveWeight;
+function saveWeight() {
+  const val = parseFloat(document.getElementById('weightInput').value);
+  if (val) { state.weight = val; document.getElementById('weightVal').textContent = val; }
+  document.getElementById('weightModal').classList.remove('open');
+  document.getElementById('weightInput').value = '';
+  showToast('⚖️ Weight updated to ' + val + 'kg!');
+  if (db && currentMember && val) {
+    db.collection('tracking').doc((currentMember.id || 'demo') + '_weight')
+      .set({ weight: val, updatedAt: firebase.firestore.FieldValue.serverTimestamp(), memberId: currentMember.id }, { merge: true });
   }
-  tbody.innerHTML = members.map(m => {
-    const st = memberStatus(m);
-    const dl = daysLeft(m.expiryDate);
-    const dlText = dl < 0 ? `Expired ${Math.abs(dl)}d ago` : dl === 0 ? 'Expires today' : `${dl} days left`;
-    return `
-    <tr>
-      <td><div class="member-cell">
-        <div class="member-avatar">${m.name.charAt(0)}</div>
-        <div><div class="member-name">${m.name}</div><div class="member-id">${m.id}</div></div>
-      </div></td>
-      <td style="color:var(--text-dim);font-size:13px;">${m.phone}</td>
-      <td><span class="badge ${planClass(m.plan)}">${m.plan}</span></td>
-      <td><span class="badge ${st}">${st.charAt(0).toUpperCase()+st.slice(1)}</span></td>
-      <td style="font-size:13px;">
-        <div style="color:var(--text);">${formatDate(m.expiryDate)}</div>
-        <div style="color:var(--text-muted);font-size:11px;">${dlText}</div>
-      </td>
-      <td><div class="action-btns">
-        <button class="btn-icon" onclick="checkinMember('${m.id}')" title="Check In">✅</button>
-        <button class="btn-icon" onclick="editMember('${m.id}')" title="Edit">✏️</button>
-        <button class="btn-icon danger" onclick="deleteMember('${m.id}')" title="Delete">🗑</button>
-      </div></td>
-    </tr>`;
-  }).join('');
-}
-
-function filterMembers(search) {
-  const plan = document.getElementById('planFilter').value;
-  let filtered = liveMembers.filter(m => {
-    const matchSearch = !search || m.name.toLowerCase().includes(search.toLowerCase()) || m.phone.includes(search);
-    const matchPlan = !plan || m.plan === plan;
-    return matchSearch && matchPlan;
-  });
-  renderMembers(filtered);
-}
-
-// ═══════════════════════════════════════════════
-// ADD / EDIT MEMBER
-// ═══════════════════════════════════════════════
-function openAddModal() {
-  editingId = null;
-  document.getElementById('modalTitle').textContent = 'ADD NEW MEMBER';
-  ['mName','mPhone','mEmail','mGoal','mEmergency'].forEach(id => document.getElementById(id).value='');
-  document.getElementById('mPlan').value='';
-  document.getElementById('mGender').value='Male';
-  document.getElementById('mStart').value = new Date().toISOString().split('T')[0];
-  document.getElementById('memberModal').classList.add('open');
-}
-
-function editMember(id) {
-  const m = liveMembers.find(x => x.id === id);
-  if (!m) return;
-  editingId = id;
-  document.getElementById('modalTitle').textContent = 'EDIT MEMBER';
-  document.getElementById('mName').value = m.name;
-  document.getElementById('mPhone').value = m.phone;
-  document.getElementById('mEmail').value = m.email||'';
-  document.getElementById('mPlan').value = m.plan;
-  document.getElementById('mStart').value = m.startDate;
-  document.getElementById('mGender').value = m.gender||'Male';
-  document.getElementById('mGoal').value = m.goal||'';
-  document.getElementById('mEmergency').value = m.emergency||'';
-  document.getElementById('memberModal').classList.add('open');
-}
-
-function saveMember() {
-  const name = document.getElementById('mName').value.trim();
-  const phone = document.getElementById('mPhone').value.trim();
-  const plan = document.getElementById('mPlan').value;
-  const startDate = document.getElementById('mStart').value;
-  if (!name || !phone || !plan || !startDate) { showToast('Fill required fields!', '⚠️'); return; }
-
-  const expiryDate = calcExpiry(startDate, plan);
-  const memberData = {
-    name, phone,
-    email: document.getElementById('mEmail').value.trim(),
-    plan, startDate, expiryDate,
-    gender: document.getElementById('mGender').value,
-    goal: document.getElementById('mGoal').value.trim(),
-    emergency: document.getElementById('mEmergency').value.trim(),
-    status: 'active'
-  };
-
-  // Firebase save
-  const col = db.collection('members');
-  if (editingId) {
-    col.doc(editingId).update(memberData)
-      .then(() => showToast(`${name} updated!`, '✅'))
-      .catch(e => showToast('Error: ' + e.message, '❌'));
-  } else {
-    memberData.id = nextMemberId();
-    col.doc(memberData.id).set(memberData)
-      .then(() => showToast(`${name} added! ID: ${memberData.id}`, '✅'))
-      .catch(e => showToast('Error: ' + e.message, '❌'));
-  }
-
-  closeModal('memberModal');
-  renderMembers();
-  renderDashboard();
-}
-
-function deleteMember(id) {
-  const m = liveMembers.find(x => x.id === id);
-  if (!m) return;
-  if (!confirm(`Delete ${m.name}? This cannot be undone.`)) return;
-  db.collection('members').doc(id).delete();
-  showToast(`${m.name} removed`, '🗑');
-  renderMembers();
-  renderDashboard();
-}
-
-// ═══════════════════════════════════════════════
-// CHECK-IN
-// ═══════════════════════════════════════════════
-function renderCheckins() {
-  const checkins = getCheckins();
-  const el = document.getElementById('fullCheckinLog');
-  if (checkins.length === 0) {
-    el.innerHTML = '<div class="empty-state"><div class="em-icon">👟</div><div class="em-text">No check-ins today.</div></div>';
-    return;
-  }
-  el.innerHTML = checkins.map(c => `
-    <div class="checkin-row">
-      <div class="checkin-dot"></div>
-      <div class="checkin-avatar">${c.name.charAt(0)}</div>
-      <div>
-        <div class="checkin-name">${c.name}</div>
-        <div class="checkin-plan">${c.plan} Plan</div>
-      </div>
-      <div class="checkin-time">${c.time}</div>
-    </div>`).join('');
-}
-
-function checkinMember(id) {
-  const m = liveMembers.find(x => x.id === id);
-  if (!m) return;
-  const today = new Date().toISOString().split('T')[0];
-  const entry = {
-    memberId: m.id, name: m.name, plan: m.plan,
-    date: today,
-    time: new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}),
-    timestamp: firebase.firestore.FieldValue.serverTimestamp()
-  };
-  db.collection('checkins').add(entry)
-    .then(() => showToast(`${m.name} checked in!`, '🏋️'))
-    .catch(e => showToast('Check-in error: ' + e.message, '❌'));
-}
-
-function openCheckinModal() {
-  document.getElementById('checkinSearch').value='';
-  document.getElementById('checkinResults').innerHTML='';
-  document.getElementById('checkinModal').classList.add('open');
-}
-
-function searchForCheckin(val) {
-  const el = document.getElementById('checkinResults');
-  if (!val) { el.innerHTML=''; return; }
-  const results = liveMembers.filter(m => m.name.toLowerCase().includes(val.toLowerCase()) || m.phone.includes(val));
-  el.innerHTML = results.map(m => `
-    <div style="display:flex;align-items:center;gap:12px;padding:12px;background:var(--surface2);border-radius:var(--radius-sm);cursor:pointer;border:1px solid var(--border);" onclick="checkinFromModal('${m.id}')">
-      <div class="checkin-avatar">${m.name.charAt(0)}</div>
-      <div><div style="font-family:'Barlow Condensed',sans-serif;font-weight:600;">${m.name}</div><div style="font-size:11px;color:var(--text-muted);">${m.id} · ${m.plan}</div></div>
-      <div style="margin-left:auto;"><span class="badge ${memberStatus(m)}">${memberStatus(m)}</span></div>
-    </div>`).join('') || '<div style="color:var(--text-muted);font-size:13px;">No member found</div>';
-}
-
-function checkinFromModal(id) {
-  closeModal('checkinModal');
-  checkinMember(id);
-  switchTab('checkin', document.querySelectorAll('.nav-item')[2]);
-}
-
-// ═══════════════════════════════════════════════
-// NOTIFICATIONS
-// ═══════════════════════════════════════════════
-let selectedTargets = ['all'];
-function toggleTarget(el) {
-  const val = el.dataset.val;
-  document.querySelectorAll('.target-pill').forEach(p => p.classList.remove('sel'));
-  el.classList.add('sel');
-  selectedTargets = [val];
-}
-
-function sendNotif() {
-  const msg = document.getElementById('notifMsg').value.trim();
-  if (!msg) { showToast('Write a message first!', '⚠️'); return; }
-  const target = selectedTargets[0];
-  const count = target==='all' ? liveMembers.length : target==='active' ? liveMembers.filter(m=>memberStatus(m)==='active').length : liveMembers.filter(m=>memberStatus(m)==='expiring').length;
-  const entry = { msg, target, count, time: new Date().toLocaleString('en-IN',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}) };
-  demoNotifs.unshift(entry);
-  document.getElementById('notifMsg').value='';
-  renderNotifHistory();
-  showToast(`Notification sent to ${count} member${count===1?'':'s'}!`, '📢');
-
-  if (db) { db.collection('notifications').add({ ...entry, sentAt: firebase.firestore.FieldValue.serverTimestamp() }); }
-}
-
-function renderNotifHistory() {
-  const el = document.getElementById('notifHistory');
-  if (demoNotifs.length === 0) { el.innerHTML='<div style="color:var(--text-muted);font-size:13px;">No notifications sent yet.</div>'; return; }
-  el.innerHTML = demoNotifs.map(n => `
-    <div style="padding:14px;background:var(--surface2);border-radius:var(--radius-sm);margin-bottom:10px;border:1px solid var(--border);">
-      <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
-        <span style="font-family:'Barlow Condensed',sans-serif;font-size:13px;color:var(--orange);">→ ${n.target==='all'?'All Members':n.target==='active'?'Active Members':'Expiring Soon'} (${n.count})</span>
-        <span style="font-size:11px;color:var(--text-muted);">${n.time}</span>
-      </div>
-      <div style="font-size:13px;color:var(--text-dim);">${n.msg}</div>
-    </div>`).join('');
-}
-
-// ═══════════════════════════════════════════════
-// MODALS & TOAST
-// ═══════════════════════════════════════════════
-function closeModal(id) { document.getElementById(id).classList.remove('open'); }
-document.querySelectorAll('.modal-overlay').forEach(m => {
-  m.addEventListener('click', e => { if(e.target === m) m.classList.remove('open'); });
-});
-
-function showToast(msg, icon='✅') {
-  const t=document.getElementById('toast');
-  document.getElementById('toastMsg').textContent=msg;
-  document.getElementById('toastIcon').textContent=icon;
-  t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'), 3000);
 }
 </script>
 </body>
