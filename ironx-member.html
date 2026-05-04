@@ -1402,17 +1402,22 @@ function afterLogin() {
     });
   }
 
-  // Record check-in
-  if (db && currentMember && currentMember.id) {
+  // Record check-in with full member details
+  if (db && currentMember) {
     const today = new Date().toISOString().split('T')[0];
+    const memberName = currentMember.name || 'Unknown';
+    const memberPlan = currentMember.plan || '1 Month';
+    const memberId = currentMember.id || 'guest';
     db.collection('checkins').add({
-      memberId: currentMember.id,
-      memberName: currentMember.name,
-      plan: currentMember.plan,
+      memberId: memberId,
+      name: memberName,
+      plan: memberPlan,
       date: today,
       time: new Date().toLocaleTimeString('en-IN', {hour:'2-digit', minute:'2-digit'}),
       timestamp: firebase.firestore.FieldValue.serverTimestamp()
-    }).catch(()=>{});
+    }).then(() => {
+      console.log('Check-in saved:', memberName);
+    }).catch(e => console.warn('Checkin error:', e));
   }
 
   // Show app
