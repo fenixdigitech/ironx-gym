@@ -793,6 +793,7 @@ try {
 // ── REAL-TIME LISTENERS (start after login) ──
 function startListeners() {
   if (!db) return;
+
   // Members live
   db.collection('members').onSnapshot(snap => {
     liveMembers = snap.docs.map(d => ({ id: d.id, ...d.data() }));
@@ -800,12 +801,10 @@ function startListeners() {
     renderMembers();
     renderDashboard();
   });
-  // Today check-ins live — filter by date in JS (no index needed)
+
+  // ALL checkins — no filter, show everything, sorted by time
   db.collection('checkins').onSnapshot(snap => {
-    const today = new Date().toISOString().split('T')[0];
-    liveCheckins = snap.docs
-      .map(d => ({ id: d.id, ...d.data() }))
-      .filter(c => c.date === today);
+    liveCheckins = snap.docs.map(d => ({ id: d.id, ...d.data() }));
     liveCheckins.sort((a,b) => (b.time||'').localeCompare(a.time||''));
     renderCheckins();
     renderDashboard();
@@ -1100,19 +1099,36 @@ function deleteMember(id) {
 function renderCheckins() {
   const checkins = getCheckins();
   const el = document.getElementById('fullCheckinLog');
+  const dashEl = document.getElementById('dashCheckins');
+
   if (checkins.length === 0) {
-    el.innerHTML = '<div class="empty-state"><div class="em-icon">👟</div><div class="em-text">No check-ins today.</div></div>';
+    const empty = '<div class="empty-state"><div class="em-icon">👟</div><div class="em-text">No check-ins yet today</div></div>';
+    el.innerHTML = empty;
+    if (dashEl) dashEl.innerHTML = empty;
     return;
   }
-  el.innerHTML = checkins.map(c => `
+
+  const rows = checkins.map(c => `
     <div class="checkin-row">
       <div class="checkin-dot"></div>
-      <div class="checkin-avatar">${c.name.charAt(0)}</div>
+      <div class="checkin-avatar">${(c.name||'?').charAt(0).toUpperCase()}</div>
       <div>
-        <div class="checkin-name">${c.name}</div>
-        <div class="checkin-plan">${c.plan} Plan</div>
+        <div class="checkin-name">${c.name||'Unknown'}</div>
+        <div class="checkin-plan">${c.plan||''} Plan · ${c.date||''}</div>
       </div>
-      <div class="checkin-time">${c.time}</div>
+      <div class="checkin-time">${c.time||''}</div>
+    </div>`).join('');
+
+  el.innerHTML = rows;
+  if (dashEl) dashEl.innerHTML = checkins.slice(0,5).map(c => `
+    <div class="checkin-row">
+      <div class="checkin-dot"></div>
+      <div class="checkin-avatar">${(c.name||'?').charAt(0).toUpperCase()}</div>
+      <div>
+        <div class="checkin-name">${c.name||'Unknown'}</div>
+        <div class="checkin-plan">${c.plan||''} Plan</div>
+      </div>
+      <div class="checkin-time">${c.time||''}</div>
     </div>`).join('');
 }
 
