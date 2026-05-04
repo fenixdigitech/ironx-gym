@@ -800,25 +800,15 @@ function startListeners() {
     renderMembers();
     renderDashboard();
   });
-  // Today check-ins live
-  const today = new Date().toISOString().split('T')[0];
-  db.collection('checkins').where('date','==',today).onSnapshot(snap => {
-    liveCheckins = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-    // Sort by time string descending (no index needed)
+  // Today check-ins live — filter by date in JS (no index needed)
+  db.collection('checkins').onSnapshot(snap => {
+    const today = new Date().toISOString().split('T')[0];
+    liveCheckins = snap.docs
+      .map(d => ({ id: d.id, ...d.data() }))
+      .filter(c => c.date === today);
     liveCheckins.sort((a,b) => (b.time||'').localeCompare(a.time||''));
     renderCheckins();
     renderDashboard();
-  }, err => {
-    // Fallback - get all checkins if date filter fails
-    db.collection('checkins').onSnapshot(snap => {
-      const today2 = new Date().toISOString().split('T')[0];
-      liveCheckins = snap.docs
-        .map(d => ({ id: d.id, ...d.data() }))
-        .filter(c => c.date === today2);
-      liveCheckins.sort((a,b) => (b.time||'').localeCompare(a.time||''));
-      renderCheckins();
-      renderDashboard();
-    });
   });
 }
 
