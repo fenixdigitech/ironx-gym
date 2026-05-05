@@ -828,12 +828,12 @@
       <div class="menu-text"><div class="menu-name">Workout Tracker</div><div class="menu-desc">Log today's session</div></div>
       <div class="menu-arrow">›</div>
     </div>
-    <div class="menu-item">
+    <div class="menu-item" onclick="showMeasurements()">
       <div class="menu-icon">📏</div>
       <div class="menu-text"><div class="menu-name">My Measurements</div><div class="menu-desc">Track body progress</div></div>
       <div class="menu-arrow">›</div>
     </div>
-    <div class="menu-item">
+    <div class="menu-item" onclick="showHabits()">
       <div class="menu-icon">✅</div>
       <div class="menu-text"><div class="menu-name">Habit Tracker</div><div class="menu-desc">Build daily habits</div></div>
       <div class="menu-arrow">›</div>
@@ -895,7 +895,7 @@
       <div class="tg-icon">📋</div>
       <div class="tg-name">My Workout Plan</div>
     </div>
-    <div class="tg-card" onclick="showToast('Exercise library coming soon!')">
+    <div class="tg-card" onclick="showExerciseLibrary()">
       <div class="tg-icon">🏋️</div>
       <div class="tg-name">Exercise Library</div>
     </div>
@@ -905,17 +905,17 @@
     <div class="section-title">ANALYTICS</div>
   </div>
   <div class="tracker-menu">
-    <div class="menu-item" onclick="showToast('Exercise graphs coming soon!')">
+    <div class="menu-item" onclick="showExerciseGraph()">
       <div class="menu-icon">📊</div>
       <div class="menu-text"><div class="menu-name">Exercise Graph</div><div class="menu-desc">View progress over time</div></div>
       <div class="menu-arrow">›</div>
     </div>
-    <div class="menu-item" onclick="showToast('Analysis coming soon!')">
+    <div class="menu-item" onclick="showWorkoutAnalysis()">
       <div class="menu-icon">🔍</div>
       <div class="menu-text"><div class="menu-name">Workout Analysis</div><div class="menu-desc">Deep dive into performance</div></div>
       <div class="menu-arrow">›</div>
     </div>
-    <div class="menu-item" onclick="showToast('Transformation log coming soon!')">
+    <div class="menu-item" onclick="showTransformations()">
       <div class="menu-icon">📸</div>
       <div class="menu-text"><div class="menu-name">Transformations</div><div class="menu-desc">Before & after photos</div></div>
       <div class="menu-arrow">›</div>
@@ -992,7 +992,7 @@
   <div class="topbar">
     <div class="topbar-logo">IRON<span>X</span></div>
     <div style="font-family:'Barlow Condensed',sans-serif;font-size:13px;color:var(--text-dim);letter-spacing:1px;">MY PROFILE</div>
-    <div class="profile-edit" onclick="showToast('Edit profile coming soon!')">✏️</div>
+    <div class="profile-edit" onclick="showEditProfile()">✏️</div>
   </div>
 
   <div class="profile-hero">
@@ -1045,17 +1045,17 @@
 
   <div class="section-header"><div class="section-title">SETTINGS</div></div>
   <div class="profile-menu">
-    <div class="menu-item" onclick="showToast('Fitness form coming soon!')">
+    <div class="menu-item" onclick="showFitnessForm()">
       <div class="menu-icon">📝</div>
       <div class="menu-text"><div class="menu-name">View Fitness Form</div><div class="menu-desc">Your health assessment</div></div>
       <div class="menu-arrow">›</div>
     </div>
-    <div class="menu-item" onclick="showToast('Notifications settings coming soon!')">
+    <div class="menu-item" onclick="showNotifSettings()">
       <div class="menu-icon">🔔</div>
       <div class="menu-text"><div class="menu-name">Notifications</div><div class="menu-desc">Manage your alerts</div></div>
       <div class="menu-arrow">›</div>
     </div>
-    <div class="menu-item" onclick="showToast('Help & support coming soon!')">
+    <div class="menu-item" onclick="showHelp()">
       <div class="menu-icon">💬</div>
       <div class="menu-text"><div class="menu-name">Help & Support</div><div class="menu-desc">Contact IRONX team</div></div>
       <div class="menu-arrow">›</div>
@@ -1883,6 +1883,269 @@ try {
   db = firebase.firestore();
   auth = firebase.auth();
 } catch(e) { console.warn('Firebase init failed:', e); }
+
+// ═══════════════════════════════════════════════
+// FEATURE FUNCTIONS — Demo ready
+// ═══════════════════════════════════════════════
+
+function openFeatureModal(html) {
+  document.getElementById('featureModalContent').innerHTML = html;
+  document.getElementById('featureModal').classList.add('open');
+}
+function closeFeatureModal() {
+  document.getElementById('featureModal').classList.remove('open');
+}
+
+function showExerciseGraph() {
+  openFeatureModal(`
+    <div class="modal-title">📊 Exercise Progress</div>
+    <div style="margin-bottom:16px;">
+      ${['Bench Press','Squats','Deadlift','Pull Ups'].map(ex => `
+        <div style="margin-bottom:14px;">
+          <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+            <span style="font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:600;">${ex}</span>
+            <span style="font-size:12px;color:var(--orange);">+${Math.floor(Math.random()*15+5)}kg this month</span>
+          </div>
+          <div style="height:8px;background:var(--surface3);border-radius:4px;overflow:hidden;">
+            <div style="height:100%;width:${Math.floor(Math.random()*40+50)}%;background:var(--orange);border-radius:4px;"></div>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+    <div style="background:var(--surface2);border-radius:var(--radius-sm);padding:14px;text-align:center;">
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:36px;color:var(--orange);">14</div>
+      <div style="font-size:12px;color:var(--text-dim);">Workouts this month</div>
+    </div>
+  `);
+}
+
+function showWorkoutAnalysis() {
+  openFeatureModal(`
+    <div class="modal-title">🔍 Workout Analysis</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
+      ${[
+        {icon:'🔥',val:'2,840',label:'Calories Burned'},
+        {icon:'⏱️',val:'6.2 hrs',label:'Total Time'},
+        {icon:'💪',val:'48',label:'Sets Completed'},
+        {icon:'📈',val:'92%',label:'Consistency'}
+      ].map(s => `
+        <div style="background:var(--surface2);border-radius:var(--radius-sm);padding:14px;text-align:center;">
+          <div style="font-size:24px;margin-bottom:4px;">${s.icon}</div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:26px;color:var(--orange);">${s.val}</div>
+          <div style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;">${s.label}</div>
+        </div>
+      `).join('')}
+    </div>
+    <div style="background:var(--surface2);border-radius:var(--radius-sm);padding:14px;">
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;margin-bottom:10px;">MUSCLE GROUPS THIS WEEK</div>
+      ${[
+        {name:'Chest',pct:85},
+        {name:'Back',pct:70},
+        {name:'Legs',pct:60},
+        {name:'Shoulders',pct:45},
+      ].map(m => `
+        <div style="margin-bottom:8px;">
+          <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px;">
+            <span>${m.name}</span><span style="color:var(--orange);">${m.pct}%</span>
+          </div>
+          <div style="height:6px;background:var(--surface3);border-radius:3px;">
+            <div style="height:100%;width:${m.pct}%;background:var(--orange);border-radius:3px;"></div>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+  `);
+}
+
+function showTransformations() {
+  openFeatureModal(`
+    <div class="modal-title">📸 My Transformation</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
+      <div style="background:var(--surface2);border-radius:var(--radius-sm);padding:14px;text-align:center;">
+        <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">Start Weight</div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:36px;color:var(--text);">${state.weight ? (state.weight + 6.2).toFixed(1) : '78.2'}</div>
+        <div style="font-size:11px;color:var(--text-muted);">kg</div>
+      </div>
+      <div style="background:var(--surface2);border-radius:var(--radius-sm);padding:14px;text-align:center;">
+        <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">Current Weight</div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:36px;color:var(--orange);">${state.weight || '72.0'}</div>
+        <div style="font-size:11px;color:var(--text-muted);">kg</div>
+      </div>
+    </div>
+    <div style="background:linear-gradient(135deg,rgba(255,92,0,0.15),rgba(255,140,0,0.05));border:1px solid rgba(255,92,0,0.3);border-radius:var(--radius-sm);padding:16px;text-align:center;margin-bottom:16px;">
+      <div style="font-size:24px;margin-bottom:4px;">🎉</div>
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;color:var(--orange);">6.2 KG LOST</div>
+      <div style="font-size:12px;color:var(--text-dim);margin-top:4px;">Keep going! You're crushing it</div>
+    </div>
+    <div style="background:var(--surface2);border-radius:var(--radius-sm);padding:14px;text-align:center;border:2px dashed var(--border);cursor:pointer;">
+      <div style="font-size:32px;margin-bottom:6px;">📷</div>
+      <div style="font-size:13px;color:var(--text-dim);">Tap to add progress photo</div>
+    </div>
+  `);
+}
+
+function showExerciseLibrary() {
+  const exercises = [
+    {name:'Bench Press', muscle:'Chest', sets:'4×12'},
+    {name:'Squats', muscle:'Legs', sets:'4×10'},
+    {name:'Deadlift', muscle:'Back', sets:'3×8'},
+    {name:'Pull Ups', muscle:'Back', sets:'3×10'},
+    {name:'Shoulder Press', muscle:'Shoulders', sets:'3×12'},
+    {name:'Barbell Curl', muscle:'Biceps', sets:'3×15'},
+    {name:'Skull Crushers', muscle:'Triceps', sets:'3×12'},
+    {name:'Leg Press', muscle:'Legs', sets:'4×12'},
+  ];
+  openFeatureModal(`
+    <div class="modal-title">🏋️ Exercise Library</div>
+    <input type="text" placeholder="🔍 Search exercises..." style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 14px;color:var(--text);font-family:'Barlow',sans-serif;font-size:14px;outline:none;margin-bottom:14px;" oninput="filterLibrary(this.value)"/>
+    <div id="libraryList">
+      ${exercises.map(ex => `
+        <div style="display:flex;align-items:center;gap:12px;padding:12px;background:var(--surface2);border-radius:var(--radius-sm);margin-bottom:8px;">
+          <div style="width:44px;height:44px;background:var(--orange-glow);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:20px;">💪</div>
+          <div style="flex:1;">
+            <div style="font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:600;">${ex.name}</div>
+            <div style="font-size:11px;color:var(--text-dim);">${ex.muscle} · ${ex.sets}</div>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+  `);
+}
+
+function filterLibrary(val) {
+  const items = document.querySelectorAll('#libraryList > div');
+  items.forEach(item => {
+    item.style.display = item.textContent.toLowerCase().includes(val.toLowerCase()) ? 'flex' : 'none';
+  });
+}
+
+function showMeasurements() {
+  openFeatureModal(`
+    <div class="modal-title">📏 Body Measurements</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;">
+      ${[
+        {label:'Chest',val:'96 cm'},
+        {label:'Waist',val:'82 cm'},
+        {label:'Hips',val:'94 cm'},
+        {label:'Arms',val:'34 cm'},
+        {label:'Thighs',val:'54 cm'},
+        {label:'Calves',val:'36 cm'},
+      ].map(m => `
+        <div style="background:var(--surface2);border-radius:var(--radius-sm);padding:14px;">
+          <div style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">${m.label}</div>
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:700;">${m.val}</div>
+        </div>
+      `).join('')}
+    </div>
+    <div style="background:var(--surface2);border-radius:var(--radius-sm);padding:14px;text-align:center;color:var(--text-dim);font-size:13px;">
+      📅 Last updated: Today
+    </div>
+  `);
+}
+
+function showHabits() {
+  const habits = [
+    {icon:'💧', name:'Drink 3L Water', done:true},
+    {icon:'🏋️', name:'Complete Workout', done:true},
+    {icon:'🥗', name:'Eat Healthy Meals', done:false},
+    {icon:'😴', name:'Sleep 8 Hours', done:false},
+    {icon:'🧘', name:'10 min Stretching', done:true},
+  ];
+  openFeatureModal(`
+    <div class="modal-title">✅ Habit Tracker</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+      <div style="font-size:13px;color:var(--text-dim);">Today's Progress</div>
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:18px;color:var(--orange);">3/5 Done</div>
+    </div>
+    <div style="height:6px;background:var(--surface3);border-radius:3px;margin-bottom:16px;overflow:hidden;">
+      <div style="height:100%;width:60%;background:var(--orange);border-radius:3px;"></div>
+    </div>
+    ${habits.map(h => `
+      <div style="display:flex;align-items:center;gap:14px;padding:14px;background:var(--surface2);border-radius:var(--radius-sm);margin-bottom:8px;border:1px solid ${h.done ? 'rgba(255,92,0,0.3)' : 'var(--border)'};">
+        <div style="font-size:24px;">${h.icon}</div>
+        <div style="flex:1;font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:600;${h.done ? 'color:var(--text-dim);text-decoration:line-through;' : ''}">${h.name}</div>
+        <div style="width:24px;height:24px;border-radius:50%;border:2px solid ${h.done ? 'var(--orange)' : 'var(--border)'};background:${h.done ? 'var(--orange)' : 'transparent'};display:flex;align-items:center;justify-content:center;font-size:12px;">${h.done ? '✓' : ''}</div>
+      </div>
+    `).join('')}
+  `);
+}
+
+function showFitnessForm() {
+  openFeatureModal(`
+    <div class="modal-title">📝 Fitness Assessment</div>
+    ${[
+      {label:'Fitness Goal', val: currentMember?.goal || 'Muscle Gain'},
+      {label:'Activity Level', val:'Intermediate'},
+      {label:'Health Conditions', val:'None'},
+      {label:'Injuries', val:'None'},
+      {label:'Diet Preference', val:'Non-Vegetarian'},
+      {label:'Sleep Hours', val:'7-8 hours'},
+    ].map(f => `
+      <div style="display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border);">
+        <span style="font-size:12px;color:var(--text-muted);">${f.label}</span>
+        <span style="font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:600;">${f.val}</span>
+      </div>
+    `).join('')}
+  `);
+}
+
+function showNotifSettings() {
+  openFeatureModal(`
+    <div class="modal-title">🔔 Notifications</div>
+    ${[
+      {label:'Workout Reminders', on:true},
+      {label:'Check-in Alerts', on:true},
+      {label:'Plan Updates', on:true},
+      {label:'Membership Expiry', on:true},
+      {label:'Promotional Offers', on:false},
+    ].map(n => `
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--border);">
+        <span style="font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:600;">${n.label}</span>
+        <div style="width:44px;height:24px;border-radius:12px;background:${n.on ? 'var(--orange)' : 'var(--surface3)'};position:relative;cursor:pointer;">
+          <div style="width:20px;height:20px;border-radius:50%;background:white;position:absolute;top:2px;${n.on ? 'right:2px' : 'left:2px'};transition:all 0.2s;"></div>
+        </div>
+      </div>
+    `).join('')}
+  `);
+}
+
+function showHelp() {
+  openFeatureModal(`
+    <div class="modal-title">💬 Help & Support</div>
+    <div style="text-align:center;padding:16px 0 24px;">
+      <div style="font-size:48px;margin-bottom:12px;">💪</div>
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;">IronX Fitness Support</div>
+      <div style="font-size:13px;color:var(--text-dim);margin-top:6px;">We're here to help you!</div>
+    </div>
+    ${[
+      {icon:'📞', label:'Call Us', val:'+91 98765 43210'},
+      {icon:'💬', label:'WhatsApp', val:'+91 98765 43210'},
+      {icon:'📧', label:'Email', val:'support@ironxgym.com'},
+      {icon:'📍', label:'Location', val:'Nalasopara, Mumbai'},
+    ].map(c => `
+      <div style="display:flex;align-items:center;gap:14px;padding:14px;background:var(--surface2);border-radius:var(--radius-sm);margin-bottom:8px;">
+        <div style="font-size:24px;">${c.icon}</div>
+        <div>
+          <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;">${c.label}</div>
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:600;">${c.val}</div>
+        </div>
+      </div>
+    `).join('')}
+  `);
+}
+
+function showEditProfile() {
+  showToast('Profile editing — contact gym desk');
+}
 </script>
+
+<!-- FEATURE MODALS -->
+<div class="modal-overlay" id="featureModal">
+  <div class="modal" style="max-height:85vh;overflow-y:auto;">
+    <div class="modal-handle"></div>
+    <div id="featureModalContent"></div>
+    <button class="btn-primary" style="margin-top:16px;" onclick="closeFeatureModal()">CLOSE</button>
+  </div>
+</div>
 </body>
 </html>
