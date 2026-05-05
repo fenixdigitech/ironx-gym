@@ -53,12 +53,8 @@
     align-items: center;
     justify-content: center;
     min-height: 100vh;
-    height: 100vh;
     background: var(--bg);
     padding-bottom: 0;
-    position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
-    z-index: 9999;
   }
   .splash-logo {
     font-family: 'Bebas Neue', sans-serif;
@@ -108,16 +104,11 @@
     align-items: center;
     justify-content: center;
     min-height: 100vh;
-    height: 100vh;
     padding: 32px 24px;
     padding-bottom: 32px;
-    position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
     background: var(--bg);
-    z-index: 9998;
-    overflow-y: auto;
   }
-  #login.active { display: flex; }
+  #login.active { display: flex !important; }
   .login-logo {
     font-family: 'Bebas Neue', sans-serif;
     font-size: 52px;
@@ -1189,15 +1180,16 @@ const exEmojis = { 'Hamstrings':'🦵','Quads':'🦵','Calves':'🦶','Chest':'�
 let state = { water: 0, weight: null, calGoal: 2200, burnGoal: 500, consumed: 0, burnt: 0, activeDay: 0 };
 
 // SPLASH
-setTimeout(() => {
-  const splash = document.getElementById('splash');
-  splash.style.opacity = '0';
-  splash.style.transition = 'opacity 0.4s';
-  setTimeout(() => {
-    splash.style.display = 'none';
-    document.getElementById('login').classList.add('active');
-  }, 400);
-}, 2000);
+// Show login after splash
+function showLogin() {
+  try {
+    const splash = document.getElementById('splash');
+    if (splash) { splash.style.display = 'none'; }
+    const login = document.getElementById('login');
+    if (login) { login.style.display = 'flex'; }
+  } catch(e) { console.error('showLogin error:', e); }
+}
+setTimeout(showLogin, 2000);
 
 // LOGIN
 async function doLogin() {
@@ -1271,8 +1263,30 @@ function afterLogin() {
   initCalendar();
   animateRing(0);
   showToast('Welcome back, ' + (currentMember.name || 'Member') + '! 💪');
-  loadPersonalTraining();
-  setTimeout(listenToTrainingPlan, 2000);
+  // Load personal training plan
+  if (typeof loadPersonalTraining === 'function') loadPersonalTraining();
+  if (typeof listenToTrainingPlan === 'function') setTimeout(listenToTrainingPlan, 2000);
+}
+
+// Stub functions in case they are missing
+function loadPersonalTraining() {
+  if (!db || !currentMember) { initWorkout(); return; }
+  db.collection('trainingPlans').doc(currentMember.id).get().then(doc => {
+    if (doc.exists && doc.data() && doc.data().plan) {
+      renderPersonalWorkout(doc.data().plan);
+    } else {
+      initWorkout();
+    }
+  }).catch(() => initWorkout());
+}
+
+function listenToTrainingPlan() {
+  if (!db || !currentMember || !currentMember.id) return;
+  db.collection('trainingPlans').doc(currentMember.id).onSnapshot(doc => {
+    if (doc.exists && doc.data() && doc.data().plan) {
+      renderPersonalWorkout(doc.data().plan);
+    }
+  });
 }
 function doLogout() {
   document.getElementById('bottomNav').style.display = 'none';
