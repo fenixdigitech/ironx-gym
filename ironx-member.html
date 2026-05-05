@@ -1430,22 +1430,39 @@ function afterLogin() {
 
   // Load personal training plan from Firebase
   loadPersonalTraining();
+  // Listen for real-time updates
+  setTimeout(listenToTrainingPlan, 2000);
 }
 
 // Load personal training plan for this member
 async function loadPersonalTraining() {
   if (!db || !currentMember) { initWorkout(); return; }
   try {
+    console.log('Loading training for member ID:', currentMember.id);
     const doc = await db.collection('trainingPlans').doc(currentMember.id).get();
-    if (doc.exists && doc.data().plan) {
-      renderPersonalWorkout(doc.data().plan);
+    console.log('Training doc exists:', doc.exists);
+    if (doc.exists && doc.data() && doc.data().plan) {
+      const plan = doc.data().plan;
+      console.log('Plan loaded:', JSON.stringify(plan).substring(0,100));
+      renderPersonalWorkout(plan);
     } else {
-      initWorkout(); // fallback to default plan
+      console.log('No personal plan found, using default');
+      initWorkout();
     }
   } catch(e) {
     console.warn('Training load error:', e);
     initWorkout();
   }
+}
+
+// Also listen for real-time updates to training plan
+function listenToTrainingPlan() {
+  if (!db || !currentMember || !currentMember.id) return;
+  db.collection('trainingPlans').doc(currentMember.id).onSnapshot(doc => {
+    if (doc.exists && doc.data() && doc.data().plan) {
+      renderPersonalWorkout(doc.data().plan);
+    }
+  });
 }
 
 // Render personal workout plan from Firebase
