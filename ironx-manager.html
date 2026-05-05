@@ -564,7 +564,7 @@ tr:hover td { background:var(--surface2); }
 </div>
 
 <!-- APP -->
-<div id="app">
+<div id="app" style="display:none;">
 
   <!-- Mobile topbar -->
   <div class="mobile-topbar">
@@ -990,9 +990,7 @@ function doLogout() {
 function initApp() {
   const today = new Date().toLocaleDateString('en-IN', {day:'numeric',month:'short',year:'numeric'});
   document.getElementById('statTodayDate').textContent = today;
-  renderDashboard();
-  renderMembers();
-  renderCheckins();
+  startListeners();
 }
 
 // ═══════════════════════════════════════════════
