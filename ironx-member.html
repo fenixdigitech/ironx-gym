@@ -1200,18 +1200,80 @@ setTimeout(() => {
 }, 2000);
 
 // LOGIN
-function doLogin() {
-  const email = document.getElementById('loginEmail').value;
+async function doLogin() {
+  const email = document.getElementById('loginEmail').value.trim();
   const pass = document.getElementById('loginPass').value;
   if (!email || !pass) { showToast('Enter your credentials!'); return; }
+
+  if (auth) {
+    try {
+      const cred = await auth.signInWithEmailAndPassword(email, pass);
+      // Check if member exists in Firestore
+      const snap = await db.collection('members').where('email','==', email).limit(1).get();
+      if (snap.empty) {
+        await auth.signOut();
+        showToast('This app is for gym members only.');
+        return;
+      }
+      currentMember = { id: snap.docs[0].id, ...snap.docs[0].data() };
+      afterLogin();
+    } catch(e) {
+      const msg = (e.code === 'auth/wrong-password' || e.code === 'auth/user-not-found' || e.code === 'auth/invalid-credential')
+        ? 'Wrong email or password' : e.message;
+      showToast('Login failed: ' + msg);
+    }
+  } else {
+    currentMember = { name: 'Demo User', plan: '3 Months', expiryDate: '2026-07-21' };
+    afterLogin();
+  }
+}
+
+
+function afterLogin() {
+  const m = currentMember;
+  if (m && m.name) {
+    const parts = m.name.split(' ');
+    const first = parts[0], last = parts.slice(1).join(' ');
+    const greetEl = document.querySelector('.greeting-name');
+    if (greetEl) greetEl.innerHTML = `${first} <span>${last}</span>`;
+    const avatarEl = document.querySelector('.topbar-avatar');
+    if (avatarEl) avatarEl.textContent = first.charAt(0);
+  }
+  if (m && m.plan) {
+    const planEl = document.querySelector('.mb-plan');
+    if (planEl) planEl.textContent = (m.plan||'').toUpperCase() + ' PLAN';
+  }
+  if (m && m.expiryDate) {
+    const exp = new Date(m.expiryDate);
+    const today = new Date(); today.setHours(0,0,0,0);
+    const days = Math.ceil((exp - today) / 86400000);
+    const expEl = document.querySelector('.mb-expires');
+    if (expEl) expEl.textContent = `Expires: ${exp.toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'})} · ${days > 0 ? days + ' days remaining' : 'Expired'}`;
+  }
+
+  // Record check-in
+  if (db && currentMember && currentMember.id) {
+    const today = new Date().toISOString().split('T')[0];
+    db.collection('checkins').add({
+      memberId: currentMember.id,
+      name: currentMember.name || 'Member',
+      plan: currentMember.plan || '',
+      date: today,
+      time: new Date().toLocaleTimeString('en-IN', {hour:'2-digit', minute:'2-digit'}),
+      timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    }).catch(()=>{});
+  }
+
   document.getElementById('login').style.display = 'none';
   document.getElementById('bottomNav').style.display = 'flex';
   showScreen('home', document.querySelectorAll('.nav-item')[0]);
   initWorkout();
   initCalendar();
   animateRing(0);
+  showToast('Welcome back, ' + (currentMember.name || 'Member') + '! 💪');
+  loadPersonalTraining();
+  setTimeout(listenToTrainingPlan, 2000);
 }
-
 function doLogout() {
   document.getElementById('bottomNav').style.display = 'none';
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
