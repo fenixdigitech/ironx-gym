@@ -1424,10 +1424,102 @@ function afterLogin() {
   document.getElementById('login').style.display = 'none';
   document.getElementById('bottomNav').style.display = 'flex';
   showScreen('home', document.querySelectorAll('.nav-item')[0]);
-  initWorkout();
   initCalendar();
   animateRing(0);
   showToast('Welcome back, ' + (currentMember.name || 'Member') + '! 💪');
+
+  // Load personal training plan from Firebase
+  loadPersonalTraining();
+}
+
+// Load personal training plan for this member
+async function loadPersonalTraining() {
+  if (!db || !currentMember) { initWorkout(); return; }
+  try {
+    const doc = await db.collection('trainingPlans').doc(currentMember.id).get();
+    if (doc.exists && doc.data().plan) {
+      renderPersonalWorkout(doc.data().plan);
+    } else {
+      initWorkout(); // fallback to default plan
+    }
+  } catch(e) {
+    console.warn('Training load error:', e);
+    initWorkout();
+  }
+}
+
+// Render personal workout plan from Firebase
+function renderPersonalWorkout(plan) {
+  const DAYS = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+  const DAY_SHORT = ['MON','TUE','WED','THU','FRI','SAT','SUN'];
+  const MUSCLES_EMOJI = {
+    'Chest':'💪','Back':'🔙','Shoulders':'🔝','Biceps':'💪','Triceps':'💪',
+    'Legs':'🦵','Quads':'🦵','Hamstrings':'🦵','Calves':'🦶',
+    'Core':'🎯','Cardio':'🏃','Full Body':'🏋️','Flexibility':'🧘'
+  };
+
+  // Build day scroll
+  const scroll = document.getElementById('dayScroll');
+  if (!scroll) return;
+  const today = new Date().getDay(); // 0=Sun,1=Mon...
+  const todayIdx = today === 0 ? 6 : today - 1; // convert to Mon=0
+
+  scroll.innerHTML = '';
+  DAYS.forEach((d, i) => {
+    const exercises = plan[d] || [];
+    const pill = document.createElement('div');
+    pill.className = 'day-pill' + (i === todayIdx ? ' active' : '');
+    pill.innerHTML = `<div class="day-num">D${i+1}</div><div class="day-label">${DAY_SHORT[i]}</div>`;
+    pill.onclick = () => renderDayExercises(plan, d, i);
+    scroll.appendChild(pill);
+  });
+
+  // Render today's exercises
+  renderDayExercises(plan, DAYS[todayIdx], todayIdx);
+}
+
+function renderDayExercises(plan, day, idx) {
+  // Update active pill
+  document.querySelectorAll('.day-pill').forEach((p, i) => {
+    p.classList.toggle('active', i === idx);
+  });
+
+  const MUSCLES_EMOJI = {
+    'Chest':'💪','Back':'🔙','Shoulders':'🔝','Biceps':'💪','Triceps':'💪',
+    'Legs':'🦵','Quads':'🦵','Hamstrings':'🦵','Calves':'🦶',
+    'Core':'🎯','Cardio':'🏃','Full Body':'🏋️','Flexibility':'🧘'
+  };
+
+  const exercises = plan[day] || [];
+  const content = document.getElementById('workoutContent');
+  if (!content) return;
+
+  if (exercises.length === 0) {
+    content.innerHTML = `
+      <div style="text-align:center;padding:48px 20px;color:var(--text-muted);">
+        <div style="font-size:40px;margin-bottom:12px;">😴</div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:18px;">Rest Day</div>
+        <div style="font-size:13px;margin-top:6px;">No exercises scheduled for ${day}</div>
+      </div>`;
+    return;
+  }
+
+  content.innerHTML = `
+    <div class="workout-section-title">YOUR PLAN — ${day.toUpperCase()}</div>
+    <div class="exercise-list" style="margin:0 20px 16px;">
+      ${exercises.map((ex, i) => `
+        <div class="exercise-item">
+          <div class="ex-thumb">${MUSCLES_EMOJI[ex.muscle] || '💪'}</div>
+          <div class="ex-info">
+            <div class="ex-name">${ex.name}</div>
+            <div class="ex-tags">
+              <span class="ex-tag">${ex.muscle || 'General'}</span>
+              ${ex.sets ? `<span class="ex-tag sets">${ex.sets} Sets</span>` : ''}
+              ${ex.reps ? `<span class="ex-tag">${ex.reps} Reps</span>` : ''}
+            </div>
+          </div>
+        </div>`).join('')}
+    </div>`;
 }
 
 // Override logout to also sign out of Firebase
