@@ -1509,17 +1509,17 @@ function renderExerciseRows() {
     <div class="exercise-row-builder" id="exrow-${i}">
       <div class="ex-delete-btn" onclick="deleteExercise(${i})">✕</div>
       <div class="ex-row-name">
-        <input type="text" placeholder="Exercise name (e.g. Bench Press)" value="${ex.name||''}"
-          onchange="updateExercise(${i},'name',this.value)">
+        <input type="text" placeholder="Exercise name e.g. Bench Press" value="${ex.name||''}"
+          oninput="updateExercise(${i},'name',this.value)">
       </div>
       <select onchange="updateExercise(${i},'muscle',this.value)">
         <option value="">Muscle Group</option>
         ${MUSCLES.map(m => `<option value="${m}" ${ex.muscle===m?'selected':''}>${m}</option>`).join('')}
       </select>
-      <input type="number" placeholder="Sets" min="1" max="10" value="${ex.sets||''}"
-        onchange="updateExercise(${i},'sets',this.value)" style="text-align:center;">
-      <input type="text" placeholder="Reps (e.g. 12 or 8-12)" value="${ex.reps||''}"
-        onchange="updateExercise(${i},'reps',this.value)">
+      <input type="number" placeholder="Sets" min="1" max="10" value="${ex.sets||'3'}"
+        oninput="updateExercise(${i},'sets',this.value)" style="text-align:center;">
+      <input type="text" placeholder="Reps e.g. 12" value="${ex.reps||'12'}"
+        oninput="updateExercise(${i},'reps',this.value)">
     </div>`).join('');
 }
 
@@ -1533,16 +1533,23 @@ function updateExercise(idx, field, value) {
 function syncExercisesFromDOM() {
   const day = DAYS[selectedDayIndex];
   const rows = document.querySelectorAll('.exercise-row-builder');
+  if (rows.length === 0) return; // nothing to sync
   trainingPlan[day] = [];
   rows.forEach(row => {
-    const inputs = row.querySelectorAll('input, select');
+    const nameEl = row.querySelector('input[type=text]:first-of-type, input[placeholder*="Exercise"]');
+    const selectEl = row.querySelector('select');
+    const setsEl = row.querySelector('input[type=number]');
+    const repsEl = row.querySelector('input[placeholder*="Rep"], input[placeholder*="rep"]');
+    const allInputs = row.querySelectorAll('input');
     trainingPlan[day].push({
-      name: inputs[0] ? inputs[0].value : '',
-      muscle: inputs[1] ? inputs[1].value : '',
-      sets: inputs[2] ? inputs[2].value : '3',
-      reps: inputs[3] ? inputs[3].value : '12'
+      name: allInputs[0] ? allInputs[0].value.trim() : '',
+      muscle: selectEl ? selectEl.value : '',
+      sets: allInputs[1] ? allInputs[1].value : '3',
+      reps: allInputs[2] ? allInputs[2].value : '12'
     });
   });
+  // Remove empty entries
+  trainingPlan[day] = trainingPlan[day].filter(ex => ex.name);
 }
 
 function addExerciseRow() {
@@ -1565,18 +1572,8 @@ async function saveTrainingPlan() {
   if (!selectedTrainingMemberId) { showToast('Select a member first!', '⚠️'); return; }
   if (!db) { showToast('Firebase not connected', '❌'); return; }
 
-  // Read current values from inputs before saving
-  const rows = document.querySelectorAll('.exercise-row-builder');
-  const day = DAYS[selectedDayIndex];
-  if (!trainingPlan[day]) trainingPlan[day] = [];
-  rows.forEach((row, i) => {
-    const inputs = row.querySelectorAll('input, select');
-    if (!trainingPlan[day][i]) trainingPlan[day][i] = {};
-    if (inputs[0]) trainingPlan[day][i].name = inputs[0].value;
-    if (inputs[1]) trainingPlan[day][i].muscle = inputs[1].value;
-    if (inputs[2]) trainingPlan[day][i].sets = inputs[2].value;
-    if (inputs[3]) trainingPlan[day][i].reps = inputs[3].value;
-  });
+  // Sync DOM values to trainingPlan before saving
+  syncExercisesFromDOM();
 
   // Clean up empty exercises
   DAYS.forEach(d => {
