@@ -1469,30 +1469,44 @@ function listenToTrainingPlan() {
 function renderPersonalWorkout(plan) {
   const DAYS = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
   const DAY_SHORT = ['MON','TUE','WED','THU','FRI','SAT','SUN'];
-  const MUSCLES_EMOJI = {
-    'Chest':'💪','Back':'🔙','Shoulders':'🔝','Biceps':'💪','Triceps':'💪',
-    'Legs':'🦵','Quads':'🦵','Hamstrings':'🦵','Calves':'🦶',
-    'Core':'🎯','Cardio':'🏃','Full Body':'🏋️','Flexibility':'🧘'
-  };
 
   // Build day scroll
   const scroll = document.getElementById('dayScroll');
   if (!scroll) return;
   const today = new Date().getDay(); // 0=Sun,1=Mon...
-  const todayIdx = today === 0 ? 6 : today - 1; // convert to Mon=0
+  const todayIdx = today === 0 ? 6 : today - 1; // Sun→6, Mon→0
 
   scroll.innerHTML = '';
   DAYS.forEach((d, i) => {
     const exercises = plan[d] || [];
     const pill = document.createElement('div');
     pill.className = 'day-pill' + (i === todayIdx ? ' active' : '');
-    pill.innerHTML = `<div class="day-num">D${i+1}</div><div class="day-label">${DAY_SHORT[i]}</div>`;
-    pill.onclick = () => renderDayExercises(plan, d, i);
+    // Show checkmark if exercises exist for this day
+    const hasPlan = exercises.filter(e => e && e.name).length > 0;
+    pill.innerHTML = `<div class="day-num" style="${hasPlan ? 'color:var(--orange)' : ''}">D${i+1}</div><div class="day-label">${DAY_SHORT[i]}</div>`;
+    pill.onclick = () => {
+      document.querySelectorAll('.day-pill').forEach(p => p.classList.remove('active'));
+      pill.classList.add('active');
+      renderDayExercises(plan, d, i);
+    };
     scroll.appendChild(pill);
   });
 
-  // Render today's exercises
-  renderDayExercises(plan, DAYS[todayIdx], todayIdx);
+  // Render today's exercises OR first day that has a plan
+  const hasToday = (plan[DAYS[todayIdx]] || []).filter(e => e && e.name).length > 0;
+  if (hasToday) {
+    renderDayExercises(plan, DAYS[todayIdx], todayIdx);
+  } else {
+    // Find first day with exercises
+    let firstPlanDay = todayIdx;
+    for (let i = 0; i < DAYS.length; i++) {
+      if ((plan[DAYS[i]] || []).filter(e => e && e.name).length > 0) {
+        firstPlanDay = i;
+        break;
+      }
+    }
+    renderDayExercises(plan, DAYS[firstPlanDay], firstPlanDay);
+  }
 }
 
 function renderDayExercises(plan, day, idx) {
@@ -1507,7 +1521,7 @@ function renderDayExercises(plan, day, idx) {
     'Core':'🎯','Cardio':'🏃','Full Body':'🏋️','Flexibility':'🧘'
   };
 
-  const exercises = plan[day] || [];
+  const exercises = (plan[day] || []).filter(e => e && e.name && e.name.trim());
   const content = document.getElementById('workoutContent');
   if (!content) return;
 
