@@ -658,14 +658,6 @@ tr:hover td { background:var(--surface2); }
         <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
         Training
       </div>
-      <div class="nav-item" onclick="switchTab('diet',this)">
-        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/><path stroke-linecap="round" stroke-linejoin="round" d="M12 12h.01M12 16h.01M8 12h.01M8 16h.01M16 12h.01M16 16h.01"/></svg>
-        Diet
-      </div>
-      <div class="nav-item" onclick="switchTab('payments',this)">
-        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-        Payments
-      </div>
       <div class="nav-item" onclick="switchTab('notify',this)">
         <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
         Notifications
@@ -836,70 +828,6 @@ tr:hover td { background:var(--surface2); }
       </div>
     </div>
 
-    <!-- DIET SCREEN -->
-    <div class="screen" id="screen-diet">
-      <div class="section-head">
-        <div class="section-title">DIET PLANS</div>
-      </div>
-      <div class="table-card" style="margin-bottom:16px;">
-        <div class="table-header"><div class="table-title">SELECT MEMBER</div></div>
-        <div style="padding:16px;">
-          <select class="filter-select" id="dietMemberSelect" style="width:100%;padding:13px 14px;" onchange="loadMemberDiet(this.value)">
-            <option value="">-- Choose a member --</option>
-          </select>
-        </div>
-      </div>
-      <div id="dietBuilder" style="display:none;">
-        <div style="display:flex;gap:8px;overflow-x:auto;padding-bottom:12px;scrollbar-width:none;" id="mealTabRow"></div>
-        <div class="table-card" style="margin-bottom:16px;">
-          <div class="table-header">
-            <div class="table-title" id="dietMealTitle">BREAKFAST</div>
-            <button class="btn-add" onclick="addMealItem()">+ Add Item</button>
-          </div>
-          <div id="mealRows" style="padding:12px;display:flex;flex-direction:column;gap:10px;"></div>
-        </div>
-        <div style="padding:0 0 8px;">
-          <div class="field"><label>Daily Calorie Target</label>
-            <input type="number" id="dietCalories" placeholder="e.g. 2200" class="search-input" style="width:100%;padding:13px 14px;">
-          </div>
-          <div class="field" style="margin-top:12px;"><label>Trainer Notes</label>
-            <textarea id="dietNotes" placeholder="Any specific instructions..." class="notif-textarea" style="min-height:70px;"></textarea>
-          </div>
-        </div>
-        <button class="btn-primary" style="width:100%;padding:15px;" onclick="saveDietPlan()">💾 SAVE & PUBLISH DIET PLAN</button>
-        <div style="height:16px;"></div>
-      </div>
-      <div id="dietEmptyState" style="text-align:center;padding:48px;color:var(--text-muted);">
-        <div style="font-size:40px;margin-bottom:12px;">🥗</div>
-        <div style="font-family:'Barlow Condensed',sans-serif;font-size:16px;">Select a member to manage their diet plan</div>
-      </div>
-    </div>
-
-    <!-- PAYMENTS SCREEN -->
-    <div class="screen" id="screen-payments">
-      <div class="stat-grid" style="margin-bottom:20px;">
-        <div class="stat-card">
-          <div class="sc-label">This Month</div>
-          <div class="sc-val" id="payMonthTotal" style="color:var(--green);">₹0</div>
-          <div class="sc-sub">Total collected</div>
-          <div class="sc-icon">💰</div>
-        </div>
-        <div class="stat-card">
-          <div class="sc-label">Pending</div>
-          <div class="sc-val" id="payPending" style="color:var(--red);">0</div>
-          <div class="sc-sub">Members due</div>
-          <div class="sc-icon">⚠️</div>
-        </div>
-      </div>
-      <div class="table-card">
-        <div class="table-header">
-          <div class="table-title">PAYMENT STATUS</div>
-          <input class="search-input" type="text" placeholder="🔍 Search..." oninput="filterPayments(this.value)" style="width:160px;">
-        </div>
-        <div id="paymentsList" style="padding:0;"></div>
-      </div>
-    </div>
-
     <!-- NOTIFY SCREEN -->
     <div class="screen" id="screen-notify">
       <div class="notif-card">
@@ -945,14 +873,6 @@ tr:hover td { background:var(--surface2); }
   <div class="bnm-item" onclick="switchTab('training',this)" id="bnm-training">
     <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
     Training
-  </div>
-  <div class="bnm-item" onclick="switchTab('diet',this)" id="bnm-diet">
-    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
-    Diet
-  </div>
-  <div class="bnm-item" onclick="switchTab('payments',this)" id="bnm-payments">
-    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-    Pay
   </div>
   <div class="bnm-item" onclick="switchTab('notify',this)" id="bnm-notify">
     <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
@@ -1136,7 +1056,7 @@ function switchTab(tab, navEl) {
   // Also highlight bottom nav
   const bnm = document.getElementById('bnm-'+tab);
   if (bnm) bnm.classList.add('active');
-  const titles = { dashboard:'DASHBOARD', members:'MEMBERS', checkin:'CHECK-INS', training:'TRAINING PLANS', diet:'DIET PLANS', payments:'PAYMENTS', notify:'NOTIFICATIONS' };
+  const titles = { dashboard:'DASHBOARD', members:'MEMBERS', checkin:'CHECK-INS', training:'TRAINING PLANS', notify:'NOTIFICATIONS' };
   document.getElementById('topbarTitle').textContent = titles[tab] || tab.toUpperCase();
   window.scrollTo(0,0);
   if (window.innerWidth <= 768) closeSidebar();
@@ -1775,240 +1695,6 @@ function showToast(msg, icon='✅') {
   t.classList.add('show');
   setTimeout(()=>t.classList.remove('show'), 3000);
 }
-
-// ═══════════════════════════════════════════════
-// DIET PLAN
-// ═══════════════════════════════════════════════
-const MEALS = ['Breakfast','Mid Morning','Lunch','Evening Snack','Dinner'];
-let selectedDietMemberId = null;
-let selectedMealIndex = 0;
-let dietPlan = {};
-
-function populateDietMemberSelect() {
-  const sel = document.getElementById('dietMemberSelect');
-  if (!sel) return;
-  sel.innerHTML = '<option value="">-- Choose a member --</option>';
-  liveMembers.forEach(m => {
-    sel.innerHTML += `<option value="${m.id}">${m.name} (${m.plan})</option>`;
-  });
-}
-
-async function loadMemberDiet(memberId) {
-  if (!memberId) {
-    document.getElementById('dietBuilder').style.display = 'none';
-    document.getElementById('dietEmptyState').style.display = 'block';
-    return;
-  }
-  selectedDietMemberId = memberId;
-  dietPlan = {};
-  if (db) {
-    try {
-      const doc = await db.collection('dietPlans').doc(memberId).get();
-      if (doc.exists) {
-        dietPlan = doc.data().plan || {};
-        if (doc.data().calories) document.getElementById('dietCalories').value = doc.data().calories;
-        if (doc.data().notes) document.getElementById('dietNotes').value = doc.data().notes;
-      }
-    } catch(e) { console.warn(e); }
-  }
-  document.getElementById('dietEmptyState').style.display = 'none';
-  document.getElementById('dietBuilder').style.display = 'block';
-  renderMealTabs();
-  renderMealRows();
-}
-
-function renderMealTabs() {
-  const row = document.getElementById('mealTabRow');
-  row.innerHTML = MEALS.map((m, i) => {
-    const hasItems = dietPlan[m] && dietPlan[m].length > 0;
-    return `<div class="day-tab ${i === selectedMealIndex ? 'active' : ''}" onclick="selectMeal(${i})">
-      ${m.split(' ')[0]}${hasItems ? ' ✓' : ''}
-    </div>`;
-  }).join('');
-}
-
-function selectMeal(idx) {
-  syncMealFromDOM();
-  selectedMealIndex = idx;
-  renderMealTabs();
-  renderMealRows();
-  document.getElementById('dietMealTitle').textContent = MEALS[idx].toUpperCase();
-}
-
-function renderMealRows() {
-  const meal = MEALS[selectedMealIndex];
-  const items = dietPlan[meal] || [];
-  const container = document.getElementById('mealRows');
-  if (items.length === 0) {
-    container.innerHTML = `<div style="text-align:center;padding:20px;color:var(--text-muted);font-size:13px;">No items for ${meal}. Click "+ Add Item"</div>`;
-    return;
-  }
-  container.innerHTML = items.map((item, i) => `
-    <div class="exercise-row-builder" style="grid-template-columns:1fr auto auto;">
-      <div class="ex-delete-btn" onclick="deleteMealItem(${i})">✕</div>
-      <input type="text" placeholder="Food item (e.g. Oats with milk)" value="${item.food||''}" oninput="updateMealItem(${i},'food',this.value)" style="grid-column:1/-1;">
-      <input type="text" placeholder="Quantity (e.g. 1 bowl)" value="${item.qty||''}" oninput="updateMealItem(${i},'qty',this.value)">
-      <input type="number" placeholder="Calories" value="${item.cal||''}" oninput="updateMealItem(${i},'cal',this.value)" style="text-align:center;">
-    </div>`).join('');
-}
-
-function updateMealItem(idx, field, value) {
-  const meal = MEALS[selectedMealIndex];
-  if (!dietPlan[meal]) dietPlan[meal] = [];
-  while (dietPlan[meal].length <= idx) dietPlan[meal].push({});
-  dietPlan[meal][idx][field] = value;
-}
-
-function addMealItem() {
-  syncMealFromDOM();
-  const meal = MEALS[selectedMealIndex];
-  if (!dietPlan[meal]) dietPlan[meal] = [];
-  dietPlan[meal].push({ food:'', qty:'', cal:'' });
-  renderMealRows();
-}
-
-function deleteMealItem(idx) {
-  syncMealFromDOM();
-  const meal = MEALS[selectedMealIndex];
-  dietPlan[meal].splice(idx, 1);
-  renderMealRows();
-  renderMealTabs();
-}
-
-function syncMealFromDOM() {
-  const meal = MEALS[selectedMealIndex];
-  const rows = document.querySelectorAll('#mealRows .exercise-row-builder');
-  if (rows.length === 0) return;
-  dietPlan[meal] = [];
-  rows.forEach(row => {
-    const inputs = row.querySelectorAll('input');
-    if (inputs[0] && inputs[0].value.trim()) {
-      dietPlan[meal].push({ food: inputs[0].value, qty: inputs[1]?.value||'', cal: inputs[2]?.value||'' });
-    }
-  });
-}
-
-async function saveDietPlan() {
-  if (!selectedDietMemberId) { showToast('Select a member first!', '⚠️'); return; }
-  syncMealFromDOM();
-  const member = liveMembers.find(m => m.id === selectedDietMemberId);
-  const calories = document.getElementById('dietCalories').value;
-  const notes = document.getElementById('dietNotes').value;
-  try {
-    await db.collection('dietPlans').doc(selectedDietMemberId).set({
-      memberId: selectedDietMemberId,
-      memberName: member?.name || '',
-      plan: dietPlan,
-      calories, notes,
-      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-    });
-    showToast(`Diet plan saved for ${member?.name}! 🥗`, '✅');
-    renderMealTabs();
-  } catch(e) { showToast('Error: ' + e.message, '❌'); }
-}
-
-// ═══════════════════════════════════════════════
-// PAYMENTS
-// ═══════════════════════════════════════════════
-let paymentData = {};
-
-function initPayments() {
-  populateDietMemberSelect();
-  renderPayments();
-}
-
-function renderPayments(filter) {
-  const members = filter
-    ? liveMembers.filter(m => m.name.toLowerCase().includes(filter.toLowerCase()))
-    : liveMembers;
-
-  const list = document.getElementById('paymentsList');
-  if (!list) return;
-
-  // Calculate stats
-  const paid = liveMembers.filter(m => paymentData[m.id]?.paid);
-  const pending = liveMembers.filter(m => !paymentData[m.id]?.paid);
-  const totalCollected = paid.reduce((sum, m) => {
-    const prices = {'1 Month':1999,'3 Months':4999,'6 Months':8500,'12 Months':14999};
-    return sum + (prices[m.plan]||0);
-  }, 0);
-
-  const statTotal = document.getElementById('payMonthTotal');
-  const statPending = document.getElementById('payPending');
-  if (statTotal) statTotal.textContent = '₹' + totalCollected.toLocaleString('en-IN');
-  if (statPending) statPending.textContent = pending.length;
-
-  if (members.length === 0) {
-    list.innerHTML = '<div class="empty-state"><div class="em-icon">💰</div><div class="em-text">No members found</div></div>';
-    return;
-  }
-
-  const planPrices = {'1 Month':'₹1,999','3 Months':'₹4,999','6 Months':'₹8,500','12 Months':'₹14,999'};
-
-  list.innerHTML = members.map(m => {
-    const isPaid = paymentData[m.id]?.paid;
-    const paidDate = paymentData[m.id]?.date || '';
-    const st = memberStatus(m);
-    return `
-    <div style="display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid var(--border);">
-      <div class="member-avatar" style="width:40px;height:40px;font-size:18px;">${m.name.charAt(0)}</div>
-      <div style="flex:1;">
-        <div style="font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:600;">${m.name}</div>
-        <div style="font-size:11px;color:var(--text-muted);">${m.plan} · ${planPrices[m.plan]||''}</div>
-        ${isPaid ? `<div style="font-size:10px;color:var(--green);">Paid on ${paidDate}</div>` : ''}
-      </div>
-      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;">
-        <span class="badge ${st}">${st.charAt(0).toUpperCase()+st.slice(1)}</span>
-        <button onclick="togglePayment('${m.id}')" style="padding:5px 12px;border-radius:6px;border:none;cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:0.5px;background:${isPaid ? 'rgba(239,68,68,0.1)' : 'rgba(34,197,94,0.15)'};color:${isPaid ? 'var(--red)' : 'var(--green)'};">
-          ${isPaid ? '✕ Unpaid' : '✓ Mark Paid'}
-        </button>
-      </div>
-    </div>`;
-  }).join('');
-}
-
-function togglePayment(memberId) {
-  const m = liveMembers.find(x => x.id === memberId);
-  if (!m) return;
-  const isPaid = paymentData[memberId]?.paid;
-  if (!isPaid) {
-    paymentData[memberId] = { paid: true, date: new Date().toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}) };
-    showToast(`${m.name} marked as paid ✅`, '💰');
-    // Save to Firebase
-    if (db) db.collection('payments').doc(memberId).set({ memberId, paid: true, date: new Date().toISOString(), memberName: m.name, plan: m.plan }, {merge:true});
-  } else {
-    paymentData[memberId] = { paid: false };
-    showToast(`${m.name} marked as unpaid`, '⚠️');
-    if (db) db.collection('payments').doc(memberId).set({ paid: false }, {merge:true});
-  }
-  renderPayments();
-}
-
-function filterPayments(val) { renderPayments(val); }
-
-// Load payment data from Firebase on startup
-function loadPayments() {
-  if (!db) return;
-  db.collection('payments').onSnapshot(snap => {
-    snap.docs.forEach(d => { paymentData[d.id] = d.data(); });
-    renderPayments();
-  });
-}
-
-// Hook into startListeners
-const _origStartListeners = startListeners;
-startListeners = function() {
-  _origStartListeners();
-  loadPayments();
-};
-
-// Hook into populateTrainingMemberSelect to also populate diet select
-const _origPopulate = populateTrainingMemberSelect;
-populateTrainingMemberSelect = function() {
-  _origPopulate();
-  populateDietMemberSelect();
-  renderPayments();
-};
 </script>
 </body>
 </html>
