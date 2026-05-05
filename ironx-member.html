@@ -1434,6 +1434,15 @@ async function loadGifsForExercises(exercises) {
 const EXERCISE_GIFS = {};
 
 
+const firebaseConfig = {
+  apiKey: "AIzaSyBWx2JnRPIAx5R-4Q3YF4rHJCil_cKIHBc",
+  authDomain: "gym-demo-fb4d4.firebaseapp.com",
+  projectId: "gym-demo-fb4d4",
+  storageBucket: "gym-demo-fb4d4.firebasestorage.app",
+  messagingSenderId: "75194814334",
+  appId: "1:75194814334:web:fc416a302744feffb36d2f"
+};
+
 let fbApp, db, auth, currentMember = null;
 try {
   fbApp = firebase.initializeApp(firebaseConfig);
