@@ -1631,3 +1631,338 @@ const EXERCISE_GIFS = {
   'downward dog':           'https://fitnessprogramer.com/wp-content/uploads/2021/02/Downward-Dog.gif',
   'hip flexor stretch':     'https://fitnessprogramer.com/wp-content/uploads/2021/02/Kneeling-Hip-Flexor-Stretch.gif',
 };
+
+
+
+function getExerciseGif(name) {
+  if (!name) return null;
+  const key = name.toLowerCase().trim();
+  if (EXERCISE_GIFS[key]) return EXERCISE_GIFS[key];
+  const noS = key.replace(/s$/, '');
+  if (EXERCISE_GIFS[noS]) return EXERCISE_GIFS[noS];
+  for (const [k, url] of Object.entries(EXERCISE_GIFS)) {
+    if (key.includes(k) || k.includes(key)) return url;
+  }
+  return null;
+}
+
+async function fetchExerciseGif(name) { return getExerciseGif(name); }
+
+function loadGifsForExercises(exercises) {
+  exercises.forEach((ex, i) => {
+    if (!ex || !ex.name) return;
+    const gifUrl = getExerciseGif(ex.name);
+    if (!gifUrl) return;
+    const thumb = document.getElementById('ex-thumb-' + i);
+    if (thumb) thumb.innerHTML = `<img src="${gifUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:8px;" alt="${ex.name}" onerror="this.style.display='none'"/>`;
+    const detail = document.getElementById('ex-gif-' + i);
+    if (detail) detail.innerHTML = `<img src="${gifUrl}" style="width:100%;max-height:240px;object-fit:contain;border-radius:10px;margin-bottom:12px;" alt="${ex.name}" onerror="this.style.display='none'"/>`;
+  });
+}
+
+function getEmojiForMuscle(muscle) {
+  const map = {'Chest':'🏋️','Back':'🔙','Shoulders':'💪','Biceps':'💪','Triceps':'💪','Legs':'🦵','Core':'🎯','Cardio':'🏃'};
+  return map[muscle] || '💪';
+}
+
+// Show login after splash
+function showLogin() {
+  try {
+    const splash = document.getElementById('splash');
+    if (splash) splash.style.display = 'none';
+    const login = document.getElementById('login');
+    if (login) login.style.display = 'flex';
+  } catch(e) { console.error('showLogin error:', e); }
+}
+setTimeout(showLogin, 2000);
+
+// LOGIN
+async function doLogin() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const pass = document.getElementById('loginPass').value;
+  if (!email || !pass) { showToast('Enter your credentials!'); return; }
+  if (auth) {
+    try {
+      const cred = await auth.signInWithEmailAndPassword(email, pass);
+      const snap = await db.collection('members').where('email','==', email).limit(1).get();
+      if (snap.empty) {
+        await auth.signOut();
+        showToast('This app is for gym members only.');
+        return;
+      }
+      currentMember = { id: snap.docs[0].id, ...snap.docs[0].data() };
+      afterLogin();
+    } catch(e) {
+      const msg = (e.code === 'auth/wrong-password' || e.code === 'auth/user-not-found' || e.code === 'auth/invalid-credential')
+        ? 'Wrong email or password' : e.message;
+      showToast('Login failed: ' + msg);
+    }
+  } else {
+    currentMember = { name: 'Demo User', plan: '3 Months', expiryDate: '2026-07-21', id: 'demo' };
+    afterLogin();
+  }
+}
+
+function doLogout() {
+  if (auth) auth.signOut().catch(()=>{});
+  currentMember = null;
+  document.getElementById('bottomNav').style.display = 'none';
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('login').style.display = 'flex';
+  document.getElementById('loginEmail').value = '';
+  document.getElementById('loginPass').value = '';
+}
+
+function afterLogin() {
+  const m = currentMember;
+  if (m && m.name) {
+    const parts = m.name.split(' ');
+    const first = parts[0], last = parts.slice(1).join(' ');
+    const greetEl = document.querySelector('.greeting-name');
+    if (greetEl) greetEl.innerHTML = first + ' <span>' + last + '</span>';
+    const avatarEl = document.querySelector('.topbar-avatar');
+    if (avatarEl) avatarEl.textContent = first.charAt(0);
+  }
+  if (m && m.plan) {
+    const planEl = document.querySelector('.mb-plan');
+    if (planEl) planEl.textContent = (m.plan||'').toUpperCase() + ' PLAN';
+  }
+  if (m && m.expiryDate) {
+    const exp = new Date(m.expiryDate);
+    const today = new Date(); today.setHours(0,0,0,0);
+    const days = Math.ceil((exp - today) / 86400000);
+    const expEl = document.querySelector('.mb-expires');
+    if (expEl) expEl.textContent = 'Expires: ' + exp.toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'}) + ' · ' + (days > 0 ? days + ' days remaining' : 'Expired');
+  }
+  if (db && currentMember && currentMember.id) {
+    const today = new Date().toISOString().split('T')[0];
+    db.collection('checkins').add({
+      memberId: currentMember.id,
+      name: currentMember.name || 'Member',
+      plan: currentMember.plan || '',
+      date: today,
+      time: new Date().toLocaleTimeString('en-IN', {hour:'2-digit', minute:'2-digit'}),
+      timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    }).catch(()=>{});
+  }
+  document.getElementById('login').style.display = 'none';
+  document.getElementById('bottomNav').style.display = 'flex';
+  showScreen('home', document.querySelectorAll('.nav-item')[0]);
+  initWorkout();
+  initCalendar();
+  animateRing(0);
+  showToast('Welcome back, ' + (currentMember.name || 'Member') + '! 💪');
+  loadPersonalTraining();
+}
+
+function loadPersonalTraining() {
+  if (!db || !currentMember) { initWorkout(); return; }
+  db.collection('trainingPlans').doc(currentMember.id).get().then(doc => {
+    if (doc.exists && doc.data() && doc.data().plan) {
+      renderPersonalWorkout(doc.data().plan);
+    } else {
+      initWorkout();
+    }
+  }).catch(() => initWorkout());
+  // Live updates
+  db.collection('trainingPlans').doc(currentMember.id).onSnapshot(doc => {
+    if (doc.exists && doc.data() && doc.data().plan) renderPersonalWorkout(doc.data().plan);
+  });
+}
+
+// SCREENS
+function showScreen(id, navEl) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if (navEl) navEl.classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+// WORKOUT
+function initWorkout() {
+  const scroll = document.getElementById('dayScroll');
+  if (!scroll) return;
+  scroll.innerHTML = '';
+  workoutDays.forEach((d, i) => {
+    const pill = document.createElement('div');
+    pill.className = 'day-pill' + (i === state.activeDay ? ' active' : '') + (i < state.activeDay ? ' done' : '');
+    pill.innerHTML = '<div class="day-num">D'+(i+1)+'</div><div class="day-label">'+d.label.split(' ')[0]+'</div>';
+    pill.onclick = () => { state.activeDay = i; initWorkout(); };
+    scroll.appendChild(pill);
+  });
+  renderWorkout(state.activeDay);
+}
+
+function renderWorkout(idx) {
+  const day = workoutDays[idx];
+  const content = document.getElementById('workoutContent');
+  if (!content) return;
+  let html = '<div class="workout-section-title">WARM UP</div><div class="exercise-list">';
+  day.warmup.forEach((ex, i) => {
+    const gif = getExerciseGif(ex);
+    const thumb = gif ? '<img src="'+gif+'" style="width:100%;height:100%;object-fit:cover;border-radius:8px;" onerror="this.style.display='none'"/>' : '🤸';
+    html += '<div class="exercise-item"><div class="ex-thumb" style="overflow:hidden;">'+thumb+'</div><div class="ex-info"><div class="ex-name">'+ex+'</div><div class="ex-tags"><span class="ex-tag">Warm Up</span><span class="ex-tag sets">2 Sets</span></div></div></div>';
+  });
+  html += '</div>';
+  day.rounds.forEach((ex, i) => {
+    const gif = getExerciseGif(ex[0]);
+    const thumb = gif ? '<img src="'+gif+'" style="width:100%;height:100%;object-fit:cover;border-radius:8px;" onerror="this.style.display='none'"/>' : (exEmojis[ex[1]] || '💪');
+    html += '<div class="workout-section-title">ROUND '+(i+1)+'</div><div class="exercise-list"><div class="exercise-item"><div class="ex-thumb" style="overflow:hidden;">'+thumb+'</div><div class="ex-info"><div class="ex-name">'+ex[0]+'</div><div class="ex-tags"><span class="ex-tag">'+ex[1]+'</span><span class="ex-tag sets">'+ex[2]+' Sets</span></div></div></div></div>';
+  });
+  content.innerHTML = html;
+}
+
+function renderPersonalWorkout(plan) {
+  const DAYS = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+  const DAY_SHORT = ['MON','TUE','WED','THU','FRI','SAT','SUN'];
+  const scroll = document.getElementById('dayScroll');
+  if (!scroll) return;
+  const todayJS = new Date().getDay();
+  const todayIdx = todayJS === 0 ? 6 : todayJS - 1;
+  scroll.innerHTML = '';
+  DAYS.forEach((d, i) => {
+    const exercises = (plan[d] || []).filter(e => e && e.name);
+    const pill = document.createElement('div');
+    pill.className = 'day-pill' + (i === todayIdx ? ' active' : '');
+    pill.innerHTML = '<div class="day-num">D'+(i+1)+'</div><div class="day-label">'+DAY_SHORT[i]+'</div>';
+    pill.onclick = () => {
+      document.querySelectorAll('.day-pill').forEach(p => p.classList.remove('active'));
+      pill.classList.add('active');
+      renderDayExercises(plan, d);
+    };
+    scroll.appendChild(pill);
+  });
+  const hasToday = (plan[DAYS[todayIdx]] || []).filter(e => e && e.name).length > 0;
+  if (hasToday) {
+    renderDayExercises(plan, DAYS[todayIdx]);
+  } else {
+    for (let i = 0; i < DAYS.length; i++) {
+      if ((plan[DAYS[i]] || []).filter(e => e && e.name).length > 0) {
+        renderDayExercises(plan, DAYS[i]);
+        break;
+      }
+    }
+  }
+}
+
+function renderDayExercises(plan, day) {
+  const exercises = (plan[day] || []).filter(e => e && e.name);
+  const content = document.getElementById('workoutContent');
+  if (!content) return;
+  window._currentExercises = exercises;
+  if (exercises.length === 0) {
+    content.innerHTML = '<div style="text-align:center;padding:48px 20px;color:var(--text-muted);"><div style="font-size:40px;margin-bottom:12px;">😴</div><div style="font-family:Barlow Condensed,sans-serif;font-size:18px;">Rest Day</div><div style="font-size:13px;margin-top:6px;">No exercises scheduled for '+day+'</div></div>';
+    return;
+  }
+  content.innerHTML = '<div class="workout-section-title">YOUR PLAN — '+day.toUpperCase()+'</div><div class="exercise-list" style="margin:0 20px 16px;">' +
+    exercises.map((ex, i) => {
+      const gifUrl = getExerciseGif(ex.name);
+      const muscleEmojis = {'Chest':'🏋️','Back':'🔙','Shoulders':'💪','Biceps':'💪','Triceps':'💪','Legs':'🦵','Quads':'🦵','Hamstrings':'🦵','Calves':'🦶','Core':'🎯','Cardio':'🏃','Full Body':'🏋️','Flexibility':'🧘'};
+      const thumbContent = gifUrl
+        ? '<img src="'+gifUrl+'" id="ex-thumb-'+i+'" style="width:100%;height:100%;object-fit:cover;border-radius:8px;" alt="'+ex.name+'" onerror="this.style.display='none'"/>'
+        : '<span id="ex-thumb-'+i+'" style="font-size:22px;">'+(muscleEmojis[ex.muscle]||'💪')+'</span>';
+      return '<div class="exercise-item" onclick="toggleExerciseDetail('+i+')"><div class="ex-thumb" style="overflow:hidden;">'+thumbContent+'</div><div class="ex-info"><div class="ex-name">'+ex.name+'</div><div class="ex-tags"><span class="ex-tag">'+(ex.muscle||'General')+'</span>'+(ex.sets?'<span class="ex-tag sets">'+ex.sets+' Sets</span>':'')+(ex.reps?'<span class="ex-tag">'+ex.reps+' Reps</span>':'')+'</div></div><div style="color:var(--text-muted);font-size:18px;padding-right:4px;">›</div></div><div id="exdetail-'+i+'" style="display:none;background:var(--surface2);border-bottom:1px solid var(--border);padding:14px 16px;"><div id="ex-gif-'+i+'" style="width:100%;height:160px;border-radius:10px;margin-bottom:12px;display:flex;align-items:center;justify-content:center;background:#ffffff08;">'+(gifUrl?'<img src="'+gifUrl+'" style="max-height:160px;object-fit:contain;border-radius:10px;" onerror="this.style.display='none'"/>':'<span style="font-size:48px;">'+(muscleEmojis[ex.muscle]||'💪')+'</span>')+'</div><div style="font-family:Barlow Condensed,sans-serif;font-size:15px;font-weight:700;margin-bottom:6px;">'+ex.name+'</div><div style="display:flex;gap:10px;flex-wrap:wrap;">'+(ex.muscle?'<div style="background:var(--orange-glow);color:var(--orange);padding:4px 10px;border-radius:6px;font-size:12px;">🎯 '+ex.muscle+'</div>':'')+(ex.sets?'<div style="background:var(--surface3);padding:4px 10px;border-radius:6px;font-size:12px;">📋 '+ex.sets+' Sets</div>':'')+(ex.reps?'<div style="background:var(--surface3);padding:4px 10px;border-radius:6px;font-size:12px;">🔁 '+ex.reps+' Reps</div>':'')+'</div></div>';
+    }).join('') + '</div>';
+}
+
+function toggleExerciseDetail(i) {
+  const el = document.getElementById('exdetail-' + i);
+  if (!el) return;
+  el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+
+// CALENDAR
+function initCalendar() {
+  const cal = document.getElementById('weekCalendar');
+  if (!cal) return;
+  cal.innerHTML = '';
+  const today = new Date();
+  const days = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
+  const months = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+  for (let i = -3; i <= 3; i++) {
+    const d = new Date(today);
+    d.setDate(today.getDate() + i);
+    const div = document.createElement('div');
+    div.className = 'cal-day' + (i === 0 ? ' today' : '') + (i < 0 ? ' done' : '');
+    div.innerHTML = '<div class="cal-month">'+months[d.getMonth()]+'</div><div class="cal-date">'+d.getDate()+'</div><div class="cal-weekday">'+days[d.getDay()]+'</div>';
+    cal.appendChild(div);
+  }
+}
+
+// RING
+function animateRing(pct) {
+  const fill = document.getElementById('ringFill');
+  const pctEl = document.getElementById('ringPct');
+  if (!fill || !pctEl) return;
+  const circumference = 220;
+  fill.style.strokeDashoffset = circumference - (circumference * pct / 100);
+  pctEl.textContent = Math.round(pct) + '%';
+}
+
+// WATER
+function addWater() { document.getElementById('waterModal').classList.add('open'); }
+function saveWater() {
+  const val = parseFloat(document.getElementById('waterInput').value) || 0;
+  state.water = Math.round((state.water + val) * 10) / 10;
+  document.getElementById('waterVal').textContent = state.water;
+  document.getElementById('waterModal').classList.remove('open');
+  document.getElementById('waterInput').value = '';
+  showToast('💧 Added ' + val + 'L water!');
+}
+
+// WEIGHT
+function openWeightModal() { document.getElementById('weightModal').classList.add('open'); }
+function saveWeight() {
+  const val = parseFloat(document.getElementById('weightInput').value);
+  if (val) { state.weight = val; document.getElementById('weightVal').textContent = val; }
+  document.getElementById('weightModal').classList.remove('open');
+  document.getElementById('weightInput').value = '';
+  showToast('⚖️ Weight updated to ' + val + 'kg!');
+}
+
+// GOAL
+function openGoalModal() { document.getElementById('goalModal').classList.add('open'); }
+function saveGoal() {
+  const cal = parseInt(document.getElementById('goalCalInput').value);
+  const burn = parseInt(document.getElementById('goalBurnInput').value);
+  if (cal) { state.calGoal = cal; document.getElementById('calConsumed').innerHTML = '0 <span>/ '+cal+' Kcal</span>'; }
+  if (burn) { state.burnGoal = burn; document.getElementById('calBurnt').innerHTML = '0 <span>/ '+burn+' Kcal</span>'; }
+  document.getElementById('goalModal').classList.remove('open');
+  showToast('⚡ Goal set! Let\'s crush it!');
+  animateRing(0);
+}
+
+// CLOSE MODALS
+document.querySelectorAll('.modal-overlay').forEach(m => {
+  m.addEventListener('click', (e) => { if (e.target === m) m.classList.remove('open'); });
+});
+
+// TOAST
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  if (!t) return;
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// FIREBASE CONFIG
+const firebaseConfig = {
+  apiKey: "AIzaSyBWx2JnRPIAx5R-4Q3YF4rHJCil_cKIHBc",
+  authDomain: "gym-demo-fb4d4.firebaseapp.com",
+  projectId: "gym-demo-fb4d4",
+  storageBucket: "gym-demo-fb4d4.firebasestorage.app",
+  messagingSenderId: "75194814334",
+  appId: "1:75194814334:web:fc416a302744feffb36d2f"
+};
+
+let fbApp, db, auth, currentMember = null;
+try {
+  fbApp = firebase.initializeApp(firebaseConfig);
+  db = firebase.firestore();
+  auth = firebase.auth();
+} catch(e) { console.warn('Firebase init failed:', e); }
+</script>
+</body>
+</html>
