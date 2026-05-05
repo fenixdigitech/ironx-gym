@@ -1389,354 +1389,169 @@ function showToast(msg) {
 // EXERCISE GIF DATABASE
 // Source: ExerciseDB public CDN
 // ═══════════════════════════════════════════════
-// ExerciseDB API — Real animated GIFs
-const RAPIDAPI_KEY = '80e84f5981mshbdcd5e90dbf1bcdp1a8fa4jsn4f9b25df7b95';
-const gifCache = {};
-
-async function fetchExerciseGif(name) {
+// Exercise GIF loader - uses fitnessprogramer.com (confirmed working!)
+function getExerciseGif(name) {
   if (!name) return null;
   const key = name.toLowerCase().trim();
-  if (gifCache[key] !== undefined) return gifCache[key];
-  gifCache[key] = null;
-  try {
-    const res = await fetch(
-      'https://exercisedb.p.rapidapi.com/exercises/name/' + encodeURIComponent(key) + '?limit=1&offset=0',
-      { headers: {
-          'X-RapidAPI-Key': RAPIDAPI_KEY,
-          'X-RapidAPI-Host': 'exercisedb.p.rapidapi.com'
-      }}
-    );
-    const data = await res.json();
-    if (Array.isArray(data) && data.length > 0 && data[0].gifUrl) {
-      gifCache[key] = data[0].gifUrl;
-      return data[0].gifUrl;
-    }
-  } catch(e) { console.warn('GIF error:', e.message); }
+  if (EXERCISE_GIFS[key]) return EXERCISE_GIFS[key];
+  // Try without trailing s
+  const noS = key.replace(/s$/, '');
+  if (EXERCISE_GIFS[noS]) return EXERCISE_GIFS[noS];
+  // Partial match
+  for (const [k, url] of Object.entries(EXERCISE_GIFS)) {
+    if (key.includes(k) || k.includes(key)) return url;
+  }
   return null;
 }
 
-async function loadGifsForExercises(exercises) {
+async function fetchExerciseGif(name) {
+  return getExerciseGif(name);
+}
+
+function loadGifsForExercises(exercises) {
   exercises.forEach((ex, i) => {
     if (!ex || !ex.name) return;
-    fetchExerciseGif(ex.name).then(gifUrl => {
-      if (!gifUrl) return;
-      const thumb = document.getElementById('ex-thumb-' + i);
-      if (thumb) thumb.innerHTML = `<img src="${gifUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:8px;" alt="${ex.name}"/>`;
-      const detail = document.getElementById('ex-gif-' + i);
-      if (detail) detail.innerHTML = `<img src="${gifUrl}" style="width:100%;max-height:240px;object-fit:contain;border-radius:10px;margin-bottom:12px;" alt="${ex.name}"/>`;
-    });
+    const gifUrl = getExerciseGif(ex.name);
+    if (!gifUrl) return;
+    const thumb = document.getElementById('ex-thumb-' + i);
+    if (thumb) thumb.innerHTML = `<img src="${gifUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:8px;" alt="${ex.name}" onerror="this.parentElement.innerHTML='<span style=font-size:24px>${getEmojiForMuscle(ex ? ex.muscle : '')}</span>'"/>`;
+    const detail = document.getElementById('ex-gif-' + i);
+    if (detail) detail.innerHTML = `<img src="${gifUrl}" style="width:100%;max-height:240px;object-fit:contain;border-radius:10px;margin-bottom:12px;" alt="${ex.name}" onerror="this.style.display='none'"/>`;
   });
+}
+
+function getEmojiForMuscle(muscle) {
+  const map = {'Chest':'🏋️','Back':'🔙','Shoulders':'💪','Biceps':'💪','Triceps':'💪','Legs':'🦵','Core':'🎯','Cardio':'🏃'};
+  return map[muscle] || '💪';
 }
 
 
 
 // No external GIFs - using styled cards instead (always works, no CORS issues)
-const EXERCISE_GIFS = {};
+const EXERCISE_GIFS = {
+  // fitnessprogramer.com - confirmed working in browser!
+  // CHEST
+  'bench press':            'https://fitnessprogramer.com/wp-content/uploads/2021/02/Barbell-Bench-Press.gif',
+  'incline bench press':    'https://fitnessprogramer.com/wp-content/uploads/2021/02/Incline-Barbell-Bench-Press.gif',
+  'decline bench press':    'https://fitnessprogramer.com/wp-content/uploads/2021/06/Decline-Barbell-Bench-Press.gif',
+  'push up':                'https://fitnessprogramer.com/wp-content/uploads/2021/02/Push-Up.gif',
+  'push-up':                'https://fitnessprogramer.com/wp-content/uploads/2021/02/Push-Up.gif',
+  'pushup':                 'https://fitnessprogramer.com/wp-content/uploads/2021/02/Push-Up.gif',
+  'dumbbell fly':           'https://fitnessprogramer.com/wp-content/uploads/2021/02/Dumbbell-Fly.gif',
+  'cable fly':              'https://fitnessprogramer.com/wp-content/uploads/2021/02/Cable-Crossover.gif',
+  'chest fly':              'https://fitnessprogramer.com/wp-content/uploads/2021/02/Dumbbell-Fly.gif',
+  'pec deck':               'https://fitnessprogramer.com/wp-content/uploads/2021/02/Pec-Deck-Fly.gif',
+  'chest dip':              'https://fitnessprogramer.com/wp-content/uploads/2021/02/Chest-Dip.gif',
 
+  // BACK
+  'deadlift':               'https://fitnessprogramer.com/wp-content/uploads/2021/02/Barbell-Deadlift.gif',
+  'romanian deadlift':      'https://fitnessprogramer.com/wp-content/uploads/2021/02/Romanian-Deadlift.gif',
+  'rdl':                    'https://fitnessprogramer.com/wp-content/uploads/2021/02/Romanian-Deadlift.gif',
+  'pull up':                'https://fitnessprogramer.com/wp-content/uploads/2021/02/Pull-Up.gif',
+  'pull-up':                'https://fitnessprogramer.com/wp-content/uploads/2021/02/Pull-Up.gif',
+  'pull ups':               'https://fitnessprogramer.com/wp-content/uploads/2021/02/Pull-Up.gif',
+  'pullup':                 'https://fitnessprogramer.com/wp-content/uploads/2021/02/Pull-Up.gif',
+  'pullups':                'https://fitnessprogramer.com/wp-content/uploads/2021/02/Pull-Up.gif',
+  'lat pulldown':           'https://fitnessprogramer.com/wp-content/uploads/2021/02/Lat-Pulldown.gif',
+  'seated row':             'https://fitnessprogramer.com/wp-content/uploads/2021/02/Seated-Cable-Row.gif',
+  'bent over row':          'https://fitnessprogramer.com/wp-content/uploads/2021/02/Barbell-Bent-Over-Row.gif',
+  'barbell row':            'https://fitnessprogramer.com/wp-content/uploads/2021/02/Barbell-Bent-Over-Row.gif',
+  't-bar row':              'https://fitnessprogramer.com/wp-content/uploads/2021/02/T-Bar-Row.gif',
+  'face pull':              'https://fitnessprogramer.com/wp-content/uploads/2021/02/Face-Pull.gif',
 
-const firebaseConfig = {
-  apiKey: "AIzaSyBWx2JnRPIAx5R-4Q3YF4rHJCil_cKIHBc",
-  authDomain: "gym-demo-fb4d4.firebaseapp.com",
-  projectId: "gym-demo-fb4d4",
-  storageBucket: "gym-demo-fb4d4.firebasestorage.app",
-  messagingSenderId: "75194814334",
-  appId: "1:75194814334:web:fc416a302744feffb36d2f"
+  // SHOULDERS
+  'overhead press':         'https://fitnessprogramer.com/wp-content/uploads/2021/02/Barbell-Standing-Military-Press.gif',
+  'shoulder press':         'https://fitnessprogramer.com/wp-content/uploads/2021/02/Barbell-Standing-Military-Press.gif',
+  'military press':         'https://fitnessprogramer.com/wp-content/uploads/2021/02/Barbell-Standing-Military-Press.gif',
+  'lateral raise':          'https://fitnessprogramer.com/wp-content/uploads/2021/02/Dumbbell-Lateral-Raise.gif',
+  'lateral raises':         'https://fitnessprogramer.com/wp-content/uploads/2021/02/Dumbbell-Lateral-Raise.gif',
+  'front raise':            'https://fitnessprogramer.com/wp-content/uploads/2021/02/Dumbbell-Front-Raise.gif',
+  'front raises':           'https://fitnessprogramer.com/wp-content/uploads/2021/02/Dumbbell-Front-Raise.gif',
+  'arnold press':           'https://fitnessprogramer.com/wp-content/uploads/2021/02/Arnold-Press.gif',
+  'shrugs':                 'https://fitnessprogramer.com/wp-content/uploads/2021/02/Barbell-Shrug.gif',
+  'shrug':                  'https://fitnessprogramer.com/wp-content/uploads/2021/02/Barbell-Shrug.gif',
+  'upright row':            'https://fitnessprogramer.com/wp-content/uploads/2021/02/Barbell-Upright-Row.gif',
+
+  // BICEPS
+  'barbell curl':           'https://fitnessprogramer.com/wp-content/uploads/2021/02/Barbell-Curl.gif',
+  'bicep curl':             'https://fitnessprogramer.com/wp-content/uploads/2021/02/Barbell-Curl.gif',
+  'bicep curls':            'https://fitnessprogramer.com/wp-content/uploads/2021/02/Barbell-Curl.gif',
+  'dumbbell curl':          'https://fitnessprogramer.com/wp-content/uploads/2021/02/Dumbbell-Bicep-Curl.gif',
+  'hammer curl':            'https://fitnessprogramer.com/wp-content/uploads/2021/02/Hammer-Curl.gif',
+  'hammer curls':           'https://fitnessprogramer.com/wp-content/uploads/2021/02/Hammer-Curl.gif',
+  'preacher curl':          'https://fitnessprogramer.com/wp-content/uploads/2021/02/Barbell-Preacher-Curl.gif',
+  'concentration curl':     'https://fitnessprogramer.com/wp-content/uploads/2021/02/Concentration-Curl.gif',
+  'incline curl':           'https://fitnessprogramer.com/wp-content/uploads/2021/06/Incline-Dumbbell-Curl.gif',
+
+  // TRICEPS
+  'skull crusher':          'https://fitnessprogramer.com/wp-content/uploads/2021/02/Skull-Crushers.gif',
+  'skull crushers':         'https://fitnessprogramer.com/wp-content/uploads/2021/02/Skull-Crushers.gif',
+  'tricep dip':             'https://fitnessprogramer.com/wp-content/uploads/2021/02/Triceps-Dip.gif',
+  'tricep dips':            'https://fitnessprogramer.com/wp-content/uploads/2021/02/Triceps-Dip.gif',
+  'tricep pushdown':        'https://fitnessprogramer.com/wp-content/uploads/2021/02/Pushdown.gif',
+  'cable pushdown':         'https://fitnessprogramer.com/wp-content/uploads/2021/02/Pushdown.gif',
+  'overhead tricep extension': 'https://fitnessprogramer.com/wp-content/uploads/2021/02/Dumbbell-Triceps-Extension.gif',
+  'close grip bench press': 'https://fitnessprogramer.com/wp-content/uploads/2021/02/Close-Grip-Bench-Press.gif',
+  'kickback':               'https://fitnessprogramer.com/wp-content/uploads/2021/02/Triceps-Kickback.gif',
+
+  // LEGS
+  'squat':                  'https://fitnessprogramer.com/wp-content/uploads/2021/02/Barbell-Squat.gif',
+  'squats':                 'https://fitnessprogramer.com/wp-content/uploads/2021/02/Barbell-Squat.gif',
+  'barbell squat':          'https://fitnessprogramer.com/wp-content/uploads/2021/02/Barbell-Squat.gif',
+  'front squat':            'https://fitnessprogramer.com/wp-content/uploads/2021/02/Front-Squat.gif',
+  'hack squat':             'https://fitnessprogramer.com/wp-content/uploads/2021/06/Hack-Squat.gif',
+  'sumo squat':             'https://fitnessprogramer.com/wp-content/uploads/2021/02/Sumo-Squat.gif',
+  'bulgarian split squat':  'https://fitnessprogramer.com/wp-content/uploads/2021/02/Bulgarian-Split-Squat.gif',
+  'split squat':            'https://fitnessprogramer.com/wp-content/uploads/2021/02/Bulgarian-Split-Squat.gif',
+  'leg press':              'https://fitnessprogramer.com/wp-content/uploads/2021/02/Leg-Press.gif',
+  'leg curl':               'https://fitnessprogramer.com/wp-content/uploads/2021/02/Lying-Leg-Curl.gif',
+  'lying leg curl':         'https://fitnessprogramer.com/wp-content/uploads/2021/02/Lying-Leg-Curl.gif',
+  'lying leg curls':        'https://fitnessprogramer.com/wp-content/uploads/2021/02/Lying-Leg-Curl.gif',
+  'seated leg curl':        'https://fitnessprogramer.com/wp-content/uploads/2021/02/Seated-Leg-Curl.gif',
+  'leg extension':          'https://fitnessprogramer.com/wp-content/uploads/2021/02/Leg-Extension.gif',
+  'lunge':                  'https://fitnessprogramer.com/wp-content/uploads/2021/02/Dumbbell-Lunge.gif',
+  'lunges':                 'https://fitnessprogramer.com/wp-content/uploads/2021/02/Dumbbell-Lunge.gif',
+  'step up':                'https://fitnessprogramer.com/wp-content/uploads/2021/02/Dumbbell-Step-Up.gif',
+  'calf raise':             'https://fitnessprogramer.com/wp-content/uploads/2021/02/Standing-Calf-Raise.gif',
+  'calf raises':            'https://fitnessprogramer.com/wp-content/uploads/2021/02/Standing-Calf-Raise.gif',
+  'standing calf raise':    'https://fitnessprogramer.com/wp-content/uploads/2021/02/Standing-Calf-Raise.gif',
+  'seated calf raise':      'https://fitnessprogramer.com/wp-content/uploads/2021/02/Seated-Calf-Raise.gif',
+  'stiff leg deadlift':     'https://fitnessprogramer.com/wp-content/uploads/2021/02/Stiff-Leg-Deadlift.gif',
+  'good morning':           'https://fitnessprogramer.com/wp-content/uploads/2021/02/Good-Morning.gif',
+
+  // CORE
+  'plank':                  'https://fitnessprogramer.com/wp-content/uploads/2021/02/Plank.gif',
+  'side plank':             'https://fitnessprogramer.com/wp-content/uploads/2021/02/Side-Plank.gif',
+  'crunch':                 'https://fitnessprogramer.com/wp-content/uploads/2021/02/Crunch.gif',
+  'crunches':               'https://fitnessprogramer.com/wp-content/uploads/2021/02/Crunch.gif',
+  'sit up':                 'https://fitnessprogramer.com/wp-content/uploads/2021/02/Sit-Up.gif',
+  'sit-up':                 'https://fitnessprogramer.com/wp-content/uploads/2021/02/Sit-Up.gif',
+  'russian twist':          'https://fitnessprogramer.com/wp-content/uploads/2021/02/Russian-Twist.gif',
+  'russian twists':         'https://fitnessprogramer.com/wp-content/uploads/2021/02/Russian-Twist.gif',
+  'leg raise':              'https://fitnessprogramer.com/wp-content/uploads/2021/02/Lying-Leg-Raise.gif',
+  'leg raises':             'https://fitnessprogramer.com/wp-content/uploads/2021/02/Lying-Leg-Raise.gif',
+  'hanging leg raise':      'https://fitnessprogramer.com/wp-content/uploads/2021/02/Hanging-Leg-Raise.gif',
+  'mountain climber':       'https://fitnessprogramer.com/wp-content/uploads/2021/02/Mountain-Climber.gif',
+  'mountain climbers':      'https://fitnessprogramer.com/wp-content/uploads/2021/02/Mountain-Climber.gif',
+  'bicycle crunch':         'https://fitnessprogramer.com/wp-content/uploads/2021/02/Bicycle-Crunch.gif',
+  'ab wheel':               'https://fitnessprogramer.com/wp-content/uploads/2021/02/Ab-Wheel-Rollout.gif',
+
+  // CARDIO
+  'jumping jack':           'https://fitnessprogramer.com/wp-content/uploads/2021/02/Jumping-Jacks.gif',
+  'jumping jacks':          'https://fitnessprogramer.com/wp-content/uploads/2021/02/Jumping-Jacks.gif',
+  'burpee':                 'https://fitnessprogramer.com/wp-content/uploads/2021/02/Burpee.gif',
+  'burpees':                'https://fitnessprogramer.com/wp-content/uploads/2021/02/Burpee.gif',
+  'high knees':             'https://fitnessprogramer.com/wp-content/uploads/2021/02/High-Knees.gif',
+  'box jump':               'https://fitnessprogramer.com/wp-content/uploads/2021/02/Box-Jump.gif',
+  'battle ropes':           'https://fitnessprogramer.com/wp-content/uploads/2021/02/Battle-Rope.gif',
+  'kettlebell swing':       'https://fitnessprogramer.com/wp-content/uploads/2021/02/Two-Arm-Kettlebell-Swing.gif',
+
+  // FLEXIBILITY
+  'forward bending':        'https://fitnessprogramer.com/wp-content/uploads/2021/06/Standing-Toe-Touch-Stretch.gif',
+  'standing toe touch':     'https://fitnessprogramer.com/wp-content/uploads/2021/06/Standing-Toe-Touch-Stretch.gif',
+  'side bends':             'https://fitnessprogramer.com/wp-content/uploads/2021/02/Dumbbell-Side-Bend.gif',
+  'arm circles':            'https://fitnessprogramer.com/wp-content/uploads/2021/02/Arm-Circles.gif',
+  'child pose':             'https://fitnessprogramer.com/wp-content/uploads/2021/02/Childs-Pose.gif',
+  'downward dog':           'https://fitnessprogramer.com/wp-content/uploads/2021/02/Downward-Dog.gif',
+  'hip flexor stretch':     'https://fitnessprogramer.com/wp-content/uploads/2021/02/Kneeling-Hip-Flexor-Stretch.gif',
 };
-
-let fbApp, db, auth, currentMember = null;
-try {
-  fbApp = firebase.initializeApp(firebaseConfig);
-  db = firebase.firestore();
-  auth = firebase.auth();
-} catch(e) { console.warn('Firebase init failed:', e); }
-
-// ── FIREBASE LOGIN — MEMBER APP ONLY ──
-async function doLogin() {
-  const emailVal = document.getElementById('loginEmail').value.trim();
-  const passVal  = document.getElementById('loginPass').value;
-  if (!emailVal || !passVal) { showToast('Enter your credentials!'); return; }
-
-  if (auth) {
-    try {
-      const cred = await auth.signInWithEmailAndPassword(emailVal, passVal);
-
-      // ── ROLE CHECK: must exist in members collection ──
-      const snap = await db.collection('members')
-        .where('email','==', emailVal).limit(1).get();
-
-      if (snap.empty) {
-        // Not a member — block access
-        await auth.signOut();
-        showToast('❌ This app is for gym members only.');
-        return;
-      }
-
-      // Valid member — load their data
-      currentMember = { id: snap.docs[0].id, ...snap.docs[0].data() };
-      afterLogin();
-
-    } catch(e) {
-      const msg = (e.code === 'auth/wrong-password' || e.code === 'auth/user-not-found' || e.code === 'auth/invalid-credential')
-        ? 'Wrong email or password' : e.message;
-      showToast('Login failed: ' + msg);
-    }
-  } else {
-    currentMember = { name: 'Demo User', plan: '3 Months', expiryDate: '2026-07-21' };
-    afterLogin();
-  }
-}
-
-function afterLogin() {
-  const m = currentMember;
-  // Update UI with real member data
-  if (m.name) {
-    const parts = m.name.split(' ');
-    const first = parts[0], last = parts.slice(1).join(' ');
-    document.querySelector('.greeting-name').innerHTML = `${first} <span>${last}</span>`;
-    document.querySelector('.topbar-avatar').textContent = first.charAt(0);
-    document.querySelector('.profile-name') && (document.querySelector('.profile-name').textContent = m.name);
-    document.querySelector('.profile-email') && (document.querySelector('.profile-email').textContent = m.email || '');
-  }
-  if (m.plan) {
-    const planEl = document.querySelector('.mb-plan');
-    if (planEl) planEl.textContent = (m.plan || '').toUpperCase() + ' PLAN';
-  }
-  if (m.expiryDate) {
-    const exp = new Date(m.expiryDate);
-    const today = new Date(); today.setHours(0,0,0,0);
-    const days = Math.ceil((exp - today) / 86400000);
-    const expEl = document.querySelector('.mb-expires');
-    if (expEl) expEl.textContent = `Expires: ${exp.toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'})} · ${days > 0 ? days + ' days remaining' : 'Expired'}`;
-  }
-  if (m.id) {
-    const idEl = document.querySelector('.pic-val');
-    // Member ID cell
-    document.querySelectorAll('.pic-val').forEach(el => {
-      if (el.previousElementSibling && el.previousElementSibling.textContent === 'Member ID') {
-        el.textContent = m.id;
-      }
-    });
-  }
-
-  // Record check-in with full member details
-  if (db && currentMember) {
-    const today = new Date().toISOString().split('T')[0];
-    const memberName = currentMember.name || 'Unknown';
-    const memberPlan = currentMember.plan || '1 Month';
-    const memberId = currentMember.id || 'guest';
-    db.collection('checkins').add({
-      memberId: memberId,
-      name: memberName,
-      plan: memberPlan,
-      date: today,
-      time: new Date().toLocaleTimeString('en-IN', {hour:'2-digit', minute:'2-digit'}),
-      timestamp: firebase.firestore.FieldValue.serverTimestamp()
-    }).then(() => {
-      console.log('Check-in saved:', memberName);
-    }).catch(e => console.warn('Checkin error:', e));
-  }
-
-  // Show app
-  document.getElementById('login').style.display = 'none';
-  document.getElementById('bottomNav').style.display = 'flex';
-  showScreen('home', document.querySelectorAll('.nav-item')[0]);
-  initCalendar();
-  animateRing(0);
-  showToast('Welcome back, ' + (currentMember.name || 'Member') + '! 💪');
-
-  // Load personal training plan from Firebase
-  loadPersonalTraining();
-  // Listen for real-time updates
-  setTimeout(listenToTrainingPlan, 2000);
-}
-
-// Load personal training plan for this member
-async function loadPersonalTraining() {
-  if (!db || !currentMember) { initWorkout(); return; }
-  try {
-    console.log('Loading training for member ID:', currentMember.id);
-    const doc = await db.collection('trainingPlans').doc(currentMember.id).get();
-    console.log('Training doc exists:', doc.exists);
-    if (doc.exists && doc.data() && doc.data().plan) {
-      const plan = doc.data().plan;
-      console.log('Plan loaded:', JSON.stringify(plan).substring(0,100));
-      renderPersonalWorkout(plan);
-    } else {
-      console.log('No personal plan found, using default');
-      initWorkout();
-    }
-  } catch(e) {
-    console.warn('Training load error:', e);
-    initWorkout();
-  }
-}
-
-// Also listen for real-time updates to training plan
-function listenToTrainingPlan() {
-  if (!db || !currentMember || !currentMember.id) return;
-  db.collection('trainingPlans').doc(currentMember.id).onSnapshot(doc => {
-    if (doc.exists && doc.data() && doc.data().plan) {
-      renderPersonalWorkout(doc.data().plan);
-    }
-  });
-}
-
-// Render personal workout plan from Firebase
-function renderPersonalWorkout(plan) {
-  const DAYS = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
-  const DAY_SHORT = ['MON','TUE','WED','THU','FRI','SAT','SUN'];
-
-  // Build day scroll
-  const scroll = document.getElementById('dayScroll');
-  if (!scroll) return;
-  const today = new Date().getDay(); // 0=Sun,1=Mon...
-  const todayIdx = today === 0 ? 6 : today - 1; // Sun→6, Mon→0
-
-  scroll.innerHTML = '';
-  DAYS.forEach((d, i) => {
-    const exercises = plan[d] || [];
-    const pill = document.createElement('div');
-    pill.className = 'day-pill' + (i === todayIdx ? ' active' : '');
-    // Show checkmark if exercises exist for this day
-    const hasPlan = exercises.filter(e => e && e.name).length > 0;
-    pill.innerHTML = `<div class="day-num" style="${hasPlan ? 'color:var(--orange)' : ''}">D${i+1}</div><div class="day-label">${DAY_SHORT[i]}</div>`;
-    pill.onclick = () => {
-      document.querySelectorAll('.day-pill').forEach(p => p.classList.remove('active'));
-      pill.classList.add('active');
-      renderDayExercises(plan, d, i);
-    };
-    scroll.appendChild(pill);
-  });
-
-  // Render today's exercises OR first day that has a plan
-  const hasToday = (plan[DAYS[todayIdx]] || []).filter(e => e && e.name).length > 0;
-  if (hasToday) {
-    renderDayExercises(plan, DAYS[todayIdx], todayIdx);
-  } else {
-    // Find first day with exercises
-    let firstPlanDay = todayIdx;
-    for (let i = 0; i < DAYS.length; i++) {
-      if ((plan[DAYS[i]] || []).filter(e => e && e.name).length > 0) {
-        firstPlanDay = i;
-        break;
-      }
-    }
-    renderDayExercises(plan, DAYS[firstPlanDay], firstPlanDay);
-  }
-}
-
-function renderDayExercises(plan, day, idx) {
-  // Update active pill
-  document.querySelectorAll('.day-pill').forEach((p, i) => {
-    p.classList.toggle('active', i === idx);
-  });
-
-  const MUSCLES_EMOJI = {
-    'Chest':'💪','Back':'🔙','Shoulders':'🔝','Biceps':'💪','Triceps':'💪',
-    'Legs':'🦵','Quads':'🦵','Hamstrings':'🦵','Calves':'🦶',
-    'Core':'🎯','Cardio':'🏃','Full Body':'🏋️','Flexibility':'🧘'
-  };
-
-  const exercises = (plan[day] || []).filter(e => e && e.name && e.name.trim());
-  const content = document.getElementById('workoutContent');
-  if (!content) return;
-
-  if (exercises.length === 0) {
-    content.innerHTML = `
-      <div style="text-align:center;padding:48px 20px;color:var(--text-muted);">
-        <div style="font-size:40px;margin-bottom:12px;">😴</div>
-        <div style="font-family:'Barlow Condensed',sans-serif;font-size:18px;">Rest Day</div>
-        <div style="font-size:13px;margin-top:6px;">No exercises scheduled for ${day}</div>
-      </div>`;
-    return;
-  }
-
-  const MUSCLES_EMOJI2 = {
-    'Chest':'💪','Back':'🔙','Shoulders':'🔝','Biceps':'💪','Triceps':'💪',
-    'Legs':'🦵','Quads':'🦵','Hamstrings':'🦵','Calves':'🦶',
-    'Core':'🎯','Cardio':'🏃','Full Body':'🏋️','Flexibility':'🧘'
-  };
-  // Store current exercises for GIF loading
-  window._currentExercises = exercises;
-  content.innerHTML = `
-    <div class="workout-section-title">YOUR PLAN — ${day.toUpperCase()}</div>
-    <div class="exercise-list" style="margin:0 20px 16px;">
-      ${exercises.map((ex, i) => {
-        const muscleEmojis = {'Chest':'🏋️','Back':'🔙','Shoulders':'💪','Biceps':'💪','Triceps':'💪','Legs':'🦵','Quads':'🦵','Hamstrings':'🦵','Calves':'🦶','Core':'🎯','Cardio':'🏃','Full Body':'🏋️','Flexibility':'🧘'};
-        const thumbPlaceholder = `<div style="width:100%;height:100%;background:#ffffff11;border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;">
-          <span style="font-size:22px;">${muscleEmojis[ex.muscle]||'💪'}</span>
-          <span style="font-size:7px;color:rgba(255,255,255,0.4);font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;text-transform:uppercase;">${ex.muscle||''}</span>
-        </div>`;
-        return `
-        <div class="exercise-item" onclick="toggleExerciseDetail(${i})">
-          <div class="ex-thumb" style="overflow:hidden;" id="ex-thumb-${i}">${thumbPlaceholder}</div>
-          <div class="ex-info">
-            <div class="ex-name">${ex.name}</div>
-            <div class="ex-tags">
-              <span class="ex-tag">${ex.muscle || 'General'}</span>
-              ${ex.sets ? `<span class="ex-tag sets">${ex.sets} Sets</span>` : ''}
-              ${ex.reps ? `<span class="ex-tag">${ex.reps} Reps</span>` : ''}
-            </div>
-          </div>
-          <div style="color:var(--text-muted);font-size:18px;padding-right:4px;">›</div>
-        </div>
-        <div class="ex-detail" id="exdetail-${i}" style="display:none;background:var(--surface2);border-bottom:1px solid var(--border);padding:14px 16px;">
-          <div id="ex-gif-${i}" style="width:100%;height:160px;border-radius:10px;margin-bottom:12px;overflow:hidden;display:flex;align-items:center;justify-content:center;background:#ffffff08;">
-            <span style="font-size:48px;">${muscleEmojis[ex.muscle]||'💪'}</span>
-          </div>
-          <div style="font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;margin-bottom:6px;">${ex.name}</div>
-          <div style="display:flex;gap:10px;flex-wrap:wrap;">
-            ${ex.muscle ? `<div style="background:var(--orange-glow);color:var(--orange);padding:4px 10px;border-radius:6px;font-size:12px;">🎯 ${ex.muscle}</div>` : ''}
-            ${ex.sets ? `<div style="background:var(--surface3);padding:4px 10px;border-radius:6px;font-size:12px;">📋 ${ex.sets} Sets</div>` : ''}
-            ${ex.reps ? `<div style="background:var(--surface3);padding:4px 10px;border-radius:6px;font-size:12px;">🔁 ${ex.reps} Reps</div>` : ''}
-          </div>
-        </div>`;
-      }).join('')}
-    </div>`;
-  setTimeout(() => loadGifsForExercises(exercises), 300);
-
-}
-
-// Override logout to also sign out of Firebase
-const _origLogout = doLogout;
-function doLogout() {
-  if (auth) auth.signOut().catch(()=>{});
-  currentMember = null;
-  document.getElementById('bottomNav').style.display = 'none';
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById('login').style.display = 'flex';
-  document.getElementById('loginEmail').value = '';
-  document.getElementById('loginPass').value = '';
-}
-
-// ── SAVE WATER & WEIGHT TO FIREBASE ──
-const _origSaveWater = saveWater;
-function saveWater() {
-  const val = parseFloat(document.getElementById('waterInput').value) || 0;
-  state.water = Math.round((state.water + val) * 10) / 10;
-  document.getElementById('waterVal').textContent = state.water;
-  document.getElementById('waterModal').classList.remove('open');
-  document.getElementById('waterInput').value = '';
-  showToast('💧 Added ' + val + 'L water!');
-  if (db && currentMember) {
-    const today = new Date().toISOString().split('T')[0];
-    db.collection('tracking').doc((currentMember.id || 'demo') + '_' + today)
-      .set({ water: state.water, date: today, memberId: currentMember.id }, { merge: true });
-  }
-}
-
-const _origSaveWeight = saveWeight;
-function saveWeight() {
-  const val = parseFloat(document.getElementById('weightInput').value);
-  if (val) { state.weight = val; document.getElementById('weightVal').textContent = val; }
-  document.getElementById('weightModal').classList.remove('open');
-  document.getElementById('weightInput').value = '';
-  showToast('⚖️ Weight updated to ' + val + 'kg!');
-  if (db && currentMember && val) {
-    db.collection('tracking').doc((currentMember.id || 'demo') + '_weight')
-      .set({ weight: val, updatedAt: firebase.firestore.FieldValue.serverTimestamp(), memberId: currentMember.id }, { merge: true });
-  }
-}
-</script>
-</body>
-</html>
