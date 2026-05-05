@@ -654,6 +654,10 @@ tr:hover td { background:var(--surface2); }
         <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
         Check-Ins
       </div>
+      <div class="nav-item" onclick="switchTab('training',this)">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
+        Training
+      </div>
       <div class="nav-item" onclick="switchTab('notify',this)">
         <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
         Notifications
@@ -777,6 +781,53 @@ tr:hover td { background:var(--surface2); }
       </div>
     </div>
 
+    <!-- TRAINING SCREEN -->
+    <div class="screen" id="screen-training">
+      <div class="section-head">
+        <div class="section-title">PERSONAL TRAINING PLANS</div>
+      </div>
+
+      <!-- Member selector -->
+      <div class="table-card" style="margin-bottom:16px;">
+        <div class="table-header">
+          <div class="table-title">SELECT MEMBER</div>
+        </div>
+        <div style="padding:16px;">
+          <select class="filter-select" id="trainingMemberSelect" style="width:100%;padding:13px 14px;" onchange="loadMemberTraining(this.value)">
+            <option value="">-- Choose a member --</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Day tabs -->
+      <div id="trainingBuilder" style="display:none;">
+        <div style="display:flex;gap:8px;overflow-x:auto;padding-bottom:12px;scrollbar-width:none;" id="dayTabRow">
+          <!-- day tabs injected by JS -->
+        </div>
+
+        <!-- Exercise builder for selected day -->
+        <div class="table-card" style="margin-bottom:16px;">
+          <div class="table-header">
+            <div class="table-title" id="trainingDayTitle">DAY 1 — EXERCISES</div>
+            <button class="btn-add" onclick="addExerciseRow()">+ Add Exercise</button>
+          </div>
+          <div id="exerciseRows" style="padding:12px;display:flex;flex-direction:column;gap:10px;">
+            <!-- exercise rows injected -->
+          </div>
+        </div>
+
+        <button class="btn-primary" style="width:calc(100% - 0px);padding:15px;" onclick="saveTrainingPlan()">
+          💾 SAVE & PUBLISH TO MEMBER APP
+        </button>
+        <div style="height:16px;"></div>
+      </div>
+
+      <div id="trainingEmptyState" style="text-align:center;padding:48px;color:var(--text-muted);">
+        <div style="font-size:40px;margin-bottom:12px;">🏋️</div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:16px;">Select a member to manage their training plan</div>
+      </div>
+    </div>
+
     <!-- NOTIFY SCREEN -->
     <div class="screen" id="screen-notify">
       <div class="notif-card">
@@ -818,6 +869,10 @@ tr:hover td { background:var(--surface2); }
   <div class="bnm-item" onclick="switchTab('checkin',this)" id="bnm-checkin">
     <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
     Check-In
+  </div>
+  <div class="bnm-item" onclick="switchTab('training',this)" id="bnm-training">
+    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
+    Training
   </div>
   <div class="bnm-item" onclick="switchTab('notify',this)" id="bnm-notify">
     <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
@@ -924,6 +979,7 @@ function startListeners() {
     liveMembers.sort((a,b) => a.name.localeCompare(b.name));
     renderMembers();
     renderDashboard();
+    populateTrainingMemberSelect();
   });
 
   // ALL checkins — no filter, show everything, sorted by time
@@ -1000,7 +1056,7 @@ function switchTab(tab, navEl) {
   // Also highlight bottom nav
   const bnm = document.getElementById('bnm-'+tab);
   if (bnm) bnm.classList.add('active');
-  const titles = { dashboard:'DASHBOARD', members:'MEMBERS', checkin:'CHECK-INS', notify:'NOTIFICATIONS' };
+  const titles = { dashboard:'DASHBOARD', members:'MEMBERS', checkin:'CHECK-INS', training:'TRAINING PLANS', notify:'NOTIFICATIONS' };
   document.getElementById('topbarTitle').textContent = titles[tab] || tab.toUpperCase();
   window.scrollTo(0,0);
   if (window.innerWidth <= 768) closeSidebar();
@@ -1376,6 +1432,145 @@ function renderNotifHistory() {
       <div style="font-size:13px;color:var(--text-dim);">${n.msg}</div>
     </div>`).join('');
 }
+
+// ═══════════════════════════════════════════════
+// PERSONAL TRAINING PLAN
+// ═══════════════════════════════════════════════
+const DAYS = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+const MUSCLES = ['Chest','Back','Shoulders','Biceps','Triceps','Legs','Quads','Hamstrings','Calves','Core','Cardio','Full Body','Flexibility'];
+let selectedTrainingMemberId = null;
+let selectedDayIndex = 0;
+let trainingPlan = {}; // { Monday: [{name,sets,reps,muscle},...], ... }
+
+function populateTrainingMemberSelect() {
+  const sel = document.getElementById('trainingMemberSelect');
+  if (!sel) return;
+  sel.innerHTML = '<option value="">-- Choose a member --</option>';
+  liveMembers.forEach(m => {
+    const opt = document.createElement('option');
+    opt.value = m.id;
+    opt.textContent = m.name + ' (' + m.plan + ')';
+    sel.appendChild(opt);
+  });
+}
+
+async function loadMemberTraining(memberId) {
+  if (!memberId) {
+    document.getElementById('trainingBuilder').style.display = 'none';
+    document.getElementById('trainingEmptyState').style.display = 'block';
+    return;
+  }
+  selectedTrainingMemberId = memberId;
+  trainingPlan = {};
+
+  // Load existing plan from Firebase
+  if (db) {
+    try {
+      const doc = await db.collection('trainingPlans').doc(memberId).get();
+      if (doc.exists) trainingPlan = doc.data().plan || {};
+    } catch(e) { console.warn('Load training error:', e); }
+  }
+
+  document.getElementById('trainingEmptyState').style.display = 'none';
+  document.getElementById('trainingBuilder').style.display = 'block';
+  renderDayTabs();
+  renderExerciseRows();
+}
+
+function renderDayTabs() {
+  const row = document.getElementById('dayTabRow');
+  row.innerHTML = DAYS.map((d, i) => {
+    const hasExercises = trainingPlan[d] && trainingPlan[d].length > 0;
+    return `<div class="day-tab ${i === selectedDayIndex ? 'active' : ''}" onclick="selectDay(${i})">
+      ${d.substring(0,3).toUpperCase()}${hasExercises ? ' ✓' : ''}
+    </div>`;
+  }).join('');
+}
+
+function selectDay(idx) {
+  selectedDayIndex = idx;
+  renderDayTabs();
+  renderExerciseRows();
+  document.getElementById('trainingDayTitle').textContent = DAYS[idx].toUpperCase() + ' — EXERCISES';
+}
+
+function renderExerciseRows() {
+  const day = DAYS[selectedDayIndex];
+  const exercises = trainingPlan[day] || [];
+  const container = document.getElementById('exerciseRows');
+
+  if (exercises.length === 0) {
+    container.innerHTML = `<div style="text-align:center;padding:24px;color:var(--text-muted);font-size:13px;">No exercises yet for ${day}. Click "+ Add Exercise"</div>`;
+    return;
+  }
+
+  container.innerHTML = exercises.map((ex, i) => `
+    <div class="exercise-row-builder" id="exrow-${i}">
+      <div class="ex-delete-btn" onclick="deleteExercise(${i})">✕</div>
+      <div class="ex-row-name">
+        <input type="text" placeholder="Exercise name (e.g. Bench Press)" value="${ex.name||''}"
+          onchange="updateExercise(${i},'name',this.value)">
+      </div>
+      <select onchange="updateExercise(${i},'muscle',this.value)">
+        <option value="">Muscle Group</option>
+        ${MUSCLES.map(m => `<option value="${m}" ${ex.muscle===m?'selected':''}>${m}</option>`).join('')}
+      </select>
+      <input type="number" placeholder="Sets" min="1" max="10" value="${ex.sets||''}"
+        onchange="updateExercise(${i},'sets',this.value)" style="text-align:center;">
+      <input type="text" placeholder="Reps (e.g. 12 or 8-12)" value="${ex.reps||''}"
+        onchange="updateExercise(${i},'reps',this.value)">
+    </div>`).join('');
+}
+
+function updateExercise(idx, field, value) {
+  const day = DAYS[selectedDayIndex];
+  if (!trainingPlan[day]) trainingPlan[day] = [];
+  if (!trainingPlan[day][idx]) trainingPlan[day][idx] = {};
+  trainingPlan[day][idx][field] = value;
+}
+
+function addExerciseRow() {
+  const day = DAYS[selectedDayIndex];
+  if (!trainingPlan[day]) trainingPlan[day] = [];
+  trainingPlan[day].push({ name:'', muscle:'', sets:'3', reps:'12' });
+  renderExerciseRows();
+}
+
+function deleteExercise(idx) {
+  const day = DAYS[selectedDayIndex];
+  trainingPlan[day].splice(idx, 1);
+  renderExerciseRows();
+  renderDayTabs();
+}
+
+async function saveTrainingPlan() {
+  if (!selectedTrainingMemberId) { showToast('Select a member first!', '⚠️'); return; }
+  if (!db) { showToast('Firebase not connected', '❌'); return; }
+
+  // Clean up empty exercises
+  DAYS.forEach(day => {
+    if (trainingPlan[day]) {
+      trainingPlan[day] = trainingPlan[day].filter(ex => ex.name && ex.name.trim());
+    }
+  });
+
+  const member = liveMembers.find(m => m.id === selectedTrainingMemberId);
+  try {
+    await db.collection('trainingPlans').doc(selectedTrainingMemberId).set({
+      memberId: selectedTrainingMemberId,
+      memberName: member ? member.name : '',
+      plan: trainingPlan,
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    showToast(`Training plan saved for ${member ? member.name : 'member'}! 💪`, '✅');
+    renderDayTabs();
+  } catch(e) {
+    showToast('Save failed: ' + e.message, '❌');
+  }
+}
+
+// Populate member select whenever members load
+const _origStartListeners = startListeners;
 
 // ═══════════════════════════════════════════════
 // MODALS & TOAST
