@@ -1438,6 +1438,60 @@ function renderNotifHistory() {
 // ═══════════════════════════════════════════════
 const DAYS = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
 const MUSCLES = ['Chest','Back','Shoulders','Biceps','Triceps','Legs','Quads','Hamstrings','Calves','Core','Cardio','Full Body','Flexibility'];
+
+// Exercise library organized by muscle group
+const EXERCISE_LIBRARY = {
+  'Chest': [
+    'Bench Press','Incline Bench Press','Decline Bench Press',
+    'Dumbbell Fly','Cable Fly','Push Up','Chest Dip','Pec Deck'
+  ],
+  'Back': [
+    'Deadlift','Pull Up','Lat Pulldown','Seated Row',
+    'Bent Over Row','Barbell Row','T-Bar Row','Face Pull'
+  ],
+  'Shoulders': [
+    'Overhead Press','Shoulder Press','Military Press',
+    'Lateral Raises','Front Raises','Arnold Press','Shrugs','Upright Row'
+  ],
+  'Biceps': [
+    'Barbell Curl','Dumbbell Curl','Hammer Curls',
+    'Preacher Curl','Concentration Curl','Cable Curl','Incline Curl'
+  ],
+  'Triceps': [
+    'Skull Crushers','Tricep Dips','Tricep Pushdown',
+    'Cable Pushdown','Overhead Tricep Extension','Close Grip Bench Press','Kickback'
+  ],
+  'Legs': [
+    'Squats','Leg Press','Romanian Deadlift','Lunges',
+    'Leg Curl','Leg Extension','Hack Squat','Sumo Squat','Bulgarian Split Squat'
+  ],
+  'Quads': [
+    'Squats','Leg Press','Leg Extension','Hack Squat','Front Squat','Step Up'
+  ],
+  'Hamstrings': [
+    'Romanian Deadlift','Lying Leg Curls','Seated Leg Curl',
+    'Stiff Leg Deadlift','Good Morning'
+  ],
+  'Calves': [
+    'Calf Raises','Seated Calf Raise','Standing Calf Raise','Donkey Calf Raise'
+  ],
+  'Core': [
+    'Plank','Crunches','Sit Up','Russian Twists','Leg Raises',
+    'Mountain Climbers','Bicycle Crunch','Ab Wheel','Hanging Leg Raise','Side Plank'
+  ],
+  'Cardio': [
+    'Treadmill','Cycling','Jumping Jacks','Burpees','High Knees',
+    'Jump Rope','Box Jump','Battle Ropes','Rowing Machine'
+  ],
+  'Full Body': [
+    'Deadlift','Burpees','Kettlebell Swing','Clean And Press',
+    'Thruster','Bear Crawl','Turkish Get Up'
+  ],
+  'Flexibility': [
+    'Forward Bending','Side Bends','Arm Circles','Standing Toe Touch',
+    'Hip Flexor Stretch','Pigeon Pose','Cat Cow','Child Pose','Downward Dog'
+  ]
+};
 let selectedTrainingMemberId = null;
 let selectedDayIndex = 0;
 let trainingPlan = {}; // { Monday: [{name,sets,reps,muscle},...], ... }
@@ -1505,22 +1559,40 @@ function renderExerciseRows() {
     return;
   }
 
-  container.innerHTML = exercises.map((ex, i) => `
+  container.innerHTML = exercises.map((ex, i) => {
+    const exercisesForMuscle = ex.muscle && EXERCISE_LIBRARY[ex.muscle] ? EXERCISE_LIBRARY[ex.muscle] : [];
+    return `
     <div class="exercise-row-builder" id="exrow-${i}">
       <div class="ex-delete-btn" onclick="deleteExercise(${i})">✕</div>
+      <!-- Step 1: Muscle Group -->
       <div class="ex-row-name">
-        <input type="text" placeholder="Exercise name e.g. Bench Press" value="${ex.name||''}"
-          oninput="updateExercise(${i},'name',this.value)">
+        <label style="font-size:10px;letter-spacing:1px;color:var(--text-muted);text-transform:uppercase;margin-bottom:4px;display:block;">Muscle Group</label>
+        <select onchange="updateExerciseMuscle(${i},this.value)" style="width:100%;">
+          <option value="">-- Select Muscle Group --</option>
+          ${MUSCLES.map(m => `<option value="${m}" ${ex.muscle===m?'selected':''}>${m}</option>`).join('')}
+        </select>
       </div>
-      <select onchange="updateExercise(${i},'muscle',this.value)">
-        <option value="">Muscle Group</option>
-        ${MUSCLES.map(m => `<option value="${m}" ${ex.muscle===m?'selected':''}>${m}</option>`).join('')}
-      </select>
-      <input type="number" placeholder="Sets" min="1" max="10" value="${ex.sets||'3'}"
-        oninput="updateExercise(${i},'sets',this.value)" style="text-align:center;">
-      <input type="text" placeholder="Reps e.g. 12" value="${ex.reps||'12'}"
-        oninput="updateExercise(${i},'reps',this.value)">
-    </div>`).join('');
+      <!-- Step 2: Exercise from library -->
+      <div class="ex-row-name" style="margin-top:4px;">
+        <label style="font-size:10px;letter-spacing:1px;color:var(--text-muted);text-transform:uppercase;margin-bottom:4px;display:block;">Exercise</label>
+        <select id="exname-${i}" onchange="updateExercise(${i},'name',this.value)" style="width:100%;">
+          <option value="">-- Select Exercise --</option>
+          ${exercisesForMuscle.map(e => `<option value="${e}" ${ex.name===e?'selected':''}>${e}</option>`).join('')}
+        </select>
+      </div>
+      <!-- Sets & Reps -->
+      <div>
+        <label style="font-size:10px;letter-spacing:1px;color:var(--text-muted);text-transform:uppercase;margin-bottom:4px;display:block;">Sets</label>
+        <input type="number" placeholder="3" min="1" max="10" value="${ex.sets||'3'}"
+          oninput="updateExercise(${i},'sets',this.value)" style="text-align:center;width:100%;">
+      </div>
+      <div>
+        <label style="font-size:10px;letter-spacing:1px;color:var(--text-muted);text-transform:uppercase;margin-bottom:4px;display:block;">Reps</label>
+        <input type="text" placeholder="12" value="${ex.reps||'12'}"
+          oninput="updateExercise(${i},'reps',this.value)" style="width:100%;">
+      </div>
+    </div>`;
+  }).join('');
 }
 
 function updateExercise(idx, field, value) {
@@ -1530,26 +1602,31 @@ function updateExercise(idx, field, value) {
   trainingPlan[day][idx][field] = value;
 }
 
+function updateExerciseMuscle(idx, muscle) {
+  updateExercise(idx, 'muscle', muscle);
+  updateExercise(idx, 'name', ''); // reset exercise when muscle changes
+  // Update the exercise dropdown for this row
+  const exSelect = document.getElementById('exname-' + idx);
+  if (!exSelect) return;
+  const exercises = EXERCISE_LIBRARY[muscle] || [];
+  exSelect.innerHTML = '<option value="">-- Select Exercise --</option>' +
+    exercises.map(e => `<option value="${e}">${e}</option>`).join('');
+}
+
 function syncExercisesFromDOM() {
   const day = DAYS[selectedDayIndex];
   const rows = document.querySelectorAll('.exercise-row-builder');
-  if (rows.length === 0) return; // nothing to sync
+  if (rows.length === 0) return;
   trainingPlan[day] = [];
-  rows.forEach(row => {
-    const nameEl = row.querySelector('input[type=text]:first-of-type, input[placeholder*="Exercise"]');
-    const selectEl = row.querySelector('select');
-    const setsEl = row.querySelector('input[type=number]');
-    const repsEl = row.querySelector('input[placeholder*="Rep"], input[placeholder*="rep"]');
-    const allInputs = row.querySelectorAll('input');
-    trainingPlan[day].push({
-      name: allInputs[0] ? allInputs[0].value.trim() : '',
-      muscle: selectEl ? selectEl.value : '',
-      sets: allInputs[1] ? allInputs[1].value : '3',
-      reps: allInputs[2] ? allInputs[2].value : '12'
-    });
+  rows.forEach((row, i) => {
+    const selects = row.querySelectorAll('select');
+    const inputs = row.querySelectorAll('input');
+    const muscle = selects[0] ? selects[0].value : '';
+    const name = selects[1] ? selects[1].value : '';
+    const sets = inputs[0] ? inputs[0].value : '3';
+    const reps = inputs[1] ? inputs[1].value : '12';
+    if (name) trainingPlan[day].push({ name, muscle, sets, reps });
   });
-  // Remove empty entries
-  trainingPlan[day] = trainingPlan[day].filter(ex => ex.name);
 }
 
 function addExerciseRow() {
