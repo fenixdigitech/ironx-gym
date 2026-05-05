@@ -1341,24 +1341,31 @@ function saveGoal() {
   animateRing(0);
 }
 
+
+// Auto load GIFs after render
+function triggerGifLoad(exercises) {
+  setTimeout(() => loadGifsForExercises(exercises), 200);
+}
+
 function renderDayExercisesGifLoader(exercises) {
   loadGifsForExercises(exercises);
 }
 
 function toggleExerciseDetail(i) {
   const el = document.getElementById('exdetail-' + i);
-  if (el) el.style.display = el.style.display === 'none' ? 'block' : 'none';
-  // Load GIF for this exercise when expanded
-  if (el && el.style.display === 'block' && window._currentExercises) {
+  if (!el) return;
+  const isOpen = el.style.display !== 'none' && el.style.display !== '';
+  el.style.display = isOpen ? 'none' : 'block';
+  // Fetch real GIF from ExerciseDB when tapped
+  if (!isOpen && window._currentExercises) {
     const ex = window._currentExercises[i];
-    if (ex) {
+    if (ex && ex.name) {
       fetchExerciseGif(ex.name).then(gifUrl => {
-        if (gifUrl) {
-          const gifEl = document.getElementById('ex-gif-' + i);
-          if (gifEl) gifEl.innerHTML = `<img src="${gifUrl}" style="width:100%;max-height:220px;object-fit:contain;border-radius:10px;" alt="${ex.name}"/>`;
-          const thumbEl = document.getElementById('ex-thumb-' + i);
-          if (thumbEl) thumbEl.innerHTML = `<img src="${gifUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:8px;" alt="${ex.name}"/>`;
-        }
+        if (!gifUrl) return;
+        const gifEl = document.getElementById('ex-gif-' + i);
+        if (gifEl) gifEl.innerHTML = `<img src="${gifUrl}" style="width:100%;max-height:240px;object-fit:contain;border-radius:10px;margin-bottom:12px;" alt="${ex.name}"/>`;
+        const thumbEl = document.getElementById('ex-thumb-' + i);
+        if (thumbEl) thumbEl.innerHTML = `<img src="${gifUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:8px;" alt="${ex.name}"/>`;
       });
     }
   }
@@ -1382,24 +1389,43 @@ function showToast(msg) {
 // EXERCISE GIF DATABASE
 // Source: ExerciseDB public CDN
 // ═══════════════════════════════════════════════
-// Simple GIF lookup - uses inline SVG animations
-async function fetchExerciseGif(exerciseName) {
-  if (!exerciseName) return null;
-  return getExerciseGif(exerciseName);
+// ExerciseDB API — Real animated GIFs
+const RAPIDAPI_KEY = '80e84f5981mshbdcd5e90dbf1bcdp1a8fa4jsn4f9b25df7b95';
+const gifCache = {};
+
+async function fetchExerciseGif(name) {
+  if (!name) return null;
+  const key = name.toLowerCase().trim();
+  if (gifCache[key] !== undefined) return gifCache[key];
+  gifCache[key] = null;
+  try {
+    const res = await fetch(
+      'https://exercisedb.p.rapidapi.com/exercises/name/' + encodeURIComponent(key) + '?limit=1&offset=0',
+      { headers: {
+          'X-RapidAPI-Key': RAPIDAPI_KEY,
+          'X-RapidAPI-Host': 'exercisedb.p.rapidapi.com'
+      }}
+    );
+    const data = await res.json();
+    if (Array.isArray(data) && data.length > 0 && data[0].gifUrl) {
+      gifCache[key] = data[0].gifUrl;
+      return data[0].gifUrl;
+    }
+  } catch(e) { console.warn('GIF error:', e.message); }
+  return null;
 }
 
 async function loadGifsForExercises(exercises) {
-  for (let i = 0; i < exercises.length; i++) {
-    const ex = exercises[i];
-    if (!ex || !ex.name) continue;
-    const gifUrl = getExerciseGif(ex.name);
-    if (gifUrl) {
+  exercises.forEach((ex, i) => {
+    if (!ex || !ex.name) return;
+    fetchExerciseGif(ex.name).then(gifUrl => {
+      if (!gifUrl) return;
       const thumb = document.getElementById('ex-thumb-' + i);
       if (thumb) thumb.innerHTML = `<img src="${gifUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:8px;" alt="${ex.name}"/>`;
       const detail = document.getElementById('ex-gif-' + i);
       if (detail) detail.innerHTML = `<img src="${gifUrl}" style="width:100%;max-height:240px;object-fit:contain;border-radius:10px;margin-bottom:12px;" alt="${ex.name}"/>`;
-    }
-  }
+    });
+  });
 }
 
 
@@ -1708,6 +1734,8 @@ function renderDayExercises(plan, day, idx) {
         </div>`;
       }).join('')}
     </div>`;
+  setTimeout(() => loadGifsForExercises(exercises), 300);
+
 }
 
 // Override logout to also sign out of Firebase
