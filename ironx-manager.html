@@ -1488,6 +1488,7 @@ function renderDayTabs() {
 }
 
 function selectDay(idx) {
+  syncExercisesFromDOM(); // save current day data before switching
   selectedDayIndex = idx;
   renderDayTabs();
   renderExerciseRows();
@@ -1525,11 +1526,27 @@ function renderExerciseRows() {
 function updateExercise(idx, field, value) {
   const day = DAYS[selectedDayIndex];
   if (!trainingPlan[day]) trainingPlan[day] = [];
-  if (!trainingPlan[day][idx]) trainingPlan[day][idx] = {};
+  while (trainingPlan[day].length <= idx) trainingPlan[day].push({});
   trainingPlan[day][idx][field] = value;
 }
 
+function syncExercisesFromDOM() {
+  const day = DAYS[selectedDayIndex];
+  const rows = document.querySelectorAll('.exercise-row-builder');
+  trainingPlan[day] = [];
+  rows.forEach(row => {
+    const inputs = row.querySelectorAll('input, select');
+    trainingPlan[day].push({
+      name: inputs[0] ? inputs[0].value : '',
+      muscle: inputs[1] ? inputs[1].value : '',
+      sets: inputs[2] ? inputs[2].value : '3',
+      reps: inputs[3] ? inputs[3].value : '12'
+    });
+  });
+}
+
 function addExerciseRow() {
+  syncExercisesFromDOM();
   const day = DAYS[selectedDayIndex];
   if (!trainingPlan[day]) trainingPlan[day] = [];
   trainingPlan[day].push({ name:'', muscle:'', sets:'3', reps:'12' });
@@ -1537,6 +1554,7 @@ function addExerciseRow() {
 }
 
 function deleteExercise(idx) {
+  syncExercisesFromDOM();
   const day = DAYS[selectedDayIndex];
   trainingPlan[day].splice(idx, 1);
   renderExerciseRows();
@@ -1547,23 +1565,39 @@ async function saveTrainingPlan() {
   if (!selectedTrainingMemberId) { showToast('Select a member first!', '⚠️'); return; }
   if (!db) { showToast('Firebase not connected', '❌'); return; }
 
+  // Read current values from inputs before saving
+  const rows = document.querySelectorAll('.exercise-row-builder');
+  const day = DAYS[selectedDayIndex];
+  if (!trainingPlan[day]) trainingPlan[day] = [];
+  rows.forEach((row, i) => {
+    const inputs = row.querySelectorAll('input, select');
+    if (!trainingPlan[day][i]) trainingPlan[day][i] = {};
+    if (inputs[0]) trainingPlan[day][i].name = inputs[0].value;
+    if (inputs[1]) trainingPlan[day][i].muscle = inputs[1].value;
+    if (inputs[2]) trainingPlan[day][i].sets = inputs[2].value;
+    if (inputs[3]) trainingPlan[day][i].reps = inputs[3].value;
+  });
+
   // Clean up empty exercises
-  DAYS.forEach(day => {
-    if (trainingPlan[day]) {
-      trainingPlan[day] = trainingPlan[day].filter(ex => ex.name && ex.name.trim());
+  DAYS.forEach(d => {
+    if (trainingPlan[d]) {
+      trainingPlan[d] = trainingPlan[d].filter(ex => ex.name && ex.name.trim());
     }
   });
 
   const member = liveMembers.find(m => m.id === selectedTrainingMemberId);
+  const saveData = {
+    memberId: selectedTrainingMemberId,
+    memberName: member ? member.name : '',
+    plan: trainingPlan,
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+  };
+
   try {
-    await db.collection('trainingPlans').doc(selectedTrainingMemberId).set({
-      memberId: selectedTrainingMemberId,
-      memberName: member ? member.name : '',
-      plan: trainingPlan,
-      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-    });
-    showToast(`Training plan saved for ${member ? member.name : 'member'}! 💪`, '✅');
-    renderDayTabs();
+    await db.collection('trainingPlans').doc(selectedTrainingMemberId).set(saveData);
+    showToast(`✅ Published to ${member ? member.name : 'member'}'s app!`, '💪');
+    renderDayTabs(); // update checkmarks without resetting form
+    renderExerciseRows(); // re-render to keep data
   } catch(e) {
     showToast('Save failed: ' + e.message, '❌');
   }
