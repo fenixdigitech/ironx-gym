@@ -987,6 +987,22 @@
   <div class="spacer"></div>
 </div>
 
+<!-- DIET SCREEN -->
+<div class="screen" id="diet">
+  <div class="topbar">
+    <div class="topbar-logo">IRON<span>X</span></div>
+    <div style="font-family:'Barlow Condensed',sans-serif;font-size:13px;color:var(--text-dim);letter-spacing:1px;">MY DIET PLAN</div>
+  </div>
+
+  <div id="dietContent" style="padding:16px;">
+    <div style="text-align:center;padding:48px 20px;color:var(--text-muted);">
+      <div style="font-size:40px;margin-bottom:12px;">🥗</div>
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:16px;">Loading your diet plan...</div>
+    </div>
+  </div>
+  <div class="spacer"></div>
+</div>
+
 <!-- PROFILE SCREEN -->
 <div class="screen" id="profile">
   <div class="topbar">
@@ -1204,6 +1220,7 @@ function afterLogin() {
   showToast('Welcome back, ' + (currentMember.name || 'Member') + '! 💪');
   // Load personal training plan
   if (typeof loadPersonalTraining === 'function') loadPersonalTraining();
+  loadDietPlan();
   if (typeof listenToTrainingPlan === 'function') setTimeout(listenToTrainingPlan, 2000);
 }
 
@@ -1673,6 +1690,7 @@ function afterLogin() {
   animateRing(0);
   showToast('Welcome back, ' + (currentMember.name || 'Member') + '! 💪');
   loadPersonalTraining();
+  loadDietPlan();
 }
 
 function loadPersonalTraining() {
@@ -2136,6 +2154,79 @@ function showHelp() {
 
 function showEditProfile() {
   showToast('Profile editing — contact gym desk');
+}
+
+// ═══════════════════════════════════════════════
+// MEMBER DIET PLAN
+// ═══════════════════════════════════════════════
+function loadDietPlan() {
+  if (!db || !currentMember) return;
+  db.collection('dietPlans').doc(currentMember.id).onSnapshot(doc => {
+    if (doc.exists && doc.data() && doc.data().plan) {
+      renderMemberDiet(doc.data());
+    } else {
+      document.getElementById('dietContent').innerHTML = `
+        <div style="text-align:center;padding:48px 20px;color:var(--text-muted);">
+          <div style="font-size:48px;margin-bottom:12px;">🥗</div>
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:18px;margin-bottom:8px;">No Diet Plan Yet</div>
+          <div style="font-size:13px;">Your trainer will assign a diet plan soon</div>
+        </div>`;
+    }
+  });
+}
+
+function renderMemberDiet(data) {
+  const plan = data.plan || {};
+  const calories = data.calories || '';
+  const notes = data.notes || '';
+  const MEALS = ['Breakfast','Mid Morning','Lunch','Evening Snack','Dinner'];
+  const mealIcons = {'Breakfast':'🌅','Mid Morning':'🍎','Lunch':'🍽️','Evening Snack':'🥜','Dinner':'🌙'};
+
+  let html = '';
+
+  if (calories) {
+    html += `<div style="background:linear-gradient(135deg,rgba(255,92,0,0.15),rgba(255,140,0,0.05));border:1px solid rgba(255,92,0,0.3);border-radius:14px;padding:16px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;">
+      <div>
+        <div style="font-size:11px;color:var(--orange);letter-spacing:2px;text-transform:uppercase;font-family:'Barlow Condensed',sans-serif;">Daily Target</div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:36px;color:var(--text);">${calories} <span style="font-size:18px;color:var(--text-muted);">KCAL</span></div>
+      </div>
+      <div style="font-size:40px;">🔥</div>
+    </div>`;
+  }
+
+  MEALS.forEach(meal => {
+    const items = (plan[meal] || []).filter(i => i && i.food);
+    if (items.length === 0) return;
+    const totalCal = items.reduce((s, i) => s + (parseInt(i.cal)||0), 0);
+    html += `
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;margin-bottom:12px;overflow:hidden;">
+      <div style="padding:14px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span style="font-size:22px;">${mealIcons[meal]||'🍴'}</span>
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:700;">${meal}</div>
+        </div>
+        ${totalCal ? `<div style="font-size:12px;color:var(--orange);font-family:'Barlow Condensed',sans-serif;">${totalCal} kcal</div>` : ''}
+      </div>
+      ${items.map(item => `
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--border);">
+          <div>
+            <div style="font-size:14px;font-weight:500;">${item.food}</div>
+            ${item.qty ? `<div style="font-size:11px;color:var(--text-muted);">${item.qty}</div>` : ''}
+          </div>
+          ${item.cal ? `<div style="font-size:13px;color:var(--text-dim);font-family:'Barlow Condensed',sans-serif;">${item.cal} kcal</div>` : ''}
+        </div>
+      `).join('')}
+    </div>`;
+  });
+
+  if (notes) {
+    html += `<div style="background:var(--surface);border-left:3px solid var(--orange);border-radius:0 14px 14px 0;padding:14px;margin-bottom:16px;">
+      <div style="font-size:10px;color:var(--orange);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;font-family:'Barlow Condensed',sans-serif;">Trainer Notes</div>
+      <div style="font-size:13px;color:var(--text-dim);">${notes}</div>
+    </div>`;
+  }
+
+  document.getElementById('dietContent').innerHTML = html;
 }
 </script>
 
