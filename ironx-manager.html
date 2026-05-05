@@ -899,6 +899,15 @@ tr:hover td { background:var(--surface2); }
 
 <script>
 // ═══════════════════════════════════════════════
+// STATE VARIABLES
+// ═══════════════════════════════════════════════
+let liveMembers = [];
+let liveCheckins = [];
+let paymentData = {};
+let editingId = null;
+
+
+// ═══════════════════════════════════════════════
 // FIREBASE CONFIG — Replace with your project config
 // Get from: Firebase Console → Project Settings → Your apps
 // ═══════════════════════════════════════════════
