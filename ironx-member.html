@@ -1349,135 +1349,25 @@ function showToast(msg) {
 // EXERCISE GIF DATABASE
 // Source: ExerciseDB public CDN
 // ═══════════════════════════════════════════════
-const EXERCISE_GIFS = {
-  // CHEST
-  'bench press':               'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Barbell_Bench_Press_-_Medium_Grip/0.jpg',
-  'incline bench press':       'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Incline_Dumbbell_Bench_Press/0.jpg',
-  'decline bench press':       'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Decline_Dumbbell_Bench_Press/0.jpg',
-  'push up':                   'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Push-Up/0.jpg',
-  'push-up':                   'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Push-Up/0.jpg',
-  'pushup':                    'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Push-Up/0.jpg',
-  'dumbbell fly':              'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Dumbbell_Flyes/0.jpg',
-  'cable fly':                 'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Cable_Cross-Over/0.jpg',
-  'chest fly':                 'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Dumbbell_Flyes/0.jpg',
-  'pec deck':                  'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Pec_Deck_Fly/0.jpg',
-  'chest dip':                 'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Chest_Dip/0.jpg',
-
-  // BACK
-  'deadlift':                  'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Barbell_Deadlift/0.jpg',
-  'romanian deadlift':         'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Romanian_Deadlift/0.jpg',
-  'rdl':                       'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Romanian_Deadlift/0.jpg',
-  'pull up':                   'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Pullups/0.jpg',
-  'pull-up':                   'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Pullups/0.jpg',
-  'pullup':                    'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Pullups/0.jpg',
-  'pullups':                   'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Pullups/0.jpg',
-  'pull ups':                  'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Pullups/0.jpg',
-  'lat pulldown':              'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Wide-Grip_Lat_Pulldown/0.jpg',
-  'seated row':                'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Seated_Cable_Rows/0.jpg',
-  'bent over row':             'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Bent_Over_Barbell_Row/0.jpg',
-  'barbell row':               'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Bent_Over_Barbell_Row/0.jpg',
-  't-bar row':                 'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Bent_Over_Barbell_Row/0.jpg',
-  'face pull':                 'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Face_Pull/0.jpg',
-
-  // SHOULDERS
-  'overhead press':            'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Barbell_Shoulder_Press/0.jpg',
-  'shoulder press':            'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Barbell_Shoulder_Press/0.jpg',
-  'military press':            'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Barbell_Shoulder_Press/0.jpg',
-  'lateral raise':             'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Side_Lateral_Raise/0.jpg',
-  'lateral raises':            'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Side_Lateral_Raise/0.jpg',
-  'front raise':               'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Dumbbell_Front_Raise/0.jpg',
-  'front raises':              'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Dumbbell_Front_Raise/0.jpg',
-  'shrug':                     'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Barbell_Shrug/0.jpg',
-  'shrugs':                    'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Barbell_Shrug/0.jpg',
-  'arnold press':              'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Arnold_Dumbbell_Press/0.jpg',
-  'upright row':               'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Barbell_Upright_Row/0.jpg',
-
-  // BICEPS
-  'barbell curl':              'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Barbell_Curl/0.jpg',
-  'bicep curl':                'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Barbell_Curl/0.jpg',
-  'bicep curls':               'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Barbell_Curl/0.jpg',
-  'dumbbell curl':             'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Dumbbell_Alternate_Bicep_Curl/0.jpg',
-  'hammer curl':               'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Hammer_Curls/0.jpg',
-  'hammer curls':              'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Hammer_Curls/0.jpg',
-  'preacher curl':             'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Preacher_Curl/0.jpg',
-  'concentration curl':        'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Concentration_Curls/0.jpg',
-  'cable curl':                'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Cable_Curl/0.jpg',
-  'incline curl':              'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Incline_Dumbbell_Curl/0.jpg',
-
-  // TRICEPS
-  'skull crusher':             'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Lying_Triceps_Press/0.jpg',
-  'skull crushers':            'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Lying_Triceps_Press/0.jpg',
-  'tricep dip':                'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Triceps_Dip/0.jpg',
-  'tricep dips':               'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Triceps_Dip/0.jpg',
-  'tricep pushdown':           'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Pushdown/0.jpg',
-  'cable pushdown':            'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Pushdown/0.jpg',
-  'overhead tricep extension': 'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Dumbbell_One_Arm_Triceps_Extension/0.jpg',
-  'close grip bench press':    'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Close-Grip_Barbell_Bench_Press/0.jpg',
-  'kickback':                  'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Triceps_Kickback/0.jpg',
-
-  // LEGS
-  'squat':                     'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Barbell_Squat/0.jpg',
-  'squats':                    'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Barbell_Squat/0.jpg',
-  'barbell squat':             'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Barbell_Squat/0.jpg',
-  'front squat':               'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Barbell_Front_Squat/0.jpg',
-  'hack squat':                'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Hack_Squat/0.jpg',
-  'sumo squat':                'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Sumo_Squat/0.jpg',
-  'bulgarian split squat':     'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Barbell_Bulgarian_Split_Squat/0.jpg',
-  'split squat':               'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Barbell_Bulgarian_Split_Squat/0.jpg',
-  'leg press':                 'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Leg_Press/0.jpg',
-  'leg curl':                  'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Seated_Leg_Curl/0.jpg',
-  'lying leg curl':            'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Lying_Leg_Curls/0.jpg',
-  'lying leg curls':           'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Lying_Leg_Curls/0.jpg',
-  'seated leg curl':           'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Seated_Leg_Curl/0.jpg',
-  'leg extension':             'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Leg_Extensions/0.jpg',
-  'stiff leg deadlift':        'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Stiff-Legged_Barbell_Deadlift/0.jpg',
-  'good morning':              'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Good_Morning/0.jpg',
-  'lunge':                     'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Barbell_Lunge/0.jpg',
-  'lunges':                    'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Barbell_Lunge/0.jpg',
-  'step up':                   'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Dumbbell_Step_Ups/0.jpg',
-  'calf raise':                'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Standing_Calf_Raises/0.jpg',
-  'calf raises':               'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Standing_Calf_Raises/0.jpg',
-  'standing calf raise':       'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Standing_Calf_Raises/0.jpg',
-  'seated calf raise':         'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Seated_Calf_Raise/0.jpg',
-  'donkey calf raise':         'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Donkey_Calf_Raises/0.jpg',
-
-  // CORE
-  'plank':                     'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Plank/0.jpg',
-  'side plank':                'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Side_Plank/0.jpg',
-  'crunch':                    'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Crunch/0.jpg',
-  'crunches':                  'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Crunch/0.jpg',
-  'sit up':                    'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Sit-Up/0.jpg',
-  'sit-up':                    'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Sit-Up/0.jpg',
-  'russian twist':             'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Russian_Twist/0.jpg',
-  'russian twists':            'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Russian_Twist/0.jpg',
-  'leg raise':                 'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Hanging_Leg_Raise/0.jpg',
-  'leg raises':                'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Hanging_Leg_Raise/0.jpg',
-  'hanging leg raise':         'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Hanging_Leg_Raise/0.jpg',
-  'mountain climber':          'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Mountain_Climber/0.jpg',
-  'mountain climbers':         'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Mountain_Climber/0.jpg',
-  'bicycle crunch':            'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Bicycle_Crunch/0.jpg',
-  'ab wheel':                  'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Ab_Wheel/0.jpg',
-
-  // CARDIO & FULL BODY
-  'jumping jack':              'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Jumping_Jacks/0.jpg',
-  'jumping jacks':             'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Jumping_Jacks/0.jpg',
-  'burpee':                    'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Burpee/0.jpg',
-  'burpees':                   'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Burpee/0.jpg',
-  'high knees':                'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/High_Knees/0.jpg',
-  'box jump':                  'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Box_Jump/0.jpg',
-  'kettlebell swing':          'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Kettlebell_Swing/0.jpg',
-  'battle ropes':              'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Battle_Ropes/0.jpg',
-  'thruster':                  'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Barbell_Thruster/0.jpg',
-
-  // FLEXIBILITY / WARMUP
-  'forward bending':           'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Standing_Hamstring_Stretch/0.jpg',
-  'side bends':                'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Standing_Hamstring_Stretch/0.jpg',
-  'arm circles':               'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Arm_Circles/0.jpg',
-  'standing toe touch':        'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Standing_Hamstring_Stretch/0.jpg',
-  'hip flexor stretch':        'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Hip_Flexor_Stretch/0.jpg',
-  'child pose':                'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Childs_Pose/0.jpg',
-  'downward dog':              'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Downward_Dog/0.jpg',
+// Exercise muscle color map for styled thumbnails
+const MUSCLE_COLORS = {
+  'Chest':       { bg: '#ff5c0022', border: '#ff5c0066', emoji: '🏋️' },
+  'Back':        { bg: '#3b82f622', border: '#3b82f666', emoji: '🔙' },
+  'Shoulders':   { bg: '#a855f722', border: '#a855f766', emoji: '💪' },
+  'Biceps':      { bg: '#22c55e22', border: '#22c55e66', emoji: '💪' },
+  'Triceps':     { bg: '#eab30822', border: '#eab30866', emoji: '💪' },
+  'Legs':        { bg: '#ef444422', border: '#ef444466', emoji: '🦵' },
+  'Quads':       { bg: '#ef444422', border: '#ef444466', emoji: '🦵' },
+  'Hamstrings':  { bg: '#f9731622', border: '#f9731666', emoji: '🦵' },
+  'Calves':      { bg: '#06b6d422', border: '#06b6d466', emoji: '🦶' },
+  'Core':        { bg: '#ec489922', border: '#ec489966', emoji: '🎯' },
+  'Cardio':      { bg: '#14b8a622', border: '#14b8a666', emoji: '🏃' },
+  'Full Body':   { bg: '#ff5c0022', border: '#ff5c0066', emoji: '🏋️' },
+  'Flexibility': { bg: '#84cc1622', border: '#84cc1666', emoji: '🧘' },
 };
+
+// No external GIFs - using styled cards instead (always works, no CORS issues)
+const EXERCISE_GIFS = {};
 
 function getExerciseGif(name) {
   if (!name) return null;
@@ -1729,18 +1619,11 @@ function renderDayExercises(plan, day, idx) {
     <div class="workout-section-title">YOUR PLAN — ${day.toUpperCase()}</div>
     <div class="exercise-list" style="margin:0 20px 16px;">
       ${exercises.map((ex, i) => {
-        const gifUrl = getExerciseGif(ex.name);
-        const muscleColor = {
-          'Chest':'#ff5c00','Back':'#3b82f6','Shoulders':'#a855f7',
-          'Biceps':'#22c55e','Triceps':'#eab308','Legs':'#ef4444',
-          'Quads':'#ef4444','Hamstrings':'#f97316','Calves':'#06b6d4',
-          'Core':'#ec4899','Cardio':'#14b8a6','Full Body':'#ff5c00','Flexibility':'#84cc16'
-        };
-        const bgColor = muscleColor[ex.muscle] || '#ff5c00';
-        const thumb = gifUrl
-          ? `<img src="${gifUrl}" alt="${ex.name}" style="width:100%;height:100%;object-fit:cover;border-radius:8px;"
-              onerror="this.style.display='none';this.parentElement.innerHTML='<div style=\'width:100%;height:100%;background:${bgColor}22;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:22px;\'>${MUSCLES_EMOJI2[ex.muscle]||'💪'}</div>'"/>`
-          : `<div style="width:100%;height:100%;background:${bgColor}22;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:22px;">${MUSCLES_EMOJI2[ex.muscle]||'💪'}</div>`;
+        const mc = MUSCLE_COLORS[ex.muscle] || { bg:'#ff5c0022', border:'#ff5c0044', emoji:'💪' };
+        const thumb = `<div style="width:100%;height:100%;background:${mc.bg};border:1px solid ${mc.border};border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;">
+          <span style="font-size:20px;">${mc.emoji}</span>
+          <span style="font-size:8px;color:rgba(255,255,255,0.5);font-family:'Barlow Condensed',sans-serif;letter-spacing:0.5px;text-transform:uppercase;text-align:center;padding:0 4px;">${ex.muscle||''}</span>
+        </div>`;
         return `
         <div class="exercise-item" onclick="toggleExerciseDetail(${i})">
           <div class="ex-thumb" style="overflow:hidden;">${thumb}</div>
@@ -1755,8 +1638,7 @@ function renderDayExercises(plan, day, idx) {
           <div style="color:var(--text-muted);font-size:18px;padding-right:4px;">›</div>
         </div>
         <div class="ex-detail" id="exdetail-${i}" style="display:none;background:var(--surface2);border-bottom:1px solid var(--border);padding:14px 16px;">
-          ${gifUrl ? `<img src="${gifUrl}" alt="${ex.name}" style="width:100%;max-height:220px;object-fit:contain;border-radius:10px;margin-bottom:10px;"
-            onerror="this.style.display='none'"/>` : ''}
+          <div style="width:100%;height:120px;background:${mc.bg};border:1px solid ${mc.border};border-radius:10px;margin-bottom:12px;display:flex;align-items:center;justify-content:center;font-size:48px;">${mc.emoji}</div>
           <div style="font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;margin-bottom:6px;">${ex.name}</div>
           <div style="display:flex;gap:10px;flex-wrap:wrap;">
             ${ex.muscle ? `<div style="background:var(--orange-glow);color:var(--orange);padding:4px 10px;border-radius:6px;font-size:12px;">🎯 ${ex.muscle}</div>` : ''}
