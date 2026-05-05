@@ -1418,12 +1418,22 @@ const EXERCISE_GIFS = {
 
 function getExerciseGif(name) {
   if (!name) return null;
-  const key = name.toLowerCase().trim();
-  // Exact match first
+  const key = name.toLowerCase().trim()
+    .replace(/s$/, '') // remove trailing s (plurals)
+    .replace(/-/g, ' ') // normalize hyphens
+    .trim();
+
+  // Exact match
   if (EXERCISE_GIFS[key]) return EXERCISE_GIFS[key];
-  // Partial match
+  if (EXERCISE_GIFS[key + 's']) return EXERCISE_GIFS[key + 's'];
+
+  // Word-by-word partial match
   for (const [k, url] of Object.entries(EXERCISE_GIFS)) {
-    if (key.includes(k) || k.includes(key)) return url;
+    const kClean = k.replace(/s$/, '').trim();
+    if (key.includes(kClean) || kClean.includes(key)) return url;
+    // Check if all words of key exist in k
+    const keyWords = key.split(' ').filter(w => w.length > 3);
+    if (keyWords.length > 0 && keyWords.every(w => k.includes(w))) return url;
   }
   return null;
 }
