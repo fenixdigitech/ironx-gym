@@ -46,60 +46,11 @@
   .screen.active { display: block; }
   @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 
-  /* SPLASH */
-  #splash {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    min-height: 100vh;
-    background: var(--bg);
-    padding-bottom: 0;
-  }
-  .splash-logo {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 72px;
-    letter-spacing: 4px;
-    color: var(--text);
-    line-height: 1;
-    text-align: center;
-  }
-  .splash-logo span { color: var(--orange); }
-  .splash-sub {
-    font-family: 'Barlow Condensed', sans-serif;
-    letter-spacing: 6px;
-    font-size: 13px;
-    color: var(--text-dim);
-    margin-top: 6px;
-    text-transform: uppercase;
-  }
-  .splash-bar {
-    width: 180px;
-    height: 3px;
-    background: var(--surface3);
-    border-radius: 10px;
-    margin-top: 48px;
-    overflow: hidden;
-  }
-  .splash-bar-fill {
-    height: 100%;
-    width: 0%;
-    background: var(--orange);
-    border-radius: 10px;
-    animation: loadBar 1.8s ease forwards;
-  }
-  @keyframes loadBar { to { width: 100%; } }
-  .splash-location {
-    margin-top: 16px;
-    font-size: 12px;
-    color: var(--text-muted);
-    letter-spacing: 2px;
-    text-transform: uppercase;
-  }
+  
 
   /* LOGIN */
   #login {
-    display: none;
+    display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
@@ -748,9 +699,6 @@
 </head>
 <body>
 
-<!-- SPLASH -->
-<div id="splash">
-  <div class="splash-logo">IRON<span>X</span></div>
   <div class="splash-sub">FITNESS CLUB</div>
   <div class="splash-bar"><div class="splash-bar-fill"></div></div>
   <div class="splash-location">Nalasopara · Mumbai</div>
@@ -1180,16 +1128,7 @@ const exEmojis = { 'Hamstrings':'🦵','Quads':'🦵','Calves':'🦶','Chest':'�
 let state = { water: 0, weight: null, calGoal: 2200, burnGoal: 500, consumed: 0, burnt: 0, activeDay: 0 };
 
 // SPLASH
-// Show login after splash
-function showLogin() {
-  try {
-    const splash = document.getElementById('splash');
-    if (splash) { splash.style.display = 'none'; }
-    const login = document.getElementById('login');
-    if (login) { login.style.display = 'flex'; }
-  } catch(e) { console.error('showLogin error:', e); }
-}
-setTimeout(showLogin, 2000);
+
 
 // LOGIN
 async function doLogin() {
@@ -1665,16 +1604,7 @@ function getEmojiForMuscle(muscle) {
   return map[muscle] || '💪';
 }
 
-// Show login after splash
-function showLogin() {
-  try {
-    const splash = document.getElementById('splash');
-    if (splash) splash.style.display = 'none';
-    const login = document.getElementById('login');
-    if (login) login.style.display = 'flex';
-  } catch(e) { console.error('showLogin error:', e); }
-}
-setTimeout(showLogin, 2000);
+
 
 // LOGIN
 async function doLogin() {
