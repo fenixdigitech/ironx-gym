@@ -1232,12 +1232,36 @@ function renderWorkout(idx) {
   const day = workoutDays[idx];
   const content = document.getElementById('workoutContent');
   let html = `<div class="workout-section-title">WARM UP</div><div class="exercise-list">`;
-  day.warmup.forEach(ex => {
-    html += `<div class="exercise-item"><div class="ex-thumb">🤸</div><div class="ex-info"><div class="ex-name">${ex}</div><div class="ex-tags"><span class="ex-tag">Warm Up</span><span class="ex-tag sets">2 Sets</span></div></div></div>`;
+  day.warmup.forEach((ex, i) => {
+    const gif = typeof getExerciseGif !== 'undefined' ? getExerciseGif(ex) : null;
+    const thumb = gif ? `<img src="${gif}" style="width:100%;height:100%;object-fit:cover;border-radius:8px;" onerror="this.parentElement.innerHTML='🤸'"/>` : '🤸';
+    html += `<div class="exercise-item" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'">
+      <div class="ex-thumb" style="overflow:hidden;">${thumb}</div>
+      <div class="ex-info"><div class="ex-name">${ex}</div>
+      <div class="ex-tags"><span class="ex-tag">Warm Up</span><span class="ex-tag sets">2 Sets</span></div></div>
+      <div style="color:var(--text-muted);font-size:18px;padding-right:4px;">›</div>
+    </div>
+    <div style="display:none;background:var(--surface2);border-bottom:1px solid var(--border);padding:14px 16px;">
+      ${gif ? `<img src="${gif}" style="width:100%;max-height:200px;object-fit:contain;border-radius:10px;margin-bottom:8px;"/>` : ''}
+      <div style="font-size:13px;color:var(--text-dim);">Warm up exercise · 2 Sets</div>
+    </div>`;
   });
   html += `</div>`;
   day.rounds.forEach((ex, i) => {
-    html += `<div class="workout-section-title">ROUND ${i+1}</div><div class="exercise-list"><div class="exercise-item"><div class="ex-thumb">${exEmojis[ex[1]] || '💪'}</div><div class="ex-info"><div class="ex-name">${ex[0]}</div><div class="ex-tags"><span class="ex-tag">${ex[1]}</span><span class="ex-tag sets">${ex[2]} Sets</span></div></div></div></div>`;
+    const gif = typeof getExerciseGif !== 'undefined' ? getExerciseGif(ex[0]) : null;
+    const thumb = gif ? `<img src="${gif}" style="width:100%;height:100%;object-fit:cover;border-radius:8px;" onerror="this.parentElement.innerHTML='${exEmojis[ex[1]]||'💪'}'"/>` : (exEmojis[ex[1]] || '💪');
+    html += `<div class="workout-section-title">ROUND ${i+1}</div><div class="exercise-list">
+      <div class="exercise-item" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'">
+        <div class="ex-thumb" style="overflow:hidden;">${thumb}</div>
+        <div class="ex-info"><div class="ex-name">${ex[0]}</div>
+        <div class="ex-tags"><span class="ex-tag">${ex[1]}</span><span class="ex-tag sets">${ex[2]} Sets</span></div></div>
+        <div style="color:var(--text-muted);font-size:18px;padding-right:4px;">›</div>
+      </div>
+      <div style="display:none;background:var(--surface2);border-bottom:1px solid var(--border);padding:14px 16px;">
+        ${gif ? `<img src="${gif}" style="width:100%;max-height:200px;object-fit:contain;border-radius:10px;margin-bottom:8px;"/>` : ''}
+        <div style="font-size:13px;color:var(--text-dim);">${ex[1]} · ${ex[2]} Sets</div>
+      </div>
+    </div>`;
   });
   content.innerHTML = html;
 }
@@ -1302,6 +1326,11 @@ function saveGoal() {
   animateRing(0);
 }
 
+function toggleExerciseDetail(i) {
+  const el = document.getElementById('exdetail-' + i);
+  if (el) el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+
 // CLOSE MODALS
 document.querySelectorAll('.modal-overlay').forEach(m => {
   m.addEventListener('click', (e) => { if (e.target === m) m.classList.remove('open'); });
@@ -1315,6 +1344,135 @@ function showToast(msg) {
   setTimeout(() => t.classList.remove('show'), 2500);
 }
 
+
+// ═══════════════════════════════════════════════
+// EXERCISE GIF DATABASE
+// Source: ExerciseDB public CDN
+// ═══════════════════════════════════════════════
+const EXERCISE_GIFS = {
+  // CHEST
+  'bench press': 'https://v2.exercisedb.io/image/3xUBLhqFXFhSst',
+  'incline bench press': 'https://v2.exercisedb.io/image/DVG-QjXGJBDQfZ',
+  'decline bench press': 'https://v2.exercisedb.io/image/JWCqGPF5TuXhgq',
+  'push up': 'https://v2.exercisedb.io/image/bMBPNIHCxYkgEI',
+  'push-up': 'https://v2.exercisedb.io/image/bMBPNIHCxYkgEI',
+  'chest fly': 'https://v2.exercisedb.io/image/3dEvuXnEjIVEFX',
+  'cable fly': 'https://v2.exercisedb.io/image/Fh7Ts-xZdEcPlQ',
+  'chest dip': 'https://v2.exercisedb.io/image/CECVzFGTL3-jAR',
+  'dumbbell fly': 'https://v2.exercisedb.io/image/3dEvuXnEjIVEFX',
+  'pec deck': 'https://v2.exercisedb.io/image/3dEvuXnEjIVEFX',
+
+  // BACK
+  'deadlift': 'https://v2.exercisedb.io/image/WBGhzJQAvXGqdl',
+  'pull up': 'https://v2.exercisedb.io/image/q3NC0GdAJ8Nv4b',
+  'pull-up': 'https://v2.exercisedb.io/image/q3NC0GdAJ8Nv4b',
+  'pullup': 'https://v2.exercisedb.io/image/q3NC0GdAJ8Nv4b',
+  'lat pulldown': 'https://v2.exercisedb.io/image/j8dkHQ7K0UNvFj',
+  'seated row': 'https://v2.exercisedb.io/image/WoU0JtBf2Q2sSC',
+  'bent over row': 'https://v2.exercisedb.io/image/O8LkME9X-rNnNB',
+  'barbell row': 'https://v2.exercisedb.io/image/O8LkME9X-rNnNB',
+  't-bar row': 'https://v2.exercisedb.io/image/O8LkME9X-rNnNB',
+  'face pull': 'https://v2.exercisedb.io/image/gFnGDLFGKbSnFZ',
+
+  // SHOULDERS
+  'overhead press': 'https://v2.exercisedb.io/image/qM8bMkSdAVFoaJ',
+  'shoulder press': 'https://v2.exercisedb.io/image/qM8bMkSdAVFoaJ',
+  'military press': 'https://v2.exercisedb.io/image/qM8bMkSdAVFoaJ',
+  'lateral raise': 'https://v2.exercisedb.io/image/WIUvR5H3KuFj2C',
+  'lateral raises': 'https://v2.exercisedb.io/image/WIUvR5H3KuFj2C',
+  'front raise': 'https://v2.exercisedb.io/image/W3Ir1qyjSm-bbU',
+  'front raises': 'https://v2.exercisedb.io/image/W3Ir1qyjSm-bbU',
+  'shrug': 'https://v2.exercisedb.io/image/1dSiMYMaHMFyqX',
+  'shrugs': 'https://v2.exercisedb.io/image/1dSiMYMaHMFyqX',
+  'arnold press': 'https://v2.exercisedb.io/image/qM8bMkSdAVFoaJ',
+  'upright row': 'https://v2.exercisedb.io/image/O8LkME9X-rNnNB',
+
+  // BICEPS
+  'barbell curl': 'https://v2.exercisedb.io/image/UThqtBo7a3JuUm',
+  'bicep curl': 'https://v2.exercisedb.io/image/UThqtBo7a3JuUm',
+  'bicep curls': 'https://v2.exercisedb.io/image/UThqtBo7a3JuUm',
+  'dumbbell curl': 'https://v2.exercisedb.io/image/UThqtBo7a3JuUm',
+  'hammer curl': 'https://v2.exercisedb.io/image/3h4-3sB2KWqCXr',
+  'hammer curls': 'https://v2.exercisedb.io/image/3h4-3sB2KWqCXr',
+  'preacher curl': 'https://v2.exercisedb.io/image/UThqtBo7a3JuUm',
+  'concentration curl': 'https://v2.exercisedb.io/image/UThqtBo7a3JuUm',
+  'cable curl': 'https://v2.exercisedb.io/image/UThqtBo7a3JuUm',
+
+  // TRICEPS
+  'tricep dip': 'https://v2.exercisedb.io/image/CECVzFGTL3-jAR',
+  'tricep dips': 'https://v2.exercisedb.io/image/CECVzFGTL3-jAR',
+  'skull crusher': 'https://v2.exercisedb.io/image/kZvmDnYgQzCjvH',
+  'skull crushers': 'https://v2.exercisedb.io/image/kZvmDnYgQzCjvH',
+  'tricep pushdown': 'https://v2.exercisedb.io/image/ry8CRGC0YkFKxk',
+  'cable pushdown': 'https://v2.exercisedb.io/image/ry8CRGC0YkFKxk',
+  'overhead tricep extension': 'https://v2.exercisedb.io/image/kZvmDnYgQzCjvH',
+  'close grip bench press': 'https://v2.exercisedb.io/image/DVG-QjXGJBDQfZ',
+
+  // LEGS
+  'squat': 'https://v2.exercisedb.io/image/DHwHBGLyZWMyK-',
+  'squats': 'https://v2.exercisedb.io/image/DHwHBGLyZWMyK-',
+  'barbell squat': 'https://v2.exercisedb.io/image/DHwHBGLyZWMyK-',
+  'leg press': 'https://v2.exercisedb.io/image/z5ERD9XxvCEnBa',
+  'leg curl': 'https://v2.exercisedb.io/image/9u1OSFRGm7IH3i',
+  'lying leg curl': 'https://v2.exercisedb.io/image/9u1OSFRGm7IH3i',
+  'lying leg curls': 'https://v2.exercisedb.io/image/9u1OSFRGm7IH3i',
+  'leg extension': 'https://v2.exercisedb.io/image/z5ERD9XxvCEnBa',
+  'romanian deadlift': 'https://v2.exercisedb.io/image/WBGhzJQAvXGqdl',
+  'rdl': 'https://v2.exercisedb.io/image/WBGhzJQAvXGqdl',
+  'lunges': 'https://v2.exercisedb.io/image/DHwHBGLyZWMyK-',
+  'lunge': 'https://v2.exercisedb.io/image/DHwHBGLyZWMyK-',
+  'calf raise': 'https://v2.exercisedb.io/image/7d7cFJFVMDFgnV',
+  'calf raises': 'https://v2.exercisedb.io/image/7d7cFJFVMDFgnV',
+  'hack squat': 'https://v2.exercisedb.io/image/DHwHBGLyZWMyK-',
+  'sumo squat': 'https://v2.exercisedb.io/image/DHwHBGLyZWMyK-',
+
+  // CORE
+  'plank': 'https://v2.exercisedb.io/image/hA7kFbFBNWmSiA',
+  'crunch': 'https://v2.exercisedb.io/image/Abs3GK3GqNFvSj',
+  'crunches': 'https://v2.exercisedb.io/image/Abs3GK3GqNFvSj',
+  'sit up': 'https://v2.exercisedb.io/image/Abs3GK3GqNFvSj',
+  'sit-up': 'https://v2.exercisedb.io/image/Abs3GK3GqNFvSj',
+  'russian twist': 'https://v2.exercisedb.io/image/hSxKPz4GFToH6F',
+  'russian twists': 'https://v2.exercisedb.io/image/hSxKPz4GFToH6F',
+  'leg raise': 'https://v2.exercisedb.io/image/hA7kFbFBNWmSiA',
+  'leg raises': 'https://v2.exercisedb.io/image/hA7kFbFBNWmSiA',
+  'mountain climber': 'https://v2.exercisedb.io/image/hA7kFbFBNWmSiA',
+  'mountain climbers': 'https://v2.exercisedb.io/image/hA7kFbFBNWmSiA',
+  'bicycle crunch': 'https://v2.exercisedb.io/image/Abs3GK3GqNFvSj',
+  'ab wheel': 'https://v2.exercisedb.io/image/hA7kFbFBNWmSiA',
+
+  // CARDIO
+  'treadmill': 'https://v2.exercisedb.io/image/hA7kFbFBNWmSiA',
+  'running': 'https://v2.exercisedb.io/image/hA7kFbFBNWmSiA',
+  'cycling': 'https://v2.exercisedb.io/image/hA7kFbFBNWmSiA',
+  'jumping jack': 'https://v2.exercisedb.io/image/hA7kFbFBNWmSiA',
+  'jumping jacks': 'https://v2.exercisedb.io/image/hA7kFbFBNWmSiA',
+  'burpee': 'https://v2.exercisedb.io/image/hA7kFbFBNWmSiA',
+  'burpees': 'https://v2.exercisedb.io/image/hA7kFbFBNWmSiA',
+  'jump rope': 'https://v2.exercisedb.io/image/hA7kFbFBNWmSiA',
+  'box jump': 'https://v2.exercisedb.io/image/DHwHBGLyZWMyK-',
+  'high knees': 'https://v2.exercisedb.io/image/hA7kFbFBNWmSiA',
+
+  // WARMUP
+  'forward bending': 'https://v2.exercisedb.io/image/hA7kFbFBNWmSiA',
+  'arm circles': 'https://v2.exercisedb.io/image/hA7kFbFBNWmSiA',
+  'arm swings': 'https://v2.exercisedb.io/image/hA7kFbFBNWmSiA',
+  'standing toe touch': 'https://v2.exercisedb.io/image/hA7kFbFBNWmSiA',
+  'side bend': 'https://v2.exercisedb.io/image/hA7kFbFBNWmSiA',
+  'side bends': 'https://v2.exercisedb.io/image/hA7kFbFBNWmSiA',
+};
+
+function getExerciseGif(name) {
+  if (!name) return null;
+  const key = name.toLowerCase().trim();
+  // Exact match first
+  if (EXERCISE_GIFS[key]) return EXERCISE_GIFS[key];
+  // Partial match
+  for (const [k, url] of Object.entries(EXERCISE_GIFS)) {
+    if (key.includes(k) || k.includes(key)) return url;
+  }
+  return null;
+}
 // ═══════════════════════════════════════════════
 // FIREBASE CONFIG — gym-demo-fb4d4
 // ═══════════════════════════════════════════════
@@ -1535,12 +1693,22 @@ function renderDayExercises(plan, day, idx) {
     return;
   }
 
+  const MUSCLES_EMOJI2 = {
+    'Chest':'💪','Back':'🔙','Shoulders':'🔝','Biceps':'💪','Triceps':'💪',
+    'Legs':'🦵','Quads':'🦵','Hamstrings':'🦵','Calves':'🦶',
+    'Core':'🎯','Cardio':'🏃','Full Body':'🏋️','Flexibility':'🧘'
+  };
   content.innerHTML = `
     <div class="workout-section-title">YOUR PLAN — ${day.toUpperCase()}</div>
     <div class="exercise-list" style="margin:0 20px 16px;">
-      ${exercises.map((ex, i) => `
-        <div class="exercise-item">
-          <div class="ex-thumb">${MUSCLES_EMOJI[ex.muscle] || '💪'}</div>
+      ${exercises.map((ex, i) => {
+        const gifUrl = getExerciseGif(ex.name);
+        const thumb = gifUrl
+          ? `<img src="${gifUrl}" alt="${ex.name}" style="width:100%;height:100%;object-fit:cover;border-radius:8px;" onerror="this.parentElement.innerHTML='${MUSCLES_EMOJI2[ex.muscle]||'💪'}'"/>`
+          : (MUSCLES_EMOJI2[ex.muscle] || '💪');
+        return `
+        <div class="exercise-item" onclick="toggleExerciseDetail(${i})">
+          <div class="ex-thumb" style="overflow:hidden;">${thumb}</div>
           <div class="ex-info">
             <div class="ex-name">${ex.name}</div>
             <div class="ex-tags">
@@ -1549,7 +1717,18 @@ function renderDayExercises(plan, day, idx) {
               ${ex.reps ? `<span class="ex-tag">${ex.reps} Reps</span>` : ''}
             </div>
           </div>
-        </div>`).join('')}
+          <div style="color:var(--text-muted);font-size:18px;padding-right:4px;">›</div>
+        </div>
+        <div class="ex-detail" id="exdetail-${i}" style="display:none;background:var(--surface2);border-bottom:1px solid var(--border);padding:14px 16px;">
+          ${gifUrl ? `<img src="${gifUrl}" alt="${ex.name}" style="width:100%;max-height:220px;object-fit:contain;border-radius:10px;margin-bottom:10px;"/>` : ''}
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;margin-bottom:6px;">${ex.name}</div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;">
+            ${ex.muscle ? `<div style="background:var(--orange-glow);color:var(--orange);padding:4px 10px;border-radius:6px;font-size:12px;">🎯 ${ex.muscle}</div>` : ''}
+            ${ex.sets ? `<div style="background:var(--surface3);padding:4px 10px;border-radius:6px;font-size:12px;">📋 ${ex.sets} Sets</div>` : ''}
+            ${ex.reps ? `<div style="background:var(--surface3);padding:4px 10px;border-radius:6px;font-size:12px;">🔁 ${ex.reps} Reps</div>` : ''}
+          </div>
+        </div>`;
+      }).join('')}
     </div>`;
 }
 
