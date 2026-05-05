@@ -1006,6 +1006,29 @@ tr:hover td { background:var(--surface2); }
 <div class="toast" id="toast"><span class="toast-icon" id="toastIcon">✅</span><span id="toastMsg"></span></div>
 
 <script>
+async function doLogin() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const pass = document.getElementById('loginPass').value;
+  if (!email || !pass) { showToast('Enter your credentials!', '⚠️'); return; }
+  if (auth) {
+    try { await auth.signInWithEmailAndPassword(email, pass); }
+    catch(e) { showToast('Login failed: Wrong email or password', '❌'); return; }
+  }
+  document.getElementById('topbarAvatar').textContent = email.charAt(0).toUpperCase();
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('app').classList.add('active');
+  document.getElementById('bottomNavMobile').style.display = 'flex';
+  initApp();
+}
+function doLogout() {
+  if (auth) auth.signOut();
+  document.getElementById('app').classList.remove('active');
+  document.getElementById('bottomNavMobile').style.display = 'none';
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('loginEmail').value = '';
+  document.getElementById('loginPass').value = '';
+}
+
 // ═══════════════════════════════════════════════
 // FIREBASE CONFIG — Replace with your project config
 // Get from: Firebase Console → Project Settings → Your apps
