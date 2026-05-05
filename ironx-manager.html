@@ -46,26 +46,18 @@ body {
 }
 
 /* ── SPLASH ── */
-#splash {
-  position: fixed; inset: 0;
-  background: var(--bg);
-  display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
-  z-index: 9999;
-  transition: opacity 0.5s ease;
-}
-#splash.hide { opacity: 0; pointer-events: none; }
-.splash-wordmark { font-family:'Bebas Neue',sans-serif; font-size: 80px; letter-spacing: 6px; line-height:1; }
-.splash-wordmark span { color: var(--orange); }
-.splash-sub { font-family:'Barlow Condensed',sans-serif; font-size:11px; letter-spacing:8px; color:var(--text-muted); margin-top:6px; text-transform:uppercase; }
-.splash-role { font-family:'Barlow Condensed',sans-serif; font-size:13px; letter-spacing:4px; color:var(--orange); margin-top:24px; text-transform:uppercase; }
-.splash-bar { width:160px; height:2px; background:var(--surface3); border-radius:2px; margin-top:32px; overflow:hidden; }
-.splash-fill { height:100%; width:0; background:var(--orange); animation: loadup 1.6s ease forwards; }
-@keyframes loadup { to { width:100%; } }
+
+
+
+
+
+
+
+ }
 
 /* ── LOGIN ── */
 #loginScreen {
-  display: none;
+  display: flex;
   min-height: 100vh;
   align-items: center;
   justify-content: center;
@@ -74,7 +66,7 @@ body {
   position: relative;
   overflow: hidden;
 }
-#loginScreen.active { display: flex; }
+#loginScreen.active { display: flex; } /* always visible */
 #loginScreen::before {
   content:'';
   position:absolute;
@@ -598,12 +590,6 @@ tr:hover td { background:var(--surface2); }
 </head>
 <body>
 
-<!-- SPLASH -->
-<div id="splash">
-  <div class="splash-wordmark">IRON<span>X</span></div>
-  <div class="splash-sub">Fitness Club</div>
-  <div class="splash-role">Manager Portal</div>
-  <div class="splash-bar"><div class="splash-fill"></div></div>
 </div>
 
 <!-- LOGIN -->
@@ -1074,12 +1060,7 @@ function startListeners() {
 // ═══════════════════════════════════════════════
 // SPLASH → LOGIN
 // ═══════════════════════════════════════════════
-setTimeout(() => {
-  document.getElementById('splash').classList.add('hide');
-  setTimeout(() => {
-    document.getElementById('splash').style.display = 'none';
-    document.getElementById('loginScreen').classList.add('active');
-  }, 500);
+
 }, 2000);
 
 // ═══════════════════════════════════════════════
