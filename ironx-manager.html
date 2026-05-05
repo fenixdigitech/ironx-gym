@@ -539,7 +539,20 @@ tr:hover td { background:var(--surface2); }
   .sidebar { display: none !important; }
   .sidebar-overlay { display: none !important; }
   .hamburger { display: none !important; }
-  .mobile-topbar { padding: 12px 16px; justify-content: center; }
+  .mobile-topbar {
+    padding: 14px 20px;
+    justify-content: center;
+    width: 100%;
+    left: 0; right: 0;
+  }
+  .main {
+    margin-left: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+  #app {
+    flex-direction: column !important;
+  }
 
   /* Stats — 2 columns */
   .stat-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
