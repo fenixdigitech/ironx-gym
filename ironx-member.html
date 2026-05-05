@@ -1421,7 +1421,7 @@ function loadGifsForExercises(exercises) {
     const thumb = document.getElementById('ex-thumb-' + i);
     if (thumb) thumb.innerHTML = `<img src="${gifUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:8px;" alt="${ex.name}" onerror="this.parentElement.innerHTML='<span style=font-size:24px>${getEmojiForMuscle(ex ? ex.muscle : '')}</span>'"/>`;
     const detail = document.getElementById('ex-gif-' + i);
-    if (detail) detail.innerHTML = `<img src="${gifUrl}" style="width:100%;max-height:240px;object-fit:contain;border-radius:10px;margin-bottom:12px;" alt="${ex.name}" onerror="this.style.display='none'"/>`;
+    if (detail) detail.innerHTML = `<img src="${gifUrl}" style="width:100%;max-height:240px;object-fit:contain;border-radius:10px;margin-bottom:12px;" alt="${ex.name}" onerror="this.onerror=null">`;
   });
 }
 
@@ -1583,9 +1583,9 @@ function loadGifsForExercises(exercises) {
     const gifUrl = getExerciseGif(ex.name);
     if (!gifUrl) return;
     const thumb = document.getElementById('ex-thumb-' + i);
-    if (thumb) thumb.innerHTML = `<img src="${gifUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:8px;" alt="${ex.name}" onerror="this.style.display='none'"/>`;
+    if (thumb) thumb.innerHTML = `<img src="${gifUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:8px;" alt="${ex.name}" onerror="this.onerror=null">`;
     const detail = document.getElementById('ex-gif-' + i);
-    if (detail) detail.innerHTML = `<img src="${gifUrl}" style="width:100%;max-height:240px;object-fit:contain;border-radius:10px;margin-bottom:12px;" alt="${ex.name}" onerror="this.style.display='none'"/>`;
+    if (detail) detail.innerHTML = `<img src="${gifUrl}" style="width:100%;max-height:240px;object-fit:contain;border-radius:10px;margin-bottom:12px;" alt="${ex.name}" onerror="this.onerror=null">`;
   });
 }
 
@@ -1727,7 +1727,7 @@ function renderWorkout(idx) {
   html += '</div>';
   day.rounds.forEach((ex, i) => {
     const gif = getExerciseGif(ex[0]);
-    const thumb = gif ? '<img src="'+gif+'" style="width:100%;height:100%;object-fit:cover;border-radius:8px;" onerror="this.style.display='none'"/>' : (exEmojis[ex[1]] || '💪');
+    const thumb = gif ? '<img src="'+gif+'" style="width:100%;height:100%;object-fit:cover;border-radius:8px;" onerror="this.onerror=null">' : (exEmojis[ex[1]] || '💪');
     html += '<div class="workout-section-title">ROUND '+(i+1)+'</div><div class="exercise-list"><div class="exercise-item"><div class="ex-thumb" style="overflow:hidden;">'+thumb+'</div><div class="ex-info"><div class="ex-name">'+ex[0]+'</div><div class="ex-tags"><span class="ex-tag">'+ex[1]+'</span><span class="ex-tag sets">'+ex[2]+' Sets</span></div></div></div></div>';
   });
   content.innerHTML = html;
@@ -1780,9 +1780,9 @@ function renderDayExercises(plan, day) {
       const gifUrl = getExerciseGif(ex.name);
       const muscleEmojis = {'Chest':'🏋️','Back':'🔙','Shoulders':'💪','Biceps':'💪','Triceps':'💪','Legs':'🦵','Quads':'🦵','Hamstrings':'🦵','Calves':'🦶','Core':'🎯','Cardio':'🏃','Full Body':'🏋️','Flexibility':'🧘'};
       const thumbContent = gifUrl
-        ? '<img src="'+gifUrl+'" id="ex-thumb-'+i+'" style="width:100%;height:100%;object-fit:cover;border-radius:8px;" alt="'+ex.name+'" onerror="this.style.display='none'"/>'
+        ? '<img src="'+gifUrl+'" id="ex-thumb-'+i+'" style="width:100%;height:100%;object-fit:cover;border-radius:8px;" alt="'+ex.name+'" onerror="this.onerror=null">'
         : '<span id="ex-thumb-'+i+'" style="font-size:22px;">'+(muscleEmojis[ex.muscle]||'💪')+'</span>';
-      return '<div class="exercise-item" onclick="toggleExerciseDetail('+i+')"><div class="ex-thumb" style="overflow:hidden;">'+thumbContent+'</div><div class="ex-info"><div class="ex-name">'+ex.name+'</div><div class="ex-tags"><span class="ex-tag">'+(ex.muscle||'General')+'</span>'+(ex.sets?'<span class="ex-tag sets">'+ex.sets+' Sets</span>':'')+(ex.reps?'<span class="ex-tag">'+ex.reps+' Reps</span>':'')+'</div></div><div style="color:var(--text-muted);font-size:18px;padding-right:4px;">›</div></div><div id="exdetail-'+i+'" style="display:none;background:var(--surface2);border-bottom:1px solid var(--border);padding:14px 16px;"><div id="ex-gif-'+i+'" style="width:100%;height:160px;border-radius:10px;margin-bottom:12px;display:flex;align-items:center;justify-content:center;background:#ffffff08;">'+(gifUrl?'<img src="'+gifUrl+'" style="max-height:160px;object-fit:contain;border-radius:10px;" onerror="this.style.display='none'"/>':'<span style="font-size:48px;">'+(muscleEmojis[ex.muscle]||'💪')+'</span>')+'</div><div style="font-family:Barlow Condensed,sans-serif;font-size:15px;font-weight:700;margin-bottom:6px;">'+ex.name+'</div><div style="display:flex;gap:10px;flex-wrap:wrap;">'+(ex.muscle?'<div style="background:var(--orange-glow);color:var(--orange);padding:4px 10px;border-radius:6px;font-size:12px;">🎯 '+ex.muscle+'</div>':'')+(ex.sets?'<div style="background:var(--surface3);padding:4px 10px;border-radius:6px;font-size:12px;">📋 '+ex.sets+' Sets</div>':'')+(ex.reps?'<div style="background:var(--surface3);padding:4px 10px;border-radius:6px;font-size:12px;">🔁 '+ex.reps+' Reps</div>':'')+'</div></div>';
+      return '<div class="exercise-item" onclick="toggleExerciseDetail('+i+')"><div class="ex-thumb" style="overflow:hidden;">'+thumbContent+'</div><div class="ex-info"><div class="ex-name">'+ex.name+'</div><div class="ex-tags"><span class="ex-tag">'+(ex.muscle||'General')+'</span>'+(ex.sets?'<span class="ex-tag sets">'+ex.sets+' Sets</span>':'')+(ex.reps?'<span class="ex-tag">'+ex.reps+' Reps</span>':'')+'</div></div><div style="color:var(--text-muted);font-size:18px;padding-right:4px;">›</div></div><div id="exdetail-'+i+'" style="display:none;background:var(--surface2);border-bottom:1px solid var(--border);padding:14px 16px;"><div id="ex-gif-'+i+'" style="width:100%;height:160px;border-radius:10px;margin-bottom:12px;display:flex;align-items:center;justify-content:center;background:#ffffff08;">'+(gifUrl?'<img src="'+gifUrl+'" style="max-height:160px;object-fit:contain;border-radius:10px;" onerror="this.onerror=null">':'<span style="font-size:48px;">'+(muscleEmojis[ex.muscle]||'💪')+'</span>')+'</div><div style="font-family:Barlow Condensed,sans-serif;font-size:15px;font-weight:700;margin-bottom:6px;">'+ex.name+'</div><div style="display:flex;gap:10px;flex-wrap:wrap;">'+(ex.muscle?'<div style="background:var(--orange-glow);color:var(--orange);padding:4px 10px;border-radius:6px;font-size:12px;">🎯 '+ex.muscle+'</div>':'')+(ex.sets?'<div style="background:var(--surface3);padding:4px 10px;border-radius:6px;font-size:12px;">📋 '+ex.sets+' Sets</div>':'')+(ex.reps?'<div style="background:var(--surface3);padding:4px 10px;border-radius:6px;font-size:12px;">🔁 '+ex.reps+' Reps</div>':'')+'</div></div>';
     }).join('') + '</div>';
 }
 
