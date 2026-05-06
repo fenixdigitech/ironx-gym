@@ -946,19 +946,31 @@ async function doLogin() {
   const pass = document.getElementById('loginPass').value;
   if (!email || !pass) { showToast('Enter your credentials!', '⚠️'); return; }
 
-  if (!DEMO_MODE && auth) {
+  if (auth) {
     try {
       await auth.signInWithEmailAndPassword(email, pass);
     } catch(e) {
-      showToast('Login failed: ' + e.message, '❌'); return;
+      const msg = (e.code === 'auth/wrong-password' || e.code === 'auth/user-not-found' || e.code === 'auth/invalid-credential') ? 'Wrong email or password' : e.message;
+      showToast('Login failed: ' + msg, '❌'); return;
     }
   }
 
-  const initial = email.charAt(0).toUpperCase();
-  document.getElementById('topbarAvatar').textContent = initial;
-  document.getElementById('loginScreen').classList.remove('active');
+  document.getElementById('topbarAvatar').textContent = email.charAt(0).toUpperCase();
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('app').style.display = 'flex';
   document.getElementById('app').classList.add('active');
+  document.getElementById('bottomNavMobile').style.display = 'flex';
   initApp();
+}
+
+function doLogout() {
+  if (auth) auth.signOut();
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('app').classList.remove('active');
+  document.getElementById('bottomNavMobile').style.display = 'none';
+  document.getElementById('loginEmail').value = '';
+  document.getElementById('loginPass').value = '';
 }
 
 function doLogout() {
