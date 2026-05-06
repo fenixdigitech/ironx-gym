@@ -1575,27 +1575,30 @@ function loadPayments() {
 
 
 function startListeners() {
-  if (!db) return;
+  if (!db) {
+    liveMembers = demoMembers || [];
+    liveCheckins = demoCheckins || [];
+    renderMembers(); renderDashboard(); renderCheckins();
+    return;
+  }
   db.collection('members').onSnapshot(snap => {
     liveMembers = snap.docs.map(d => ({ id: d.id, ...d.data() }));
     liveMembers.sort((a,b) => a.name.localeCompare(b.name));
-    renderMembers();
-    renderDashboard();
+    renderMembers(); renderDashboard();
     populateTrainingMemberSelect();
     if (typeof populateDietMemberSelect === 'function') populateDietMemberSelect();
     renderPayments();
-  });
+  }, e => console.error('members:', e));
   db.collection('checkins').onSnapshot(snap => {
     const today = new Date().toISOString().split('T')[0];
     liveCheckins = snap.docs.map(d => ({ id: d.id, ...d.data() })).filter(c => c.date === today);
     liveCheckins.sort((a,b) => (b.time||'').localeCompare(a.time||''));
-    renderCheckins();
-    renderDashboard();
-  });
+    renderCheckins(); renderDashboard();
+  }, e => console.error('checkins:', e));
   db.collection('payments').onSnapshot(snap => {
     snap.docs.forEach(d => { paymentData[d.id] = d.data(); });
     renderPayments();
-  });
+  }, e => console.error('payments:', e));
 }
 
 async function saveTrainingPlan() {
