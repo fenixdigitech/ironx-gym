@@ -65,7 +65,7 @@ body {
 
 /* ── LOGIN ── */
 #loginScreen {
-  display: none;
+  display: flex;
   min-height: 100vh;
   align-items: center;
   justify-content: center;
@@ -74,7 +74,7 @@ body {
   position: relative;
   overflow: hidden;
 }
-#loginScreen.active { display: flex; }
+
 #loginScreen::before {
   content:'';
   position:absolute;
@@ -482,125 +482,66 @@ tr:hover td { background:var(--surface2); }
 .sidebar-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:99; }
 .sidebar-overlay.open { display:block; }
 
-/* ── BOTTOM NAV (mobile only) ── */
-.bottom-nav-mobile {
-  display: none;
-  position: fixed;
-  bottom: 0; left: 0; right: 0;
-  background: rgba(14,14,14,0.98);
-  backdrop-filter: blur(16px);
-  border-top: 1px solid var(--border);
-  z-index: 300;
-  justify-content: space-around;
-  padding: 8px 0 12px;
+@media (max-width:768px) {
+  .main { margin-left:0; }
+  .sidebar { transform:translateX(-100%); }
+  .sidebar.open { transform:translateX(0); }
+  .mobile-topbar { display:flex; }
+  .stat-grid { grid-template-columns:1fr 1fr; }
+  .screen { padding:16px; }
+  .modal-grid { grid-template-columns:1fr; }
+  .topbar { display:none; }
+  .table-actions { flex-wrap:wrap; }
+  .search-input { width:140px; }
 }
-.bnm-item {
-  display: flex; flex-direction: column;
-  align-items: center; gap: 3px;
-  cursor: pointer;
-  color: var(--text-muted);
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: 10px; letter-spacing: 0.5px;
-  text-transform: uppercase;
-  padding: 4px 16px;
-  border-radius: 8px;
-  transition: color 0.2s;
-  flex: 1;
-}
-.bnm-item.active { color: var(--orange); }
-.bnm-item svg { width: 22px; height: 22px; }
 
-/* ── MEMBER CARDS (mobile alternative to table) ── */
-.member-cards { display: none; flex-direction: column; gap: 10px; padding: 0; }
-.member-card-item {
+/* TRAINING/DIET TABS */
+.day-tab {
+  min-width: 70px; padding: 10px 12px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  cursor: pointer;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 13px; font-weight: 600;
+  color: var(--text-dim);
+  text-align: center; white-space: nowrap;
+  transition: all 0.2s; flex-shrink: 0;
+}
+.day-tab.active { background: var(--orange); border-color: var(--orange); color: white; }
+.exercise-row-builder {
   background: var(--surface2);
   border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 14px;
-  display: flex; flex-direction: column; gap: 10px;
+  border-radius: var(--radius-sm);
+  padding: 12px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  position: relative;
 }
-.mci-top { display: flex; align-items: center; gap: 12px; }
-.mci-info { flex: 1; }
-.mci-name { font-family: 'Barlow Condensed', sans-serif; font-size: 17px; font-weight: 700; }
-.mci-id { font-size: 11px; color: var(--text-muted); margin-top: 1px; }
-.mci-bottom { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
-.mci-meta { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
-.mci-actions { display: flex; gap: 8px; }
-
-@media (max-width: 768px) {
-  .main { margin-left: 0; padding-bottom: 70px; }
-  .sidebar { transform: translateX(-100%); width: 260px; }
-  .sidebar.open { transform: translateX(0); box-shadow: 4px 0 20px rgba(0,0,0,0.5); }
-  .mobile-topbar { display: flex; }
-  .topbar { display: none; }
-  .bottom-nav-mobile { display: flex; }
-
-  /* Hide sidebar completely on mobile */
-  .sidebar { display: none !important; }
-  .sidebar-overlay { display: none !important; }
-  .hamburger { display: none !important; }
-  .mobile-topbar {
-    padding: 14px 20px;
-    justify-content: center;
-    width: 100%;
-    left: 0; right: 0;
-  }
-  .main {
-    margin-left: 0 !important;
-    width: 100% !important;
-    max-width: 100% !important;
-  }
-  #app {
-    flex-direction: column !important;
-  }
-
-  /* Stats — 2 columns */
-  .stat-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
-  .stat-card { padding: 14px; }
-  .sc-val { font-size: 32px; }
-
-  /* Screen padding */
-  .screen { padding: 14px 14px 20px; }
-
-  /* Hide table, show cards */
-  table, thead, tbody, th, td, tr { display: block; }
-  table { display: none; }
-  .member-cards { display: flex; }
-  .table-header { flex-direction: column; align-items: stretch; gap: 10px; }
-  .table-actions { flex-direction: column; gap: 8px; }
-  .search-input { width: 100%; }
-  .filter-select { width: 100%; }
-  .btn-add { width: 100%; text-align: center; padding: 12px; }
-
-  /* Modal fullscreen on mobile */
-  .modal-overlay { align-items: flex-end; padding: 0; }
-  .modal {
-    border-radius: 20px 20px 0 0;
-    max-height: 90vh;
-    overflow-y: auto;
-    padding: 20px 18px 32px;
-  }
-  .modal-grid { grid-template-columns: 1fr; gap: 12px; }
-
-  /* Checkin cards */
-  .checkin-live { margin-bottom: 16px; }
-
-  /* Section header */
-  .section-head { margin-bottom: 12px; }
-
-  /* Notif card */
-  .notif-card { padding: 16px; }
-
-  /* Tracker grid */
-  .tracker-grid { grid-template-columns: 1fr 1fr; }
+.exercise-row-builder input, .exercise-row-builder select {
+  background: var(--surface3);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 8px 12px;
+  color: var(--text);
+  font-family: 'Barlow', sans-serif;
+  font-size: 13px; outline: none;
+  width: 100%;
+}
+.ex-row-name { grid-column: 1 / -1; }
+.ex-delete-btn {
+  position: absolute; top: 8px; right: 8px;
+  background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.2);
+  border-radius: 6px; color: var(--red);
+  width: 28px; height: 28px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; font-size: 14px;
 }
 </style>
 </head>
 <body>
 
-<!-- SPLASH -->
-<div id="splash">
-  <div class="splash-wordmark">IRON<span>X</span></div>
   <div class="splash-sub">Fitness Club</div>
   <div class="splash-role">Manager Portal</div>
   <div class="splash-bar"><div class="splash-fill"></div></div>
@@ -623,7 +564,7 @@ tr:hover td { background:var(--surface2); }
 </div>
 
 <!-- APP -->
-<div id="app">
+<div id="app" style="display:none;">
 
   <!-- Mobile topbar -->
   <div class="mobile-topbar">
@@ -657,6 +598,14 @@ tr:hover td { background:var(--surface2); }
       <div class="nav-item" onclick="switchTab('training',this)">
         <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
         Training
+      </div>
+      <div class="nav-item" onclick="switchTab('diet',this)">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2"/></svg>
+        Diet
+      </div>
+      <div class="nav-item" onclick="switchTab('payments',this)">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        Payments
       </div>
       <div class="nav-item" onclick="switchTab('notify',this)">
         <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
@@ -757,10 +706,6 @@ tr:hover td { background:var(--surface2); }
             </tbody>
           </table>
         </div>
-        <!-- MOBILE CARD VIEW -->
-        <div class="member-cards" id="memberCardsBody">
-          <div class="empty-state"><div class="em-icon">👥</div><div class="em-text">No members yet.</div></div>
-        </div>
       </div>
     </div>
 
@@ -783,48 +728,92 @@ tr:hover td { background:var(--surface2); }
 
     <!-- TRAINING SCREEN -->
     <div class="screen" id="screen-training">
-      <div class="section-head">
-        <div class="section-title">PERSONAL TRAINING PLANS</div>
-      </div>
-
-      <!-- Member selector -->
+      <div class="section-head"><div class="section-title">PERSONAL TRAINING PLANS</div></div>
       <div class="table-card" style="margin-bottom:16px;">
-        <div class="table-header">
-          <div class="table-title">SELECT MEMBER</div>
-        </div>
+        <div class="table-header"><div class="table-title">SELECT MEMBER</div></div>
         <div style="padding:16px;">
           <select class="filter-select" id="trainingMemberSelect" style="width:100%;padding:13px 14px;" onchange="loadMemberTraining(this.value)">
             <option value="">-- Choose a member --</option>
           </select>
         </div>
       </div>
-
-      <!-- Day tabs -->
       <div id="trainingBuilder" style="display:none;">
-        <div style="display:flex;gap:8px;overflow-x:auto;padding-bottom:12px;scrollbar-width:none;" id="dayTabRow">
-          <!-- day tabs injected by JS -->
-        </div>
-
-        <!-- Exercise builder for selected day -->
+        <div style="display:flex;gap:8px;overflow-x:auto;padding-bottom:12px;scrollbar-width:none;" id="dayTabRow"></div>
         <div class="table-card" style="margin-bottom:16px;">
           <div class="table-header">
             <div class="table-title" id="trainingDayTitle">DAY 1 — EXERCISES</div>
             <button class="btn-add" onclick="addExerciseRow()">+ Add Exercise</button>
           </div>
-          <div id="exerciseRows" style="padding:12px;display:flex;flex-direction:column;gap:10px;">
-            <!-- exercise rows injected -->
-          </div>
+          <div id="exerciseRows" style="padding:12px;display:flex;flex-direction:column;gap:10px;"></div>
         </div>
-
-        <button class="btn-primary" style="width:calc(100% - 0px);padding:15px;" onclick="saveTrainingPlan()">
-          💾 SAVE & PUBLISH TO MEMBER APP
-        </button>
+        <button class="btn-primary" style="width:100%;padding:15px;" onclick="saveTrainingPlan()">💾 SAVE & PUBLISH TO MEMBER APP</button>
         <div style="height:16px;"></div>
       </div>
-
       <div id="trainingEmptyState" style="text-align:center;padding:48px;color:var(--text-muted);">
         <div style="font-size:40px;margin-bottom:12px;">🏋️</div>
         <div style="font-family:'Barlow Condensed',sans-serif;font-size:16px;">Select a member to manage their training plan</div>
+      </div>
+    </div>
+
+    <!-- DIET SCREEN -->
+    <div class="screen" id="screen-diet">
+      <div class="section-head"><div class="section-title">DIET PLANS</div></div>
+      <div class="table-card" style="margin-bottom:16px;">
+        <div class="table-header"><div class="table-title">SELECT MEMBER</div></div>
+        <div style="padding:16px;">
+          <select class="filter-select" id="dietMemberSelect" style="width:100%;padding:13px 14px;" onchange="loadMemberDiet(this.value)">
+            <option value="">-- Choose a member --</option>
+          </select>
+        </div>
+      </div>
+      <div id="dietBuilder" style="display:none;">
+        <div style="display:flex;gap:8px;overflow-x:auto;padding-bottom:12px;scrollbar-width:none;" id="mealTabRow"></div>
+        <div class="table-card" style="margin-bottom:16px;">
+          <div class="table-header">
+            <div class="table-title" id="dietMealTitle">BREAKFAST</div>
+            <button class="btn-add" onclick="addMealItem()">+ Add Item</button>
+          </div>
+          <div id="mealRows" style="padding:12px;display:flex;flex-direction:column;gap:10px;"></div>
+        </div>
+        <div style="padding:0 0 8px;">
+          <div class="field"><label>Daily Calorie Target</label>
+            <input type="number" id="dietCalories" placeholder="e.g. 2200" class="search-input" style="width:100%;padding:13px 14px;">
+          </div>
+          <div class="field" style="margin-top:12px;"><label>Trainer Notes</label>
+            <textarea id="dietNotes" placeholder="Any specific instructions..." class="notif-textarea" style="min-height:70px;"></textarea>
+          </div>
+        </div>
+        <button class="btn-primary" style="width:100%;padding:15px;" onclick="saveDietPlan()">💾 SAVE & PUBLISH DIET PLAN</button>
+        <div style="height:16px;"></div>
+      </div>
+      <div id="dietEmptyState" style="text-align:center;padding:48px;color:var(--text-muted);">
+        <div style="font-size:40px;margin-bottom:12px;">🥗</div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:16px;">Select a member to manage their diet plan</div>
+      </div>
+    </div>
+
+    <!-- PAYMENTS SCREEN -->
+    <div class="screen" id="screen-payments">
+      <div class="stat-grid" style="margin-bottom:20px;">
+        <div class="stat-card">
+          <div class="sc-label">This Month</div>
+          <div class="sc-val" id="payMonthTotal" style="color:var(--green);">₹0</div>
+          <div class="sc-sub">Total collected</div>
+          <div class="sc-icon">💰</div>
+        </div>
+        <div class="stat-card">
+          <div class="sc-label">Pending</div>
+          <div class="sc-val" id="payPending" style="color:var(--red);">0</div>
+          <div class="sc-sub">Members due</div>
+          <div class="sc-icon">⚠️</div>
+        </div>
+      </div>
+      <div class="table-card">
+        <div class="table-header">
+          <div class="table-title">PAYMENT STATUS</div>
+          <input class="search-input" type="text" placeholder="🔍 Search..." oninput="filterPayments(this.value)" style="width:160px;">
+        </div>
+        <div id="paymentsList"></div>
       </div>
     </div>
 
@@ -855,30 +844,6 @@ tr:hover td { background:var(--surface2); }
 
   </div><!-- /main -->
 </div><!-- /app -->
-
-<!-- MOBILE BOTTOM NAV -->
-<div class="bottom-nav-mobile" id="bottomNavMobile" style="display:none;">
-  <div class="bnm-item active" onclick="switchTab('dashboard',this)" id="bnm-dashboard">
-    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-    Home
-  </div>
-  <div class="bnm-item" onclick="switchTab('members',this)" id="bnm-members">
-    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-    Members
-  </div>
-  <div class="bnm-item" onclick="switchTab('checkin',this)" id="bnm-checkin">
-    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-    Check-In
-  </div>
-  <div class="bnm-item" onclick="switchTab('training',this)" id="bnm-training">
-    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
-    Training
-  </div>
-  <div class="bnm-item" onclick="switchTab('notify',this)" id="bnm-notify">
-    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
-    Notify
-  </div>
-</div>
 
 <!-- ADD / EDIT MEMBER MODAL -->
 <div class="modal-overlay" id="memberModal">
@@ -934,6 +899,15 @@ tr:hover td { background:var(--surface2); }
 
 <script>
 // ═══════════════════════════════════════════════
+// STATE VARIABLES
+// ═══════════════════════════════════════════════
+let liveMembers = [];
+let liveCheckins = [];
+let paymentData = {};
+let editingId = null;
+
+
+// ═══════════════════════════════════════════════
 // FIREBASE CONFIG — Replace with your project config
 // Get from: Firebase Console → Project Settings → Your apps
 // ═══════════════════════════════════════════════
@@ -947,12 +921,22 @@ const FIREBASE_CONFIG = {
 };
 
 // ═══════════════════════════════════════════════
-// LIVE STATE — synced from Firebase
+// DEMO DATA (used when Firebase is not configured)
 // ═══════════════════════════════════════════════
-let liveMembers = [];
-let liveCheckins = [];
+let DEMO_MODE = true;
+let demoMembers = [
+  { id:'IXF-001', name:'Rahul Sharma', phone:'9876543210', email:'rahul@email.com', plan:'3 Months', startDate:'2026-02-21', expiryDate:'2026-05-21', gender:'Male', goal:'Muscle Gain', emergency:'', status:'active' },
+  { id:'IXF-002', name:'Priya Mehta', phone:'9823456789', email:'priya@email.com', plan:'1 Month', startDate:'2026-04-10', expiryDate:'2026-05-10', gender:'Female', goal:'Weight Loss', emergency:'', status:'expired' },
+  { id:'IXF-003', name:'Arjun Patil', phone:'9765432198', email:'', plan:'6 Months', startDate:'2026-01-01', expiryDate:'2026-07-01', gender:'Male', goal:'Strength', emergency:'', status:'active' },
+  { id:'IXF-004', name:'Sneha Kulkarni', phone:'9812345678', email:'sneha@email.com', plan:'12 Months', startDate:'2026-03-15', expiryDate:'2027-03-15', gender:'Female', goal:'Fitness', emergency:'', status:'active' },
+  { id:'IXF-005', name:'Ravi Joshi', phone:'9745678901', email:'', plan:'1 Month', startDate:'2026-04-28', expiryDate:'2026-05-28', gender:'Male', goal:'Weight Loss', emergency:'', status:'expiring' },
+];
+let demoCheckins = [
+  { memberId:'IXF-001', name:'Rahul Sharma', plan:'3 Months', time: getTimeStr(-5) },
+  { memberId:'IXF-003', name:'Arjun Patil', plan:'6 Months', time: getTimeStr(-22) },
+  { memberId:'IXF-004', name:'Sneha Kulkarni', plan:'12 Months', time: getTimeStr(-48) },
+];
 let demoNotifs = [];
-let editingId = null;
 
 function getTimeStr(minsAgo) {
   const d = new Date(Date.now() + minsAgo * 60000);
@@ -964,43 +948,18 @@ function getTimeStr(minsAgo) {
 // ═══════════════════════════════════════════════
 let db = null, auth = null;
 try {
-  firebase.initializeApp(FIREBASE_CONFIG);
-  db = firebase.firestore();
-  auth = firebase.auth();
-} catch(e) { console.warn('Firebase init:', e); }
-
-// ── REAL-TIME LISTENERS (start after login) ──
-function startListeners() {
-  if (!db) return;
-
-  // Members live
-  db.collection('members').onSnapshot(snap => {
-    liveMembers = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-    liveMembers.sort((a,b) => a.name.localeCompare(b.name));
-    renderMembers();
-    renderDashboard();
-    populateTrainingMemberSelect();
-  });
-
-  // ALL checkins — no filter, show everything, sorted by time
-  db.collection('checkins').onSnapshot(snap => {
-    liveCheckins = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-    liveCheckins.sort((a,b) => (b.time||'').localeCompare(a.time||''));
-    renderCheckins();
-    renderDashboard();
-  });
-}
+  if (FIREBASE_CONFIG.apiKey !== 'REPLACE_WITH_YOUR_API_KEY') {
+    firebase.initializeApp(FIREBASE_CONFIG);
+    db = firebase.firestore();
+    auth = firebase.auth();
+    DEMO_MODE = false;
+  }
+} catch(e) { DEMO_MODE = true; }
 
 // ═══════════════════════════════════════════════
 // SPLASH → LOGIN
 // ═══════════════════════════════════════════════
-setTimeout(() => {
-  document.getElementById('splash').classList.add('hide');
-  setTimeout(() => {
-    document.getElementById('splash').style.display = 'none';
-    document.getElementById('loginScreen').classList.add('active');
-  }, 500);
-}, 2000);
+
 
 // ═══════════════════════════════════════════════
 // AUTH
@@ -1010,7 +969,7 @@ async function doLogin() {
   const pass = document.getElementById('loginPass').value;
   if (!email || !pass) { showToast('Enter your credentials!', '⚠️'); return; }
 
-  if (auth) {
+  if (!DEMO_MODE && auth) {
     try {
       await auth.signInWithEmailAndPassword(email, pass);
     } catch(e) {
@@ -1022,15 +981,13 @@ async function doLogin() {
   document.getElementById('topbarAvatar').textContent = initial;
   document.getElementById('loginScreen').classList.remove('active');
   document.getElementById('app').classList.add('active');
-  document.getElementById('bottomNavMobile').style.display = 'flex';
   initApp();
 }
 
 function doLogout() {
   if (auth) auth.signOut();
   document.getElementById('app').classList.remove('active');
-  document.getElementById('bottomNavMobile').style.display = 'none';
-  document.getElementById('loginScreen').classList.add('active');
+  
   document.getElementById('loginEmail').value = '';
   document.getElementById('loginPass').value = '';
 }
@@ -1050,15 +1007,10 @@ function initApp() {
 function switchTab(tab, navEl) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  document.querySelectorAll('.bnm-item').forEach(n => n.classList.remove('active'));
   document.getElementById('screen-'+tab).classList.add('active');
   if (navEl) navEl.classList.add('active');
-  // Also highlight bottom nav
-  const bnm = document.getElementById('bnm-'+tab);
-  if (bnm) bnm.classList.add('active');
-  const titles = { dashboard:'DASHBOARD', members:'MEMBERS', checkin:'CHECK-INS', training:'TRAINING PLANS', notify:'NOTIFICATIONS' };
+  const titles = { dashboard:'DASHBOARD', members:'MEMBERS', checkin:'CHECK-INS', training:'TRAINING PLANS', diet:'DIET PLANS', payments:'PAYMENTS', notify:'NOTIFICATIONS' };
   document.getElementById('topbarTitle').textContent = titles[tab] || tab.toUpperCase();
-  window.scrollTo(0,0);
   if (window.innerWidth <= 768) closeSidebar();
 }
 
@@ -1108,7 +1060,7 @@ function calcExpiry(startDate, plan) {
 }
 
 function nextMemberId() {
-  const ids = liveMembers.map(m => parseInt((m.id||"IXF-0").split('-')[1]||0));
+  const ids = demoMembers.map(m => parseInt(m.id.split('-')[1]||0));
   const max = ids.length ? Math.max(...ids) : 0;
   return 'IXF-' + String(max + 1).padStart(3,'0');
 }
@@ -1165,16 +1117,10 @@ function renderDashboard() {
 function renderMembers(filtered) {
   const members = filtered || getMembers();
   const tbody = document.getElementById('membersTableBody');
-  const cards = document.getElementById('memberCardsBody');
-
   if (members.length === 0) {
-    const empty = '<tr><td colspan="6"><div class="empty-state"><div class="em-icon">👥</div><div class="em-text">No members found.</div></div></td></tr>';
-    tbody.innerHTML = empty;
-    if (cards) cards.innerHTML = '<div class="empty-state"><div class="em-icon">👥</div><div class="em-text">No members found.</div></div>';
+    tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state"><div class="em-icon">👥</div><div class="em-text">No members found.</div></div></td></tr>';
     return;
   }
-
-  // Desktop table
   tbody.innerHTML = members.map(m => {
     const st = memberStatus(m);
     const dl = daysLeft(m.expiryDate);
@@ -1199,42 +1145,11 @@ function renderMembers(filtered) {
       </div></td>
     </tr>`;
   }).join('');
-
-  // Mobile cards
-  if (cards) {
-    cards.innerHTML = members.map(m => {
-      const st = memberStatus(m);
-      const dl = daysLeft(m.expiryDate);
-      const dlText = dl < 0 ? `Expired ${Math.abs(dl)}d ago` : dl === 0 ? 'Expires today' : `${dl} days left`;
-      return `
-      <div class="member-card-item">
-        <div class="mci-top">
-          <div class="member-avatar" style="width:44px;height:44px;font-size:20px;">${m.name.charAt(0)}</div>
-          <div class="mci-info">
-            <div class="mci-name">${m.name}</div>
-            <div class="mci-id">${m.id} · ${m.phone}</div>
-          </div>
-          <span class="badge ${st}">${st.charAt(0).toUpperCase()+st.slice(1)}</span>
-        </div>
-        <div class="mci-bottom">
-          <div class="mci-meta">
-            <span class="badge ${planClass(m.plan)}">${m.plan}</span>
-            <span style="font-size:11px;color:var(--text-muted);">${formatDate(m.expiryDate)} · ${dlText}</span>
-          </div>
-          <div class="mci-actions">
-            <button class="btn-icon" onclick="checkinMember('${m.id}')" title="Check In">✅</button>
-            <button class="btn-icon" onclick="editMember('${m.id}')" title="Edit">✏️</button>
-            <button class="btn-icon danger" onclick="deleteMember('${m.id}')" title="Delete">🗑</button>
-          </div>
-        </div>
-      </div>`;
-    }).join('');
-  }
 }
 
 function filterMembers(search) {
   const plan = document.getElementById('planFilter').value;
-  let filtered = liveMembers.filter(m => {
+  let filtered = getMembers().filter(m => {
     const matchSearch = !search || m.name.toLowerCase().includes(search.toLowerCase()) || m.phone.includes(search);
     const matchPlan = !plan || m.plan === plan;
     return matchSearch && matchPlan;
@@ -1256,7 +1171,7 @@ function openAddModal() {
 }
 
 function editMember(id) {
-  const m = liveMembers.find(x => x.id === id);
+  const m = demoMembers.find(x => x.id === id);
   if (!m) return;
   editingId = id;
   document.getElementById('modalTitle').textContent = 'EDIT MEMBER';
@@ -1289,17 +1204,25 @@ function saveMember() {
     status: 'active'
   };
 
-  // Firebase save
-  const col = db.collection('members');
-  if (editingId) {
-    col.doc(editingId).update(memberData)
-      .then(() => showToast(`${name} updated!`, '✅'))
-      .catch(e => showToast('Error: ' + e.message, '❌'));
+  if (DEMO_MODE) {
+    if (editingId) {
+      const idx = demoMembers.findIndex(m => m.id === editingId);
+      if (idx !== -1) { demoMembers[idx] = { ...demoMembers[idx], ...memberData }; }
+      showToast(`${name} updated!`, '✅');
+    } else {
+      memberData.id = nextMemberId();
+      demoMembers.unshift(memberData);
+      showToast(`${name} added! ID: ${memberData.id}`, '✅');
+    }
   } else {
-    memberData.id = nextMemberId();
-    col.doc(memberData.id).set(memberData)
-      .then(() => showToast(`${name} added! ID: ${memberData.id}`, '✅'))
-      .catch(e => showToast('Error: ' + e.message, '❌'));
+    // Firebase save
+    const col = db.collection('members');
+    if (editingId) {
+      col.doc(editingId).update(memberData).then(() => showToast(`${name} updated!`, '✅'));
+    } else {
+      memberData.id = nextMemberId();
+      col.doc(memberData.id).set(memberData).then(() => showToast(`${name} added!`, '✅'));
+    }
   }
 
   closeModal('memberModal');
@@ -1308,10 +1231,14 @@ function saveMember() {
 }
 
 function deleteMember(id) {
-  const m = liveMembers.find(x => x.id === id);
+  const m = demoMembers.find(x => x.id === id);
   if (!m) return;
   if (!confirm(`Delete ${m.name}? This cannot be undone.`)) return;
-  db.collection('members').doc(id).delete();
+  if (DEMO_MODE) {
+    demoMembers = demoMembers.filter(x => x.id !== id);
+  } else {
+    db.collection('members').doc(id).delete();
+  }
   showToast(`${m.name} removed`, '🗑');
   renderMembers();
   renderDashboard();
@@ -1323,52 +1250,30 @@ function deleteMember(id) {
 function renderCheckins() {
   const checkins = getCheckins();
   const el = document.getElementById('fullCheckinLog');
-  const dashEl = document.getElementById('dashCheckins');
-
   if (checkins.length === 0) {
-    const empty = '<div class="empty-state"><div class="em-icon">👟</div><div class="em-text">No check-ins yet today</div></div>';
-    el.innerHTML = empty;
-    if (dashEl) dashEl.innerHTML = empty;
+    el.innerHTML = '<div class="empty-state"><div class="em-icon">👟</div><div class="em-text">No check-ins today.</div></div>';
     return;
   }
-
-  const rows = checkins.map(c => `
+  el.innerHTML = checkins.map(c => `
     <div class="checkin-row">
       <div class="checkin-dot"></div>
-      <div class="checkin-avatar">${(c.name||'?').charAt(0).toUpperCase()}</div>
+      <div class="checkin-avatar">${c.name.charAt(0)}</div>
       <div>
-        <div class="checkin-name">${c.name||'Unknown'}</div>
-        <div class="checkin-plan">${c.plan||''} Plan · ${c.date||''}</div>
+        <div class="checkin-name">${c.name}</div>
+        <div class="checkin-plan">${c.plan} Plan</div>
       </div>
-      <div class="checkin-time">${c.time||''}</div>
-    </div>`).join('');
-
-  el.innerHTML = rows;
-  if (dashEl) dashEl.innerHTML = checkins.slice(0,5).map(c => `
-    <div class="checkin-row">
-      <div class="checkin-dot"></div>
-      <div class="checkin-avatar">${(c.name||'?').charAt(0).toUpperCase()}</div>
-      <div>
-        <div class="checkin-name">${c.name||'Unknown'}</div>
-        <div class="checkin-plan">${c.plan||''} Plan</div>
-      </div>
-      <div class="checkin-time">${c.time||''}</div>
+      <div class="checkin-time">${c.time}</div>
     </div>`).join('');
 }
 
 function checkinMember(id) {
-  const m = liveMembers.find(x => x.id === id);
+  const m = demoMembers.find(x => x.id === id);
   if (!m) return;
-  const today = new Date().toISOString().split('T')[0];
-  const entry = {
-    memberId: m.id, name: m.name, plan: m.plan,
-    date: today,
-    time: new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}),
-    timestamp: firebase.firestore.FieldValue.serverTimestamp()
-  };
-  db.collection('checkins').add(entry)
-    .then(() => showToast(`${m.name} checked in!`, '🏋️'))
-    .catch(e => showToast('Check-in error: ' + e.message, '❌'));
+  const entry = { memberId: m.id, name: m.name, plan: m.plan, time: new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}) };
+  demoCheckins.unshift(entry);
+  renderCheckins();
+  renderDashboard();
+  showToast(`${m.name} checked in! ✅`, '🏋️');
 }
 
 function openCheckinModal() {
@@ -1380,7 +1285,7 @@ function openCheckinModal() {
 function searchForCheckin(val) {
   const el = document.getElementById('checkinResults');
   if (!val) { el.innerHTML=''; return; }
-  const results = liveMembers.filter(m => m.name.toLowerCase().includes(val.toLowerCase()) || m.phone.includes(val));
+  const results = demoMembers.filter(m => m.name.toLowerCase().includes(val.toLowerCase()) || m.phone.includes(val));
   el.innerHTML = results.map(m => `
     <div style="display:flex;align-items:center;gap:12px;padding:12px;background:var(--surface2);border-radius:var(--radius-sm);cursor:pointer;border:1px solid var(--border);" onclick="checkinFromModal('${m.id}')">
       <div class="checkin-avatar">${m.name.charAt(0)}</div>
@@ -1410,14 +1315,16 @@ function sendNotif() {
   const msg = document.getElementById('notifMsg').value.trim();
   if (!msg) { showToast('Write a message first!', '⚠️'); return; }
   const target = selectedTargets[0];
-  const count = target==='all' ? liveMembers.length : target==='active' ? liveMembers.filter(m=>memberStatus(m)==='active').length : liveMembers.filter(m=>memberStatus(m)==='expiring').length;
+  const count = target==='all' ? demoMembers.length : target==='active' ? demoMembers.filter(m=>memberStatus(m)==='active').length : demoMembers.filter(m=>memberStatus(m)==='expiring').length;
   const entry = { msg, target, count, time: new Date().toLocaleString('en-IN',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}) };
   demoNotifs.unshift(entry);
   document.getElementById('notifMsg').value='';
   renderNotifHistory();
   showToast(`Notification sent to ${count} member${count===1?'':'s'}!`, '📢');
 
-  if (db) { db.collection('notifications').add({ ...entry, sentAt: firebase.firestore.FieldValue.serverTimestamp() }); }
+  if (!DEMO_MODE && db) {
+    db.collection('notifications').add({ ...entry, sentAt: firebase.firestore.FieldValue.serverTimestamp() });
+  }
 }
 
 function renderNotifHistory() {
@@ -1434,253 +1341,6 @@ function renderNotifHistory() {
 }
 
 // ═══════════════════════════════════════════════
-// PERSONAL TRAINING PLAN
-// ═══════════════════════════════════════════════
-const DAYS = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
-const MUSCLES = ['Chest','Back','Shoulders','Biceps','Triceps','Legs','Quads','Hamstrings','Calves','Core','Cardio','Full Body','Flexibility'];
-
-// Exercise library organized by muscle group
-const EXERCISE_LIBRARY = {
-  'Chest': [
-    'Bench Press','Incline Bench Press','Decline Bench Press',
-    'Dumbbell Fly','Cable Fly','Push Up','Chest Dip','Pec Deck'
-  ],
-  'Back': [
-    'Deadlift','Pull Up','Lat Pulldown','Seated Row',
-    'Bent Over Row','Barbell Row','T-Bar Row','Face Pull'
-  ],
-  'Shoulders': [
-    'Overhead Press','Shoulder Press','Military Press',
-    'Lateral Raises','Front Raises','Arnold Press','Shrugs','Upright Row'
-  ],
-  'Biceps': [
-    'Barbell Curl','Dumbbell Curl','Hammer Curls',
-    'Preacher Curl','Concentration Curl','Cable Curl','Incline Curl'
-  ],
-  'Triceps': [
-    'Skull Crushers','Tricep Dips','Tricep Pushdown',
-    'Cable Pushdown','Overhead Tricep Extension','Close Grip Bench Press','Kickback'
-  ],
-  'Legs': [
-    'Squats','Leg Press','Romanian Deadlift','Lunges',
-    'Leg Curl','Leg Extension','Hack Squat','Sumo Squat','Bulgarian Split Squat'
-  ],
-  'Quads': [
-    'Squats','Leg Press','Leg Extension','Hack Squat','Front Squat','Step Up'
-  ],
-  'Hamstrings': [
-    'Romanian Deadlift','Lying Leg Curls','Seated Leg Curl',
-    'Stiff Leg Deadlift','Good Morning'
-  ],
-  'Calves': [
-    'Calf Raises','Seated Calf Raise','Standing Calf Raise','Donkey Calf Raise'
-  ],
-  'Core': [
-    'Plank','Crunches','Sit Up','Russian Twists','Leg Raises',
-    'Mountain Climbers','Bicycle Crunch','Ab Wheel','Hanging Leg Raise','Side Plank'
-  ],
-  'Cardio': [
-    'Treadmill','Cycling','Jumping Jacks','Burpees','High Knees',
-    'Jump Rope','Box Jump','Battle Ropes','Rowing Machine'
-  ],
-  'Full Body': [
-    'Deadlift','Burpees','Kettlebell Swing','Clean And Press',
-    'Thruster','Bear Crawl','Turkish Get Up'
-  ],
-  'Flexibility': [
-    'Forward Bending','Side Bends','Arm Circles','Standing Toe Touch',
-    'Hip Flexor Stretch','Pigeon Pose','Cat Cow','Child Pose','Downward Dog'
-  ]
-};
-let selectedTrainingMemberId = null;
-let selectedDayIndex = 0;
-let trainingPlan = {}; // { Monday: [{name,sets,reps,muscle},...], ... }
-
-function populateTrainingMemberSelect() {
-  const sel = document.getElementById('trainingMemberSelect');
-  if (!sel) return;
-  sel.innerHTML = '<option value="">-- Choose a member --</option>';
-  liveMembers.forEach(m => {
-    const opt = document.createElement('option');
-    opt.value = m.id;
-    opt.textContent = m.name + ' (' + m.plan + ')';
-    sel.appendChild(opt);
-  });
-}
-
-async function loadMemberTraining(memberId) {
-  if (!memberId) {
-    document.getElementById('trainingBuilder').style.display = 'none';
-    document.getElementById('trainingEmptyState').style.display = 'block';
-    return;
-  }
-  selectedTrainingMemberId = memberId;
-  trainingPlan = {};
-
-  // Load existing plan from Firebase
-  if (db) {
-    try {
-      const doc = await db.collection('trainingPlans').doc(memberId).get();
-      if (doc.exists) trainingPlan = doc.data().plan || {};
-    } catch(e) { console.warn('Load training error:', e); }
-  }
-
-  document.getElementById('trainingEmptyState').style.display = 'none';
-  document.getElementById('trainingBuilder').style.display = 'block';
-  renderDayTabs();
-  renderExerciseRows();
-}
-
-function renderDayTabs() {
-  const row = document.getElementById('dayTabRow');
-  row.innerHTML = DAYS.map((d, i) => {
-    const hasExercises = trainingPlan[d] && trainingPlan[d].length > 0;
-    return `<div class="day-tab ${i === selectedDayIndex ? 'active' : ''}" onclick="selectDay(${i})">
-      ${d.substring(0,3).toUpperCase()}${hasExercises ? ' ✓' : ''}
-    </div>`;
-  }).join('');
-}
-
-function selectDay(idx) {
-  syncExercisesFromDOM(); // save current day data before switching
-  selectedDayIndex = idx;
-  renderDayTabs();
-  renderExerciseRows();
-  document.getElementById('trainingDayTitle').textContent = DAYS[idx].toUpperCase() + ' — EXERCISES';
-}
-
-function renderExerciseRows() {
-  const day = DAYS[selectedDayIndex];
-  const exercises = trainingPlan[day] || [];
-  const container = document.getElementById('exerciseRows');
-
-  if (exercises.length === 0) {
-    container.innerHTML = `<div style="text-align:center;padding:24px;color:var(--text-muted);font-size:13px;">No exercises yet for ${day}. Click "+ Add Exercise"</div>`;
-    return;
-  }
-
-  container.innerHTML = exercises.map((ex, i) => {
-    const exercisesForMuscle = ex.muscle && EXERCISE_LIBRARY[ex.muscle] ? EXERCISE_LIBRARY[ex.muscle] : [];
-    return `
-    <div class="exercise-row-builder" id="exrow-${i}">
-      <div class="ex-delete-btn" onclick="deleteExercise(${i})">✕</div>
-      <!-- Step 1: Muscle Group -->
-      <div class="ex-row-name">
-        <label style="font-size:10px;letter-spacing:1px;color:var(--text-muted);text-transform:uppercase;margin-bottom:4px;display:block;">Muscle Group</label>
-        <select onchange="updateExerciseMuscle(${i},this.value)" style="width:100%;">
-          <option value="">-- Select Muscle Group --</option>
-          ${MUSCLES.map(m => `<option value="${m}" ${ex.muscle===m?'selected':''}>${m}</option>`).join('')}
-        </select>
-      </div>
-      <!-- Step 2: Exercise from library -->
-      <div class="ex-row-name" style="margin-top:4px;">
-        <label style="font-size:10px;letter-spacing:1px;color:var(--text-muted);text-transform:uppercase;margin-bottom:4px;display:block;">Exercise</label>
-        <select id="exname-${i}" onchange="updateExercise(${i},'name',this.value)" style="width:100%;">
-          <option value="">-- Select Exercise --</option>
-          ${exercisesForMuscle.map(e => `<option value="${e}" ${ex.name===e?'selected':''}>${e}</option>`).join('')}
-        </select>
-      </div>
-      <!-- Sets & Reps -->
-      <div>
-        <label style="font-size:10px;letter-spacing:1px;color:var(--text-muted);text-transform:uppercase;margin-bottom:4px;display:block;">Sets</label>
-        <input type="number" placeholder="3" min="1" max="10" value="${ex.sets||'3'}"
-          oninput="updateExercise(${i},'sets',this.value)" style="text-align:center;width:100%;">
-      </div>
-      <div>
-        <label style="font-size:10px;letter-spacing:1px;color:var(--text-muted);text-transform:uppercase;margin-bottom:4px;display:block;">Reps</label>
-        <input type="text" placeholder="12" value="${ex.reps||'12'}"
-          oninput="updateExercise(${i},'reps',this.value)" style="width:100%;">
-      </div>
-    </div>`;
-  }).join('');
-}
-
-function updateExercise(idx, field, value) {
-  const day = DAYS[selectedDayIndex];
-  if (!trainingPlan[day]) trainingPlan[day] = [];
-  while (trainingPlan[day].length <= idx) trainingPlan[day].push({});
-  trainingPlan[day][idx][field] = value;
-}
-
-function updateExerciseMuscle(idx, muscle) {
-  updateExercise(idx, 'muscle', muscle);
-  updateExercise(idx, 'name', ''); // reset exercise when muscle changes
-  // Update the exercise dropdown for this row
-  const exSelect = document.getElementById('exname-' + idx);
-  if (!exSelect) return;
-  const exercises = EXERCISE_LIBRARY[muscle] || [];
-  exSelect.innerHTML = '<option value="">-- Select Exercise --</option>' +
-    exercises.map(e => `<option value="${e}">${e}</option>`).join('');
-}
-
-function syncExercisesFromDOM() {
-  const day = DAYS[selectedDayIndex];
-  const rows = document.querySelectorAll('.exercise-row-builder');
-  if (rows.length === 0) return;
-  trainingPlan[day] = [];
-  rows.forEach((row, i) => {
-    const selects = row.querySelectorAll('select');
-    const inputs = row.querySelectorAll('input');
-    const muscle = selects[0] ? selects[0].value : '';
-    const name = selects[1] ? selects[1].value : '';
-    const sets = inputs[0] ? inputs[0].value : '3';
-    const reps = inputs[1] ? inputs[1].value : '12';
-    if (name) trainingPlan[day].push({ name, muscle, sets, reps });
-  });
-}
-
-function addExerciseRow() {
-  syncExercisesFromDOM();
-  const day = DAYS[selectedDayIndex];
-  if (!trainingPlan[day]) trainingPlan[day] = [];
-  trainingPlan[day].push({ name:'', muscle:'', sets:'3', reps:'12' });
-  renderExerciseRows();
-}
-
-function deleteExercise(idx) {
-  syncExercisesFromDOM();
-  const day = DAYS[selectedDayIndex];
-  trainingPlan[day].splice(idx, 1);
-  renderExerciseRows();
-  renderDayTabs();
-}
-
-async function saveTrainingPlan() {
-  if (!selectedTrainingMemberId) { showToast('Select a member first!', '⚠️'); return; }
-  if (!db) { showToast('Firebase not connected', '❌'); return; }
-
-  // Sync DOM values to trainingPlan before saving
-  syncExercisesFromDOM();
-
-  // Clean up empty exercises
-  DAYS.forEach(d => {
-    if (trainingPlan[d]) {
-      trainingPlan[d] = trainingPlan[d].filter(ex => ex.name && ex.name.trim());
-    }
-  });
-
-  const member = liveMembers.find(m => m.id === selectedTrainingMemberId);
-  const saveData = {
-    memberId: selectedTrainingMemberId,
-    memberName: member ? member.name : '',
-    plan: trainingPlan,
-    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-  };
-
-  try {
-    await db.collection('trainingPlans').doc(selectedTrainingMemberId).set(saveData);
-    showToast(`✅ Published to ${member ? member.name : 'member'}'s app!`, '💪');
-    renderDayTabs(); // update checkmarks without resetting form
-    renderExerciseRows(); // re-render to keep data
-  } catch(e) {
-    showToast('Save failed: ' + e.message, '❌');
-  }
-}
-
-// Populate member select whenever members load
-const _origStartListeners = startListeners;
-
-// ═══════════════════════════════════════════════
 // MODALS & TOAST
 // ═══════════════════════════════════════════════
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
@@ -1694,6 +1354,268 @@ function showToast(msg, icon='✅') {
   document.getElementById('toastIcon').textContent=icon;
   t.classList.add('show');
   setTimeout(()=>t.classList.remove('show'), 3000);
+}
+
+// ═══════════════════════════════════════════════
+// DIET PLAN
+// ═══════════════════════════════════════════════
+const MEALS = ['Breakfast','Mid Morning','Lunch','Evening Snack','Dinner'];
+let selectedDietMemberId = null;
+let selectedMealIndex = 0;
+let dietPlan = {};
+
+function populateDietMemberSelect() {
+  const sel = document.getElementById('dietMemberSelect');
+  if (!sel) return;
+  sel.innerHTML = '<option value="">-- Choose a member --</option>';
+  liveMembers.forEach(m => {
+    sel.innerHTML += `<option value="${m.id}">${m.name} (${m.plan})</option>`;
+  });
+}
+
+async function loadMemberDiet(memberId) {
+  if (!memberId) {
+    document.getElementById('dietBuilder').style.display = 'none';
+    document.getElementById('dietEmptyState').style.display = 'block';
+    return;
+  }
+  selectedDietMemberId = memberId;
+  dietPlan = {};
+  if (db) {
+    try {
+      const doc = await db.collection('dietPlans').doc(memberId).get();
+      if (doc.exists) {
+        dietPlan = doc.data().plan || {};
+        if (doc.data().calories) document.getElementById('dietCalories').value = doc.data().calories;
+        if (doc.data().notes) document.getElementById('dietNotes').value = doc.data().notes;
+      }
+    } catch(e) { console.warn(e); }
+  }
+  document.getElementById('dietEmptyState').style.display = 'none';
+  document.getElementById('dietBuilder').style.display = 'block';
+  renderMealTabs();
+  renderMealRows();
+}
+
+function renderMealTabs() {
+  const row = document.getElementById('mealTabRow');
+  row.innerHTML = MEALS.map((m, i) => {
+    const hasItems = dietPlan[m] && dietPlan[m].length > 0;
+    return `<div class="day-tab ${i === selectedMealIndex ? 'active' : ''}" onclick="selectMeal(${i})">
+      ${m.split(' ')[0]}${hasItems ? ' ✓' : ''}
+    </div>`;
+  }).join('');
+}
+
+function selectMeal(idx) {
+  syncMealFromDOM();
+  selectedMealIndex = idx;
+  renderMealTabs();
+  renderMealRows();
+  document.getElementById('dietMealTitle').textContent = MEALS[idx].toUpperCase();
+}
+
+function renderMealRows() {
+  const meal = MEALS[selectedMealIndex];
+  const items = dietPlan[meal] || [];
+  const container = document.getElementById('mealRows');
+  if (items.length === 0) {
+    container.innerHTML = `<div style="text-align:center;padding:20px;color:var(--text-muted);font-size:13px;">No items for ${meal}. Click "+ Add Item"</div>`;
+    return;
+  }
+  container.innerHTML = items.map((item, i) => `
+    <div class="exercise-row-builder" style="grid-template-columns:1fr auto auto;">
+      <div class="ex-delete-btn" onclick="deleteMealItem(${i})">✕</div>
+      <input type="text" placeholder="Food item (e.g. Oats with milk)" value="${item.food||''}" oninput="updateMealItem(${i},'food',this.value)" style="grid-column:1/-1;">
+      <input type="text" placeholder="Quantity (e.g. 1 bowl)" value="${item.qty||''}" oninput="updateMealItem(${i},'qty',this.value)">
+      <input type="number" placeholder="Calories" value="${item.cal||''}" oninput="updateMealItem(${i},'cal',this.value)" style="text-align:center;">
+    </div>`).join('');
+}
+
+function updateMealItem(idx, field, value) {
+  const meal = MEALS[selectedMealIndex];
+  if (!dietPlan[meal]) dietPlan[meal] = [];
+  while (dietPlan[meal].length <= idx) dietPlan[meal].push({});
+  dietPlan[meal][idx][field] = value;
+}
+
+function addMealItem() {
+  syncMealFromDOM();
+  const meal = MEALS[selectedMealIndex];
+  if (!dietPlan[meal]) dietPlan[meal] = [];
+  dietPlan[meal].push({ food:'', qty:'', cal:'' });
+  renderMealRows();
+}
+
+function deleteMealItem(idx) {
+  syncMealFromDOM();
+  const meal = MEALS[selectedMealIndex];
+  dietPlan[meal].splice(idx, 1);
+  renderMealRows();
+  renderMealTabs();
+}
+
+function syncMealFromDOM() {
+  const meal = MEALS[selectedMealIndex];
+  const rows = document.querySelectorAll('#mealRows .exercise-row-builder');
+  if (rows.length === 0) return;
+  dietPlan[meal] = [];
+  rows.forEach(row => {
+    const inputs = row.querySelectorAll('input');
+    if (inputs[0] && inputs[0].value.trim()) {
+      dietPlan[meal].push({ food: inputs[0].value, qty: inputs[1]?.value||'', cal: inputs[2]?.value||'' });
+    }
+  });
+}
+
+async function saveDietPlan() {
+  if (!selectedDietMemberId) { showToast('Select a member first!', '⚠️'); return; }
+  syncMealFromDOM();
+  const member = liveMembers.find(m => m.id === selectedDietMemberId);
+  const calories = document.getElementById('dietCalories').value;
+  const notes = document.getElementById('dietNotes').value;
+  try {
+    await db.collection('dietPlans').doc(selectedDietMemberId).set({
+      memberId: selectedDietMemberId,
+      memberName: member?.name || '',
+      plan: dietPlan,
+      calories, notes,
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    showToast(`Diet plan saved for ${member?.name}! 🥗`, '✅');
+    renderMealTabs();
+  } catch(e) { showToast('Error: ' + e.message, '❌'); }
+}
+
+// ═══════════════════════════════════════════════
+// PAYMENTS
+// ═══════════════════════════════════════════════
+
+function initPayments() {
+  populateDietMemberSelect();
+  renderPayments();
+}
+
+function renderPayments(filter) {
+  const members = filter
+    ? liveMembers.filter(m => m.name.toLowerCase().includes(filter.toLowerCase()))
+    : liveMembers;
+
+  const list = document.getElementById('paymentsList');
+  if (!list) return;
+
+  // Calculate stats
+  const paid = liveMembers.filter(m => paymentData[m.id]?.paid);
+  const pending = liveMembers.filter(m => !paymentData[m.id]?.paid);
+  const totalCollected = paid.reduce((sum, m) => {
+    const prices = {'1 Month':1999,'3 Months':4999,'6 Months':8500,'12 Months':14999};
+    return sum + (prices[m.plan]||0);
+  }, 0);
+
+  const statTotal = document.getElementById('payMonthTotal');
+  const statPending = document.getElementById('payPending');
+  if (statTotal) statTotal.textContent = '₹' + totalCollected.toLocaleString('en-IN');
+  if (statPending) statPending.textContent = pending.length;
+
+  if (members.length === 0) {
+    list.innerHTML = '<div class="empty-state"><div class="em-icon">💰</div><div class="em-text">No members found</div></div>';
+    return;
+  }
+
+  const planPrices = {'1 Month':'₹1,999','3 Months':'₹4,999','6 Months':'₹8,500','12 Months':'₹14,999'};
+
+  list.innerHTML = members.map(m => {
+    const isPaid = paymentData[m.id]?.paid;
+    const paidDate = paymentData[m.id]?.date || '';
+    const st = memberStatus(m);
+    return `
+    <div style="display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid var(--border);">
+      <div class="member-avatar" style="width:40px;height:40px;font-size:18px;">${m.name.charAt(0)}</div>
+      <div style="flex:1;">
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:600;">${m.name}</div>
+        <div style="font-size:11px;color:var(--text-muted);">${m.plan} · ${planPrices[m.plan]||''}</div>
+        ${isPaid ? `<div style="font-size:10px;color:var(--green);">Paid on ${paidDate}</div>` : ''}
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;">
+        <span class="badge ${st}">${st.charAt(0).toUpperCase()+st.slice(1)}</span>
+        <button onclick="togglePayment('${m.id}')" style="padding:5px 12px;border-radius:6px;border:none;cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:0.5px;background:${isPaid ? 'rgba(239,68,68,0.1)' : 'rgba(34,197,94,0.15)'};color:${isPaid ? 'var(--red)' : 'var(--green)'};">
+          ${isPaid ? '✕ Unpaid' : '✓ Mark Paid'}
+        </button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function togglePayment(memberId) {
+  const m = liveMembers.find(x => x.id === memberId);
+  if (!m) return;
+  const isPaid = paymentData[memberId]?.paid;
+  if (!isPaid) {
+    paymentData[memberId] = { paid: true, date: new Date().toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}) };
+    showToast(`${m.name} marked as paid ✅`, '💰');
+    // Save to Firebase
+    if (db) db.collection('payments').doc(memberId).set({ memberId, paid: true, date: new Date().toISOString(), memberName: m.name, plan: m.plan }, {merge:true});
+  } else {
+    paymentData[memberId] = { paid: false };
+    showToast(`${m.name} marked as unpaid`, '⚠️');
+    if (db) db.collection('payments').doc(memberId).set({ paid: false }, {merge:true});
+  }
+  renderPayments();
+}
+
+function filterPayments(val) { renderPayments(val); }
+
+// Load payment data from Firebase on startup
+function loadPayments() {
+  if (!db) return;
+  db.collection('payments').onSnapshot(snap => {
+    snap.docs.forEach(d => { paymentData[d.id] = d.data(); });
+    renderPayments();
+  });
+}
+
+
+
+function startListeners() {
+  if (!db) return;
+  db.collection('members').onSnapshot(snap => {
+    liveMembers = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    liveMembers.sort((a,b) => a.name.localeCompare(b.name));
+    renderMembers();
+    renderDashboard();
+    populateTrainingMemberSelect();
+    if (typeof populateDietMemberSelect === 'function') populateDietMemberSelect();
+    renderPayments();
+  });
+  db.collection('checkins').onSnapshot(snap => {
+    const today = new Date().toISOString().split('T')[0];
+    liveCheckins = snap.docs.map(d => ({ id: d.id, ...d.data() })).filter(c => c.date === today);
+    liveCheckins.sort((a,b) => (b.time||'').localeCompare(a.time||''));
+    renderCheckins();
+    renderDashboard();
+  });
+  db.collection('payments').onSnapshot(snap => {
+    snap.docs.forEach(d => { paymentData[d.id] = d.data(); });
+    renderPayments();
+  });
+}
+
+async function saveTrainingPlan() {
+  if (!selectedTrainingMemberId) { showToast('Select a member first!', '⚠️'); return; }
+  syncExercisesFromDOM();
+  DAYS.forEach(d => { if (trainingPlan[d]) trainingPlan[d] = trainingPlan[d].filter(ex => ex.name && ex.name.trim()); });
+  const member = liveMembers.find(m => m.id === selectedTrainingMemberId);
+  try {
+    await db.collection('trainingPlans').doc(selectedTrainingMemberId).set({
+      memberId: selectedTrainingMemberId,
+      memberName: member ? member.name : '',
+      plan: trainingPlan,
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    showToast('Published to ' + (member ? member.name : 'member') + "'s app! 💪", '✅');
+    renderDayTabs();
+    renderExerciseRows();
+  } catch(e) { showToast('Error: ' + e.message, '❌'); }
 }
 </script>
 </body>
