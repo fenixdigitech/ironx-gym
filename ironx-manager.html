@@ -1364,6 +1364,15 @@ let selectedDietMemberId = null;
 let selectedMealIndex = 0;
 let dietPlan = {};
 
+function populateTrainingMemberSelect() {
+  const sel = document.getElementById('trainingMemberSelect');
+  if (!sel) return;
+  sel.innerHTML = '<option value="">-- Choose a member --</option>';
+  liveMembers.forEach(m => {
+    sel.innerHTML += `<option value="${m.id}">${m.name} (${m.plan})</option>`;
+  });
+}
+
 function populateDietMemberSelect() {
   const sel = document.getElementById('dietMemberSelect');
   if (!sel) return;
